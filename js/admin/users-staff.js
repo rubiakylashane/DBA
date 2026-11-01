@@ -85,6 +85,12 @@
     else { const on = b.dataset.act === "deactivate"; $("st-title").textContent = on ? "Deactivate account" : "Activate account"; $("st-sub").textContent = on ? current.username + " will not be able to sign in until you activate the account again." : current.username + " will be able to sign in again."; $("st-ok").textContent = on ? "Deactivate" : "Activate"; $("st-ok").className = "btn " + (on ? "btn-danger" : "btn-primary"); $("st-ok").dataset.to = on ? "inactive" : "active"; stDlg.showModal(); }
   });
 
+  /* In backend mode the real accounts are in `all` (loaded from the server), not in localStorage, so check there and ignore the account being edited. */
+  const emailUsedByOther = (email) => {
+    const em = String(email).trim().toLowerCase();
+    if (backend) return all.some((u) => String(u.id) !== String(current.id) && u.email && String(u.email).trim().toLowerCase() === em);
+    return A.emailTaken(email, current.id);
+  };
   const edErr = (k, m) => { const e = $("ed-err-" + k); e.textContent = m || ""; e.hidden = !m; $("ed-" + k).setAttribute("aria-invalid", m ? "true" : "false"); };
   ["name", "phone", "email"].forEach((k) => $("ed-" + k).addEventListener("input", () => edErr(k, "")));
   $("ed-cancel").addEventListener("click", () => edDlg.close());
@@ -92,7 +98,7 @@
     const v = { name: $("ed-name").value.trim().replace(/\s+/g, " "), phone: $("ed-phone").value.replace(/[\s-]/g, ""), email: $("ed-email").value.trim() }, e = {};
     if (!v.name) e.name = "Enter the full name."; else if (!A.validName(v.name)) e.name = "Use letters only.";
     if (!v.phone) e.phone = "Enter the phone number."; else if (!A.validPhone(v.phone)) e.phone = "Use a mobile number like 09XXXXXXXXX.";
-    if (!v.email) e.email = "Enter the email address."; else if (!A.validEmail(v.email)) e.email = "Enter a valid email address."; else if (A.emailTaken(v.email, current.id)) e.email = "This email is already used by another account.";
+    if (!v.email) e.email = "Enter the email address."; else if (!A.validEmail(v.email)) e.email = "Enter a valid email address."; else if (emailUsedByOther(v.email)) e.email = "This email is already used by another account.";
     ["name", "phone", "email"].forEach((k) => edErr(k, e[k]));
     const bad = ["name", "phone", "email"].find((k) => e[k]); if (bad) { $("ed-" + bad).focus(); return; }
     if (backend) {

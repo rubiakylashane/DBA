@@ -26,6 +26,7 @@
   function priceLine(l) {
     const qty = Number(l.qty) || 1, id = String(l.id || ""), [base, opt] = id.split(":");
     if (backend && Number.isFinite(Number(l.price))) return { name: String(l.name || "Other"), amount: Number(l.price) * (Number(l.quantity) || qty) };
+    if (!backend && Number.isFinite(Number(l.unit))) return { name: String(l.name || "Other").split(" (")[0], amount: Number(l.unit) * qty };   // price saved when it was booked, so later price changes do not rewrite past revenue
     let svc = CAT.find((s) => s.id === base);
     if (!svc) { const n = String(l.name || "").split(" (")[0].toLowerCase(); svc = CAT.find((s) => String(s.name).toLowerCase() === n); }
     if (!svc) return { name: String(l.name || "Other").split(" (")[0], amount: (Number(l.unit) || (Number(l.price) || 0) / qty) * qty };

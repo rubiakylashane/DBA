@@ -570,22 +570,26 @@ router.post('/vet/appointments/:id/complete', authenticate, authorize('Veterinar
         error.status = 400;
         throw error;
       }
-      await client.query(
+      const savedPrescription = await client.query(
         `INSERT INTO prescription (record_id, medication_name, dosage, instructions, quantity)
-         VALUES ($1, $2, $3, $4, $5)`,
+         VALUES ($1, $2, $3, $4, $5)
+         RETURNING prescription_id`,
         [record.rows[0].record_id, medication, dosage, instructions, quantity]
       );
+      await writeAudit(client, req.user.userId, 'INSERT', 'prescription', savedPrescription.rows[0].prescription_id, `Added prescription for ${medication} for ${appt.pet_name}.`);
     }
     await client.query('DELETE FROM vaccination WHERE appointment_id = $1', [appointmentId]);
     for (const vaccine of req.body.vaccines || []) {
       const name = requiredString(vaccine.name, 'Vaccine', 100);
       const due = validDate(vaccine.nextDue, 'Vaccine next due date');
-      await client.query(
+      const savedVaccine = await client.query(
         `INSERT INTO vaccination
            (pet_id, veterinarian_id, vaccine_type, date_administered, next_due_date, administered_by, appointment_id)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         RETURNING vaccination_id`,
         [appt.pet_id, appt.veterinarian_id, name, appt.appointment_date, due, appt.veterinarian_name, appointmentId]
       );
+      await writeAudit(client, req.user.userId, 'INSERT', 'vaccination', savedVaccine.rows[0].vaccination_id, `Recorded ${name} vaccination for ${appt.pet_name}.`);
     }
     await client.query(
       `UPDATE appointment SET status = 'Completed', updated_date = CURRENT_TIMESTAMP

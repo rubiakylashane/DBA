@@ -177,6 +177,7 @@
     try { localStorage.setItem(rk, JSON.stringify(rec)); localStorage.setItem(vk, JSON.stringify(vx)); } catch (_) { return err("Could not save. Storage is blocked."); }
     window.PawOwners.audit(old ? "update" : "create", "medical_record", (old ? "Updated" : "Added") + " the medical record of " + V.petName(a) + ".");
     if (rx.length) window.PawOwners.audit(old ? "update" : "create", "prescription", (old ? "Updated" : "Added") + " " + rx.length + " prescription" + (rx.length === 1 ? "" : "s") + " for " + V.petName(a) + ": " + rx.map((r) => r.medication).join(", ") + ".");
+    vaccinations.forEach((g) => window.PawOwners.audit("create", "vaccination", "Recorded " + g.vaccine + " vaccination for " + V.petName(a) + "."));
     A.notify(a.owner, "record", old ? "Medical record updated" : "Medical record added", V.petName(a) + "'s medical record is ready. See Medical Records for the details.");
     if (vaccinations.length) A.notify(a.owner, "record", "Vaccination recorded", vaccinations.map((b) => b.vaccine).join(", ") + " given to " + V.petName(a) + ". See Vaccination History for the next due date.");
     closeEditor(); S.toast("Record saved for " + V.petName(a) + ".");

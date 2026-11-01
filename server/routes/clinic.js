@@ -93,10 +93,10 @@ const APPOINTMENT_SELECT = `
       SELECT json_agg(json_build_object(
                'id', sv.service_id,
                'name', sv.service_name,
-               'price', sv.price,
+               'price', COALESCE(aps.unit_price, sv.price),
                'quantity', aps.quantity
              ) ORDER BY sv.service_name) AS services,
-             SUM(sv.price * aps.quantity) AS total
+             SUM(COALESCE(aps.unit_price, sv.price) * aps.quantity) AS total
         FROM appointment_service aps
         JOIN service sv ON sv.service_id = aps.service_id
        WHERE aps.appointment_id = a.appointment_id
@@ -834,7 +834,7 @@ router.patch(['/services/:id', '/admin/services/:id'], authorize('Admin'), async
   try {
     await client.query('BEGIN');
     const current = await client.query(
-      'SELECT service_name, description FROM service WHERE service_id = $1 FOR UPDATE',
+      'SELECT service_name, description, price FROM service WHERE service_id = $1 FOR UPDATE',
       [id]
     );
     if (!current.rows[0]) {
@@ -856,6 +856,17 @@ router.patch(['/services/:id', '/admin/services/:id'], authorize('Admin'), async
         RETURNING service_id AS id, service_name AS name, price, description`,
       [id, req.body.name || null, price, storedDescription]
     );
+    /* A new price applies to current and upcoming appointments only. Completed, cancelled, no-show and past-dated appointments keep the price they were booked at. */
+    if (price !== null && Number(before.price) !== price) {
+      await client.query(
+        `UPDATE appointment_service aps SET unit_price = $2
+           FROM appointment a
+          WHERE aps.appointment_id = a.appointment_id AND aps.service_id = $1
+            AND a.appointment_date >= CURRENT_DATE
+            AND a.status IN ('Pending', 'Scheduled', 'Approved', 'Checked-in', 'In Progress')`,
+        [id, price]
+      );
+    }
     await audit(client, req.user.userId, 'UPDATE', 'service', id,
       `${inactive && !wasInactive ? 'Deactivated' : !inactive && wasInactive ? 'Activated' : 'Updated'} service ${result.rows[0].name}.`);
     await client.query('COMMIT');
@@ -1035,8 +1046,8 @@ router.post('/appointments', authorize('Admin', 'Staff', 'Pet Owner'), asyncRout
         return res.status(400).json({ error: 'An appointment service is unavailable.' });
       }
       await client.query(
-        `INSERT INTO appointment_service (appointment_id, service_id, quantity)
-         VALUES ($1, $2, $3)`,
+        `INSERT INTO appointment_service (appointment_id, service_id, quantity, unit_price)
+         SELECT $1::int, service_id, $3::int, price FROM service WHERE service_id = $2::int`,
         [appointmentId, serviceId, quantity]
       );
     }
@@ -1198,7 +1209,7 @@ router.patch('/appointments/:id', authorize('Admin', 'Staff', 'Veterinarian', 'P
     );
     if (dbStatus === 'Completed' && before.status !== 'Completed') {
       /* vaccine services of a completed visit go into the vaccination history with a next due date (the vet can edit them in the medical record) */
-      await client.query(
+      const autoVaccines = await client.query(
         `INSERT INTO vaccination
            (pet_id, veterinarian_id, vaccine_type, date_administered, next_due_date, administered_by, appointment_id)
          SELECT a.pet_id, a.veterinarian_id, regexp_replace(sv.service_name, '^Vaccin(e|ation):\\s*', ''),
@@ -1210,9 +1221,13 @@ router.patch('/appointments/:id', authorize('Admin', 'Staff', 'Veterinarian', 'P
            JOIN service sv ON sv.service_id = aps.service_id
            LEFT JOIN veterinarian vt ON vt.veterinarian_id = a.veterinarian_id
           WHERE a.appointment_id = $1 AND sv.service_name ILIKE '%vaccin%'
-            AND NOT EXISTS (SELECT 1 FROM vaccination x WHERE x.appointment_id = a.appointment_id)`,
+            AND NOT EXISTS (SELECT 1 FROM vaccination x WHERE x.appointment_id = a.appointment_id)
+         RETURNING vaccination_id, vaccine_type`,
         [id]
       );
+      for (const vx of autoVaccines.rows) {
+        await audit(client, req.user.userId, 'INSERT', 'vaccination', vx.vaccination_id, `Recorded ${vx.vaccine_type} vaccination for ${before.pet_name}.`);
+      }
     }
     const statusChanged = status !== undefined && dbStatus !== before.status;
     const overrideReason = String(req.body.overrideReason || '').trim().slice(0, 200);
@@ -1406,6 +1421,7 @@ router.put('/appointments/:id/record', authorize('Veterinarian'), asyncRoute(asy
       [appointmentId, diagnosis, req.body.treatment || null, req.body.notes || null, date]
     );
     const recordId = record.rows[0].record_id;
+    const hadPrescriptions = (await client.query('SELECT 1 FROM prescription WHERE record_id = $1 LIMIT 1', [recordId])).rowCount > 0;
     await client.query('DELETE FROM prescription WHERE record_id = $1', [recordId]);
     const prescriptions = [];
     for (const prescription of req.body.prescriptions) {
@@ -1422,17 +1438,23 @@ router.put('/appointments/:id/record', authorize('Veterinarian'), asyncRoute(asy
         [recordId, medication, dosage, instructions, quantity]
       );
       prescriptions.push(saved.rows[0]);
+      await audit(client, req.user.userId, hadPrescriptions ? 'UPDATE' : 'INSERT', 'prescription', saved.rows[0].id,
+        `${hadPrescriptions ? 'Updated' : 'Added'} prescription for ${medication} for ${assigned.rows[0].pet_name}.`);
     }
     if (vaccines !== null) {
+      const hadVaccinations = (await client.query('SELECT 1 FROM vaccination WHERE appointment_id = $1 LIMIT 1', [appointmentId])).rowCount > 0;
       await client.query('DELETE FROM vaccination WHERE appointment_id = $1', [appointmentId]);
       for (const vaccine of vaccines) {
-        await client.query(
+        const savedVaccine = await client.query(
           `INSERT INTO vaccination
              (pet_id, veterinarian_id, vaccine_type, date_administered, next_due_date, administered_by, appointment_id)
-           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+           VALUES ($1, $2, $3, $4, $5, $6, $7)
+           RETURNING vaccination_id`,
           [assigned.rows[0].pet_id, assigned.rows[0].veterinarian_id, String(vaccine.name).trim(),
            vaccine.dateAdministered, vaccine.nextDue || null, assigned.rows[0].veterinarian_name, appointmentId]
         );
+        await audit(client, req.user.userId, hadVaccinations ? 'UPDATE' : 'INSERT', 'vaccination', savedVaccine.rows[0].vaccination_id,
+          `${hadVaccinations ? 'Updated' : 'Recorded'} ${String(vaccine.name).trim()} vaccination for ${assigned.rows[0].pet_name}.`);
       }
       if (vaccines.length) {
         await client.query(

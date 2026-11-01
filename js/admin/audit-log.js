@@ -26,7 +26,9 @@
     }
     const low = details.toLowerCase();
     /* there is no delete in the clinic: turning an account / record off is a "deactivate" (old "delete" entries and "Deactivated ..." sentences land here too) */
-    let action = e.action === "delete" ? "deactivate" : ACTIONS[e.action] ? e.action : /^(regist|add|creat|book|request)/.test(low) ? "create" : /^(delet|remov|deactivat)/.test(low) ? "deactivate" : "update";
+    /* the server stores a creation as INSERT (sent as "insert"); this page calls it "create" */
+    const given = String(e.action || "").toLowerCase(), act = given === "insert" ? "create" : given;
+    let action = act === "delete" ? "deactivate" : ACTIONS[act] ? act : /^(regist|add|creat|book|request|record)/.test(low) ? "create" : /^(delet|remov|deactivat)/.test(low) ? "deactivate" : "update";
     if (action === "update" && /\bdeactivat/.test(low)) action = "deactivate";
     const record = e.record || (/veterinarian/.test(low) ? "veterinarian" : /appointment/.test(low) ? "appointment" : /\bpet\b/.test(low) ? "pet" : /owner/.test(low) ? "owner" : /service/.test(low) ? "service" : "user");
     const role = String(e.role || (String(user).toLowerCase() === "admin" ? "admin" : "")).toLowerCase();
@@ -141,14 +143,34 @@
     if (/^[=+\-@\t\r]/.test(t)) t = "'" + t;                       // stops Excel from running a cell as a formula
     return '"' + t.replace(/"/g, '""') + '"';
   };
+  /* what the export is about, taken from the filters that are on: "Audit Log for Owner", "Audit Log for Pet - Update", ... */
+  function exportInfo() {
+    const sel = (id) => { const el = $(id); return el.value ? el.options[el.selectedIndex].textContent.trim() : ""; };
+    const rec = sel("f-record"), act = sel("f-action"), who = sel("f-user"), from = $("f-from").value, to = $("f-to").value;
+    let title = rec ? "Audit Log for " + rec : "Audit Log for All Records";
+    if (act) title += " - " + act;
+    if (who) title += " - " + who;
+    if (from || to) title += " (" + (from || "start") + " to " + (to || "today") + ")";
+    const filters = [rec && "Record type: " + rec, act && "Action: " + act, who && "User: " + who, from && "From: " + from, to && "To: " + to].filter(Boolean);
+    return { title, filters: filters.length ? filters.join("; ") : "None (all entries)" };
+  }
   $("export-btn").addEventListener("click", () => {
     const rows = filtered();
     if (!rows.length) return S.toast("Nothing to export with these filters.");
-    const lines = [["Timestamp", "User", "Role", "Action", "Record type", "Details"].map(cell).join(",")];
+    const info = exportInfo();
+    /* title lines on top, then a blank line, then the table, so sorting / filtering the table in Excel still works */
+    const lines = [
+      cell(info.title),
+      cell("Filters: " + info.filters),
+      cell("Exported: " + fmtDate(Date.now()) + " " + fmtTime(Date.now()) + " | Entries: " + rows.length),
+      "",
+      ["Timestamp", "User", "Role", "Action", "Record type", "Details"].map(cell).join(",")
+    ];
     rows.forEach((e) => lines.push([fmtDate(e.t) + " " + fmtTime(e.t), e.user, ROLE[e.role] || e.role, ACTIONS[e.action], recLabel(e.record), e.details].map(cell).join(",")));
-    const blob = new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+    const blob = new Blob(["\ufeff" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob); a.download = "audit-log-" + dayOf(Date.now()) + ".csv";
+    const fileName = (info.title + " - " + dayOf(Date.now())).replace(/[\\/:*?"<>|]+/g, "").replace(/\s+/g, " ").trim();
+    a.href = URL.createObjectURL(blob); a.download = fileName + ".csv";
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     S.toast("Exported " + rows.length + (rows.length === 1 ? " entry." : " entries."));

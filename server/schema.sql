@@ -243,6 +243,24 @@ ALTER TABLE APPOINTMENT DROP CONSTRAINT IF EXISTS chk_appointment_status;
 ALTER TABLE APPOINTMENT ADD CONSTRAINT chk_appointment_status
     CHECK (status IN ('Pending', 'Scheduled', 'Approved', 'Checked-in', 'In Progress', 'Completed', 'Cancelled', 'No-show'));
 
+-- Each appointment keeps the price it was booked at, so changing a service price later does not rewrite past appointments or records.
+ALTER TABLE APPOINTMENT_SERVICE ADD COLUMN IF NOT EXISTS unit_price NUMERIC(10,2) CHECK (unit_price >= 0);
+-- One-time fill for rows created before this column existed (only rows that have no price yet; run this BEFORE changing any service price).
+UPDATE APPOINTMENT_SERVICE aps SET unit_price = sv.price
+  FROM SERVICE sv WHERE sv.service_id = aps.service_id AND aps.unit_price IS NULL;
+-- Any new appointment line without an explicit price gets the service's price at that moment.
+CREATE OR REPLACE FUNCTION set_appointment_service_price() RETURNS trigger AS $$
+BEGIN
+  IF NEW.unit_price IS NULL THEN
+    SELECT price INTO NEW.unit_price FROM SERVICE WHERE service_id = NEW.service_id;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+DROP TRIGGER IF EXISTS trg_appointment_service_price ON APPOINTMENT_SERVICE;
+CREATE TRIGGER trg_appointment_service_price BEFORE INSERT ON APPOINTMENT_SERVICE
+  FOR EACH ROW EXECUTE FUNCTION set_appointment_service_price();
+
 -- Older databases may have a VACCINATION table without these columns; add them so vaccinations can be saved.
 ALTER TABLE VACCINATION ADD COLUMN IF NOT EXISTS veterinarian_id INT REFERENCES VETERINARIAN(veterinarian_id) ON DELETE RESTRICT;
 ALTER TABLE VACCINATION ADD COLUMN IF NOT EXISTS notes TEXT;

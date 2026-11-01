@@ -127,6 +127,7 @@
       });
     } else {
       const d = read(owner); d[kind === "v" ? "visits" : "prescriptions"].push(rec); write(owner, d);
+      try { O.audit("create", kind === "v" ? "medical_record" : "prescription", kind === "v" ? "Added a visit record for " + (rec.pet || "a pet") + "." : "Added prescription for " + (rec.medication || "a medication") + " for " + (rec.pet || "a pet") + "."); } catch (_) { /* audit is best effort */ }
     }
     await load(); render();
   }
