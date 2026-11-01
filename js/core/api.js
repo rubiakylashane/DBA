@@ -42,7 +42,11 @@
     for (const owner of data) {
       const key = String(owner.id);
       statuses[key] = owner.account_status === "Inactive" ? "inactive" : "active";
+      /* use the saved first / middle / last name only while they still add up to the owner's name (so "Dela Cruz" stays one surname) */
+      const joined = [owner.first_name, owner.middle_name, owner.last_name].filter(Boolean).join(" ");
+      const split = joined && joined === owner.name ? { firstName: owner.first_name || "", middleName: owner.middle_name || "", lastName: owner.last_name || "" } : {};
       localStorage.setItem("pawpaw_profile:" + key, JSON.stringify({
+        ...split,
         name: owner.name,
         email: owner.email || "",
         phone: owner.phone || "",

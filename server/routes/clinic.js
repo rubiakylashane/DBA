@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const db = require('../config/db');
 const { authenticate, authorize } = require('../middleware/auth');
 const { asyncRoute, notFound, requiredString } = require('../utils/http');
-const { requireStrongPassword } = require('../utils/password');
+const { requireStrongPassword, requireTemporaryPassword } = require('../utils/password');
 
 /* Diagnosis is only required for clinical visits (consultation, laboratory, dental). Vaccination, deworming and grooming visits may leave it blank. */
 async function resolveDiagnosis(queryable, appointmentId, value) {
@@ -471,7 +471,7 @@ router.get('/owners', authorize('Admin', 'Staff', 'Veterinarian', 'Pet Owner'), 
     where = 'WHERE o.user_id = $1';
   }
   const owners = await db.query(
-    `SELECT o.owner_id AS id, o.owner_id, o.user_id, o.name, o.email, o.phone, o.address,
+    `SELECT o.owner_id AS id, o.owner_id, o.user_id, o.name, o.first_name, o.middle_name, o.last_name, o.email, o.phone, o.address,
             o.registration_date, o.photo AS profile_photo,
             COALESCE(u.account_status, 'Active') AS account_status
        FROM owner o
@@ -498,20 +498,103 @@ router.get('/owners', authorize('Admin', 'Staff', 'Veterinarian', 'Pet Owner'), 
   return res.json(owners.rows.map((owner) => ({ ...owner, pets: grouped.get(owner.id) || [] })));
 }));
 
+/* Walk-in registration (staff or admin): the owner record, an optional login account with a TEMPORARY password
+   (lighter rule than normal passwords: 6+ characters with letters), and an optional first pet - all in one transaction.
+   Without a password only the owner record is created (old behaviour). */
 router.post('/owners', authorize('Admin', 'Staff'), asyncRoute(async (req, res) => {
-  const name = requiredString(req.body.name, 'Name', 100);
+  const clean = (v) => String(v || '').trim().replace(/\s+/g, ' ');
+  const first = clean(req.body.firstName || req.body.first);
+  const middle = clean(req.body.middleName || req.body.middle);
+  const last = clean(req.body.lastName || req.body.last);
+  const name = requiredString(req.body.name || [first, middle, last].filter(Boolean).join(' '), 'Name', 100);
+  const email = String(req.body.email || '').trim().toLowerCase() || null;
+  const phone = String(req.body.phone || '').trim() || null;
+  const address = String(req.body.address || '').trim() || null;
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Enter a valid email address.' });
+  if (phone && !/^(09\d{9}|\+639\d{9})$/.test(phone.replace(/[\s-]/g, ''))) return res.status(400).json({ error: 'Use a mobile number like 09XXXXXXXXX.' });
+
+  const rawPassword = req.body.password === undefined ? req.body.temporaryPassword : req.body.password;
+  const makeAccount = rawPassword !== undefined && rawPassword !== null && String(rawPassword) !== '';
+  let username = null;
+  if (makeAccount) {
+    requireTemporaryPassword(String(rawPassword));
+    username = String(req.body.username || '').trim().toLowerCase();
+    if (!username) return res.status(400).json({ error: 'Enter a username for the owner account.' });
+    if (!/^[a-z0-9._-]{3,50}$/.test(username)) {
+      return res.status(400).json({ error: 'Username must be 3-50 characters: letters, numbers, dot, dash or underscore.' });
+    }
+  }
+
+  /* optional first pet (same rules as POST /owners/:id/pets) */
+  let pet = null;
+  const petIn = req.body.pet && typeof req.body.pet === 'object' ? req.body.pet : null;
+  if (petIn && String(petIn.name || '').trim()) {
+    const gender = petIn.gender == null || petIn.gender === '' ? null : requiredString(petIn.gender, 'Gender', 10);
+    if (gender && !['Male', 'Female', 'Unknown'].includes(gender)) {
+      return res.status(400).json({ error: 'Gender must be Male, Female, or Unknown.' });
+    }
+    const dateOfBirth = petIn.dateOfBirth || null;
+    if (dateOfBirth !== null && !validAppointmentDate(String(dateOfBirth))) {
+      return res.status(400).json({ error: 'Date of birth must be a valid YYYY-MM-DD date.' });
+    }
+    if (dateOfBirth) {
+      const currentDate = await db.query('SELECT CURRENT_DATE::text AS today');
+      if (dateOfBirth > currentDate.rows[0].today) return res.status(400).json({ error: 'Date of birth cannot be in the future.' });
+    }
+    pet = {
+      name: requiredString(petIn.name, 'Pet name', 100),
+      species: requiredString(petIn.species, 'Species', 50),
+      breed: petIn.breed == null || petIn.breed === '' ? null : requiredString(petIn.breed, 'Breed', 50),
+      gender, dateOfBirth,
+      allergies: petIn.allergies || null, notes: petIn.notes || null, photo: petIn.photo || null
+    };
+  }
+
   const client = await db.connect();
   try {
     await client.query('BEGIN');
+    if (email) {
+      const taken = await client.query(
+        `SELECT 1 FROM owner WHERE lower(email) = $1 UNION ALL SELECT 1 FROM user_account WHERE lower(email) = $1 LIMIT 1`,
+        [email]
+      );
+      if (taken.rowCount) { await client.query('ROLLBACK'); return res.status(409).json({ error: 'That email address is already registered.' }); }
+    }
+    let userId = null;
+    if (makeAccount) {
+      const taken = await client.query('SELECT 1 FROM user_account WHERE lower(username) = $1', [username]);
+      if (taken.rowCount) { await client.query('ROLLBACK'); return res.status(409).json({ error: 'That username is already taken.' }); }
+      const account = await client.query(
+        `INSERT INTO user_account (username, password_hash, role, email, phone, display_name)
+         VALUES ($1, $2, 'Pet Owner', $3, $4, $5)
+         RETURNING user_id`,
+        [username, await bcrypt.hash(String(rawPassword), 12), email, phone, name]
+      );
+      userId = account.rows[0].user_id;
+      await audit(client, req.user.userId, 'INSERT', 'user_account', userId, `Created Pet Owner account ${username} (walk-in).`);
+    }
     const result = await client.query(
-      `INSERT INTO owner (name, email, phone, address)
-       VALUES ($1, $2, $3, $4)
-       RETURNING owner_id AS id, owner_id, name, email, phone, address, registration_date`,
-      [name, req.body.email || null, req.body.phone || null, req.body.address || null]
+      `INSERT INTO owner (user_id, name, first_name, middle_name, last_name, email, phone, address)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       RETURNING owner_id AS id, owner_id, user_id, name, email, phone, address, registration_date`,
+      [userId, name, first || null, middle || null, last || null, email, phone, address]
     );
-    await audit(client, req.user.userId, 'INSERT', 'owner', result.rows[0].id, `Registered owner ${name}.`);
+    const ownerId = result.rows[0].id;
+    await audit(client, req.user.userId, 'INSERT', 'owner', ownerId, `Registered walk-in owner ${name}.`);
+    const pets = [];
+    if (pet) {
+      const added = await client.query(
+        `INSERT INTO pet (owner_id, name, species, breed, date_of_birth, gender, allergies, notes, photo)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+         RETURNING pet_id AS id, pet_id, owner_id, name, species, breed, date_of_birth, gender, allergies, notes, photo,
+                   pet_status = 'Active' AS is_active, lower(pet_status) AS status`,
+        [ownerId, pet.name, pet.species, pet.breed, pet.dateOfBirth, pet.gender, pet.allergies, pet.notes, pet.photo]
+      );
+      pets.push(added.rows[0]);
+      await audit(client, req.user.userId, 'INSERT', 'pet', added.rows[0].id, `Added pet ${pet.name} for ${name}.`);
+    }
     await client.query('COMMIT');
-    return res.status(201).json({ ...result.rows[0], pets: [] });
+    return res.status(201).json({ ...result.rows[0], username, hasAccount: Boolean(userId), pets });
   } catch (error) {
     await client.query('ROLLBACK');
     throw error;
@@ -527,7 +610,7 @@ router.get('/owners/:id', authorize('Admin', 'Staff', 'Veterinarian', 'Pet Owner
     if (!own.rows[0] || own.rows[0].owner_id !== id) return res.status(403).json({ error: 'You can only view your own profile.' });
   }
   const result = await db.query(
-    `SELECT o.owner_id AS id, o.owner_id, o.user_id, o.name, o.email, o.phone, o.address,
+    `SELECT o.owner_id AS id, o.owner_id, o.user_id, o.name, o.first_name, o.middle_name, o.last_name, o.email, o.phone, o.address,
             o.registration_date, o.photo AS profile_photo,
             COALESCE(u.account_status, 'Active') AS account_status
        FROM owner o LEFT JOIN user_account u ON u.user_id = o.user_id

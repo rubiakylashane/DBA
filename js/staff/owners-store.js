@@ -82,18 +82,40 @@ window.PawOwners = (() => {
     if (!quiet) audit("update", "owner", "Updated owner " + (patch.name || name || key) + ".");
   }
 
-  /* walk-in owner registered by staff */
-  function createWalkin({ first, middle, last, phone, email }) {
-    const key = "walkin-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  /* walk-in owner registered by staff (or admin).
+     With a username the owner also gets an account: the profile is saved under the username, the same way an account made in
+     Users and Staff is, so the admin Users list, Owners and Pets and the Audit Log all show it. Passwords are never saved here
+     (the backend hashes the temporary password). An optional first pet is added to the owner. */
+  function createWalkin({ first, middle, last, phone, email, username, pet }) {
+    const un = String(username || "").trim().toLowerCase();
+    const key = un || "walkin-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
     const w = read(WALK, []); w.push({ key }); write(WALK, w);
     const full = [first, middle, last].filter(Boolean).join(" ");
     audit("create", "owner", "Registered walk-in owner " + full + ".");
+    if (un) audit("create", "user", "Created Pet Owner account " + un + " (walk-in).");
     saveProfile(key, {
       name: full,
       firstName: first, middleName: middle, lastName: last,
-      phone, email, address: "", photo: "", memberSince: today(), walkIn: true
+      phone, email, address: "", photo: "", memberSince: today(), walkIn: true, ...(un ? { username: un } : {})
     }, true);
+    if (pet && pet.name) addPet(key, pet);
     return key;
+  }
+
+  /* username already used by an owner, a walk-in, a staff / vet / admin account or a reserved demo name */
+  function usernameTaken(username) {
+    const un = String(username || "").trim().toLowerCase();
+    if (!un) return false;
+    if (STAFF_NAMES.includes(un) || keys().includes(un)) return true;
+    const users = read("pawpaw_users", []);
+    return Array.isArray(users) && users.some((u) => u && String(u.username || "").toLowerCase() === un);
+  }
+  function emailTaken(email) {
+    const e = String(email || "").trim().toLowerCase();
+    if (!e) return false;
+    if (keys().some((k) => String((read(PROF + k, {}) || {}).email || "").toLowerCase() === e)) return true;
+    const users = read("pawpaw_users", []);
+    return Array.isArray(users) && users.some((u) => u && String(u.email || "").toLowerCase() === e);
   }
 
   /* ----- pets of one owner ----- */
@@ -148,6 +170,11 @@ window.PawOwners = (() => {
   /* Philippine mobile: 09XXXXXXXXX or +639XXXXXXXXX */
   const validPhone = (s) => /^(09\d{9}|\+639\d{9})$/.test(String(s).replace(/[\s-]/g, ""));
   const validEmail = (s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+  /* Temporary password for a walk-in owner: deliberately NOT the strong password rule.
+     At least 6 characters, must contain letters (text), no spaces. Numbers / symbols / upper-lower mix are optional. */
+  const TEMP_PASSWORD_RULE = "Use at least 6 characters with letters. Numbers and symbols are optional.";
+  const tempPasswordProblem = (s) => { const p = String(s || ""); return p.length >= 6 && p.length <= 100 && !/\s/.test(p) && /[A-Za-z]/.test(p) ? "" : TEMP_PASSWORD_RULE; };
+  const validUsername = (s) => /^[a-z0-9._-]{3,50}$/.test(String(s || "").trim().toLowerCase());
 
   const setFlash = (msg) => { try { sessionStorage.setItem("pawpaw_flash", msg); } catch (_) { /* ignore */ } };
   function takeFlash() {
@@ -156,5 +183,6 @@ window.PawOwners = (() => {
   }
 
   return { audit, list, owner, exists, saveProfile, createWalkin, petsOf, getPet, addPet, updatePet,
-           esc, fmtLong, fmtShort, ageText, validPhone, validEmail, setFlash, takeFlash };
+           esc, fmtLong, fmtShort, ageText, validPhone, validEmail, setFlash, takeFlash,
+           TEMP_PASSWORD_RULE, tempPasswordProblem, validUsername, usernameTaken, emailTaken };
 })();

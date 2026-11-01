@@ -1,0 +1,26 @@
+/* css/pages/staff/walkin.css - Register Walk-Ins form (shared by the staff and admin pages). Load after owners.css. */
+.sdash .own-walkin { max-width: 760px; padding: 30px 44px 34px; }
+.sdash .wi-section { margin: 0 0 6px; padding: 0; border: 0; }
+.sdash .wi-section + .wi-section { margin-top: 22px; padding-top: 20px; border-top: 1px solid #e3e3e3; }
+.sdash .wi-section > h2 { margin: 0 0 4px; font-size: 18px; letter-spacing: -0.02em; }
+.sdash .wi-note { margin: 0 0 14px; font-size: 12.5px; color: #555; }
+.sdash .wi-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 20px; }
+.sdash .wi-grid .wi-full { grid-column: 1 / -1; }
+.sdash .own-walkin .of-field { margin-bottom: 14px; min-width: 0; }
+.sdash .own-walkin .of-field > label { margin-bottom: 6px; font-size: 13px; }
+.sdash .own-walkin .of-field input[type="text"], .sdash .own-walkin .of-field input[type="email"],
+.sdash .own-walkin .of-field input[type="password"], .sdash .own-walkin .of-field input[type="date"],
+.sdash .own-walkin .of-field select { height: 42px; }
+.sdash .own-walkin .of-field input[type="date"], .sdash .own-walkin .of-field select {
+  display: block; width: 100%; padding: 0 12px; font: inherit; font-size: 15px; color: #111; background: #fff;
+  border: 1px solid #555; border-radius: 8px;
+}
+.sdash .own-walkin .of-field select:focus-visible, .sdash .own-walkin .of-field input[type="date"]:focus-visible {
+  outline: 3px solid rgba(15, 107, 92, .35); outline-offset: 1px; border-color: #0f6b5c;
+}
+.sdash .own-walkin .of-pass input { padding-right: 44px; }
+.sdash .own-walkin .of-hint { margin: 6px 0 0; font-size: 12px; color: #555; }
+@media (max-width: 640px) {
+  .sdash .own-walkin { padding: 22px 18px 26px; }
+  .sdash .wi-grid { grid-template-columns: minmax(0, 1fr); }
+}

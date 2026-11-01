@@ -9,6 +9,16 @@ function passwordProblem(value) {
   return '';
 }
 
+/* Temporary password that staff / admin hand to a walk-in owner. Deliberately lighter than PASSWORD_RULE:
+   at least 6 characters and it must contain letters (text); numbers and symbols are optional, no upper/lower mix required; no spaces. */
+const TEMP_PASSWORD_RULE = 'Temporary password must be at least 6 characters, contain letters, and have no spaces. Numbers and symbols are optional.';
+
+function temporaryPasswordProblem(value) {
+  const p = String(value ?? '');
+  if (p.length < 6 || p.length > 100 || /\s/.test(p) || !/[A-Za-z]/.test(p)) return TEMP_PASSWORD_RULE;
+  return '';
+}
+
 /* throws a 400 the error handler understands */
 function requireStrongPassword(value) {
   const problem = passwordProblem(value);
@@ -16,4 +26,10 @@ function requireStrongPassword(value) {
   return value;
 }
 
-module.exports = { PASSWORD_RULE, passwordProblem, requireStrongPassword };
+function requireTemporaryPassword(value) {
+  const problem = temporaryPasswordProblem(value);
+  if (problem) throw Object.assign(new Error(problem), { status: 400 });
+  return value;
+}
+
+module.exports = { PASSWORD_RULE, passwordProblem, requireStrongPassword, TEMP_PASSWORD_RULE, temporaryPasswordProblem, requireTemporaryPassword };
