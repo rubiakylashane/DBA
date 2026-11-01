@@ -64,6 +64,14 @@
 
   const cell = (label, html, cls = "") => `<span role="cell" class="${cls}" data-label="${label}">${html}</span>`;
   const dash = (s) => (s ? esc(s) : "-");
+  const shortDate = (iso) => { const d = new Date(iso + "T00:00:00"); return !iso || isNaN(d) ? "" : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); };
+  /* services performed in the visit; vaccines show the date given and the next due date */
+  function servicesHtml(r) {
+    const vax = r.vaccinations || [], names = [];
+    const out = (r.services || []).filter((s) => !/^vaccine:/i.test(s.name || "")).map((s) => `<span class="mr-svc">${esc(s.name)}${s.quantity > 1 ? " x" + esc(s.quantity) : ""}</span>`);
+    vax.forEach((v) => out.push(`<span class="mr-svc">Vaccine: ${esc(v.vaccine)}<small>Given ${esc(shortDate(v.dateAdministered))}${v.nextDue ? " · Next due " + esc(shortDate(v.nextDue)) : ""}</small></span>`));
+    return out.length ? out.join("") : (r.services || []).length ? (r.services || []).map((s) => `<span class="mr-svc">${esc(s.name)}</span>`).join("") : "-";
+  }
 
   function render() {
     if (loadError) {
@@ -76,6 +84,7 @@
           <div class="mr-row" role="row">
             ${cell("Pet", esc(r.pet), "mr-strong")}
             ${cell("Date", esc(fmtDate(r.date)), "mr-strong")}
+            ${cell("Services Performed", servicesHtml(r))}
             ${cell("Diagnosis", dash(r.diagnosis))}
             ${cell("Treatment", dash(r.treatment))}
             ${cell("Notes", dash(r.notes))}

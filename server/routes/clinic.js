@@ -4,6 +4,24 @@ const db = require('../config/db');
 const { authenticate, authorize } = require('../middleware/auth');
 const { asyncRoute, notFound, requiredString } = require('../utils/http');
 
+/* Diagnosis is only required for clinical visits (consultation, laboratory, dental). Vaccination, deworming and grooming visits may leave it blank. */
+async function resolveDiagnosis(queryable, appointmentId, value) {
+  const found = await queryable.query(
+    `SELECT COALESCE(bool_or(sv.service_name ~* '(consult|laborator|dental)'), true) AS required
+       FROM appointment a
+       LEFT JOIN appointment_service aps ON aps.appointment_id = a.appointment_id
+       LEFT JOIN service sv ON sv.service_id = aps.service_id
+      WHERE a.appointment_id = $1`,
+    [appointmentId]
+  );
+  if (found.rows[0] && found.rows[0].required === false) {
+    const text = String(value || '').trim();
+    if (text.length > 10000) throw Object.assign(new Error('Diagnosis is too long.'), { status: 400 });
+    return text || null;
+  }
+  return requiredString(value, 'Diagnosis', 10000);
+}
+
 const router = express.Router();
 const UI_ROLES = {
   'Pet Owner': 'owner',
@@ -98,6 +116,17 @@ async function notify(client, userId, type, title, message) {
     `INSERT INTO notification (user_id, notification_type, title, message)
      VALUES ($1, $2, $3, $4)`,
     [userId, type, title, message]
+  );
+}
+
+/* Staff and admin accounts had no notifications at all: tell every active Staff / Admin user (except the person who did it). */
+async function notifyStaff(client, type, title, message, exceptUserId = null) {
+  await client.query(
+    `INSERT INTO notification (user_id, notification_type, title, message)
+     SELECT user_id, $1, $2, $3 FROM user_account
+      WHERE role IN ('Staff', 'Admin') AND account_status = 'Active'
+        AND ($4::int IS NULL OR user_id <> $4::int)`,
+    [type, title, message, exceptUserId]
   );
 }
 
@@ -972,6 +1001,8 @@ router.post('/appointments', authorize('Admin', 'Staff', 'Pet Owner'), asyncRout
     const appointmentId = created.rows[0].appointment_id;
     await notify(client, pet.rows[0].user_id, 'appointment', 'Appointment requested',
       `${pet.rows[0].pet_name}'s appointment request for ${date} at ${time} was received.`);
+    await notifyStaff(client, 'appointment', req.user.role === 'Pet Owner' ? 'New appointment request' : 'New appointment booked',
+      `${pet.rows[0].pet_name} - ${date} at ${time}.${req.user.role === 'Pet Owner' ? ' Waiting for approval.' : ''}`);
     if (vetId !== null) {
       const vetAccount = await client.query('SELECT user_id FROM veterinarian WHERE veterinarian_id = $1', [vetId]);
       await notify(client, vetAccount.rows[0]?.user_id, 'appointment', 'New appointment',
@@ -1166,6 +1197,24 @@ router.patch('/appointments/:id', authorize('Admin', 'Staff', 'Veterinarian', 'P
         req.body.rescheduledFrom?.date || null,
         req.body.rescheduledFrom?.time || null]
     );
+    if (dbStatus === 'Completed' && before.status !== 'Completed') {
+      /* vaccine services of a completed visit go into the vaccination history with a next due date (the vet can edit them in the medical record) */
+      await client.query(
+        `INSERT INTO vaccination
+           (pet_id, veterinarian_id, vaccine_type, date_administered, next_due_date, administered_by, appointment_id)
+         SELECT a.pet_id, a.veterinarian_id, regexp_replace(sv.service_name, '^Vaccin(e|ation):\\s*', ''),
+                LEAST(a.appointment_date, CURRENT_DATE),
+                (LEAST(a.appointment_date, CURRENT_DATE) + INTERVAL '1 year')::date,
+                vt.name, a.appointment_id
+           FROM appointment a
+           JOIN appointment_service aps ON aps.appointment_id = a.appointment_id
+           JOIN service sv ON sv.service_id = aps.service_id
+           LEFT JOIN veterinarian vt ON vt.veterinarian_id = a.veterinarian_id
+          WHERE a.appointment_id = $1 AND sv.service_name ILIKE '%vaccin%'
+            AND NOT EXISTS (SELECT 1 FROM vaccination x WHERE x.appointment_id = a.appointment_id)`,
+        [id]
+      );
+    }
     const statusChanged = status !== undefined && dbStatus !== before.status;
     const overrideReason = String(req.body.overrideReason || '').trim().slice(0, 200);
     await audit(client, req.user.userId, 'UPDATE', 'appointment', id,
@@ -1175,6 +1224,12 @@ router.patch('/appointments/:id', authorize('Admin', 'Staff', 'Veterinarian', 'P
     if (status !== undefined || req.body.date !== undefined || req.body.time !== undefined || nextVetId !== before.veterinarian_id) {
       const message = `Appointment for ${before.pet_name} was updated to ${UI_APPOINTMENT_STATUS[dbStatus] || dbStatus} on ${nextDate} at ${nextTime}.`;
       await notify(client, before.owner_user_id, 'appointment', 'Appointment updated', message);
+      if (ownOwner || ownVet) {
+        const title = ownOwner
+          ? (requestedStatus === 'cancelled' ? 'Appointment cancelled by owner' : 'Reschedule requested')
+          : (dbStatus === 'Completed' ? 'Visit completed' : 'Appointment updated by vet');
+        await notifyStaff(client, 'appointment', title, message, req.user.userId);
+      }
       if (before.veterinarian_id && before.veterinarian_id !== nextVetId) {
         const oldVet = await client.query('SELECT user_id FROM veterinarian WHERE veterinarian_id = $1', [before.veterinarian_id]);
         await notify(client, oldVet.rows[0]?.user_id, 'appointment', 'Appointment updated', message);
@@ -1312,18 +1367,32 @@ router.get('/vet/medical-records', authorize('Veterinarian'), asyncRoute(async (
 router.put('/appointments/:id/record', authorize('Veterinarian'), asyncRoute(async (req, res) => {
   const appointmentId = Number(req.params.id);
   if (!Number.isInteger(appointmentId) || appointmentId < 1) return res.status(400).json({ error: 'Invalid appointment ID.' });
-  const diagnosis = requiredString(req.body.diagnosis, 'Diagnosis', 10000);
+  const diagnosis = await resolveDiagnosis(db, appointmentId, req.body.diagnosis);
   const date = requiredString(req.body.date, 'Record date', 10);
   const assigned = await db.query(
-    `SELECT a.appointment_id, v.user_id
+    `SELECT a.appointment_id, a.pet_id, v.veterinarian_id, v.name AS veterinarian_name, v.user_id,
+            p.name AS pet_name, o.user_id AS owner_user_id
        FROM appointment a
        JOIN veterinarian v ON v.veterinarian_id = a.veterinarian_id
+       JOIN pet p ON p.pet_id = a.pet_id
+       JOIN owner o ON o.owner_id = p.owner_id
       WHERE a.appointment_id = $1`,
     [appointmentId]
   );
   if (!assigned.rows[0]) return notFound(res, 'Appointment not found.');
   if (Number(assigned.rows[0].user_id) !== Number(req.user.userId)) return res.status(403).json({ error: 'You can only update records for your assigned appointments.' });
   if (!Array.isArray(req.body.prescriptions)) return res.status(400).json({ error: 'Prescriptions must be an array.' });
+  const vaccines = req.body.vaccines === undefined ? null : req.body.vaccines;
+  if (vaccines !== null && !Array.isArray(vaccines)) return res.status(400).json({ error: 'Vaccines must be an array.' });
+  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+  for (const vaccine of vaccines || []) {
+    const name = String(vaccine.name || '').trim();
+    if (!name || name.length > 100) return res.status(400).json({ error: 'Enter the vaccine name for each vaccination.' });
+    if (!datePattern.test(String(vaccine.dateAdministered || ''))) return res.status(400).json({ error: `Check the date administered of ${name}.` });
+    if (vaccine.nextDue && (!datePattern.test(String(vaccine.nextDue)) || String(vaccine.nextDue) < String(vaccine.dateAdministered))) {
+      return res.status(400).json({ error: `The next due date of ${name} cannot be before the date administered.` });
+    }
+  }
 
   const client = await db.connect();
   try {
@@ -1355,6 +1424,25 @@ router.put('/appointments/:id/record', authorize('Veterinarian'), asyncRoute(asy
       );
       prescriptions.push(saved.rows[0]);
     }
+    if (vaccines !== null) {
+      await client.query('DELETE FROM vaccination WHERE appointment_id = $1', [appointmentId]);
+      for (const vaccine of vaccines) {
+        await client.query(
+          `INSERT INTO vaccination
+             (pet_id, veterinarian_id, vaccine_type, date_administered, next_due_date, administered_by, appointment_id)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+          [assigned.rows[0].pet_id, assigned.rows[0].veterinarian_id, String(vaccine.name).trim(),
+           vaccine.dateAdministered, vaccine.nextDue || null, assigned.rows[0].veterinarian_name, appointmentId]
+        );
+      }
+      if (vaccines.length) {
+        await client.query(
+          `INSERT INTO notification (user_id, notification_type, title, message)
+           VALUES ($1, 'reminder', 'Vaccination recorded', $2)`,
+          [assigned.rows[0].owner_user_id, `${vaccines.map((v) => String(v.name).trim()).join(', ')} recorded for ${assigned.rows[0].pet_name}. See Vaccination History for the next due date.`]
+        );
+      }
+    }
     await audit(client, req.user.userId, 'UPDATE', 'medical_record', recordId, 'Saved a medical record and its prescriptions.');
     await client.query('COMMIT');
     return res.json({ record: record.rows[0], prescriptions });
@@ -1368,7 +1456,7 @@ router.put('/appointments/:id/record', authorize('Veterinarian'), asyncRoute(asy
 
 router.post('/appointments/:id/medical-record', authorize('Veterinarian'), asyncRoute(async (req, res) => {
   const appointmentId = Number(req.params.id);
-  const diagnosis = requiredString(req.body.diagnosis, 'Diagnosis', 10000);
+  const diagnosis = await resolveDiagnosis(db, appointmentId, req.body.diagnosis);
   const assigned = await db.query(
     `SELECT a.appointment_id, v.user_id
        FROM appointment a JOIN veterinarian v ON v.veterinarian_id = a.veterinarian_id

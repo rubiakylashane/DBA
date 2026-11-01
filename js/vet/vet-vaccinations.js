@@ -44,7 +44,7 @@
       <div class="orow vrow-vx" role="row">
         <span role="cell" class="o-name">${esc(r.pet || "-")}</span>
         <span role="cell" class="vx-muted">${esc(r.vaccine || "-")}</span>
-        <span role="cell" class="vx-bold">${esc(O.fmtShort(r.dateAdministered))}</span>
+        <span role="cell" class="vx-bold">${r.dateAdministered ? esc(O.fmtShort(r.dateAdministered)) : "Upcoming"}</span>
         <span role="cell" class="vx-due vx-${cls(r)}">${r.nextDue ? esc(O.fmtShort(r.nextDue)) : "-"}</span>
       </div>`).join("") : `<p class="o-empty">${rows.length ? "Nothing matches your search." : "No vaccinations recorded yet."}</p>`;
   }

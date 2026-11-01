@@ -41,6 +41,14 @@
   /* ----- editor ----- */
   const err = (m) => { $("ve-err").textContent = m || ""; $("ve-err").hidden = !m; return !m; };
   const isVacc = (n) => /vaccin/i.test(n || "");
+  const vaccineName = (n) => { const m = String(n || "").match(/\(([^)]+)\)|vaccine:\s*(.+)$/i); return m ? (m[1] || m[2]).trim() : ""; };
+  /* diagnosis is required only for clinical services (consultation, laboratory, dental); vaccination, deworming and grooming may skip it */
+  const CLINICAL = /consult|laborator|dental/i;
+  const needsDiagnosis = (a) => {
+    const names = (a.services || []).map((x) => x.name || "").concat(blocks.filter((b) => b.type !== "Vaccination").map((b) => b.type || ""));
+    return !names.length || names.some((n) => CLINICAL.test(n));
+  };
+  const markDiagnosis = () => { const l = document.querySelector('label[for="ve-diag"]'); if (l && cur) l.textContent = needsDiagnosis(cur) ? "Diagnosis" : "Diagnosis (optional)"; };
   const plusYear = (d) => { const x = new Date(d + "T00:00:00"); x.setFullYear(x.getFullYear() + 1); return V.iso(x); };
 
   function loadState(a) {
@@ -55,7 +63,7 @@
         .concat((visit.services || []).map((s) => ({ type: s.type, name: s.name || "", notes: s.notes || "" })));
     } else {
       blocks = (a.services || []).map((s) => isVacc(s.name)
-        ? { type: "Vaccination", vaccine: ((s.name.match(/\(([^)]+)\)/) || [])[1] || "").trim(), given: date, due: plusYear(date) }
+        ? { type: "Vaccination", vaccine: vaccineName(s.name), given: date, due: plusYear(date) }
         : { type: s.name, name: "", notes: "" });
     }
     rxEdit = -1; clearRx(); err("");
@@ -86,6 +94,7 @@
   function closeEditor() { cur = null; viewing = false; $("rec-edit").hidden = true; $("rec-list").hidden = false; renderList(); window.scrollTo(0, 0); }
 
   function drawBlocks() {
+    markDiagnosis();
     $("ve-blocks").innerHTML = blocks.map((b, i) => b.type === "Vaccination" ? `
       <div class="ve-block">
         <div class="ve-bhead"><span class="ve-chip ve-chip-v">Vaccination</span><button type="button" class="ve-remove" data-rm="${i}">Remove</button></div>
@@ -126,7 +135,7 @@
 
   async function save() {
     const a = cur, diag = $("ve-diag").value.trim(), date = $("ve-date").value;
-    if (!diag) return err("Enter the diagnosis.");
+    if (!diag && needsDiagnosis(a)) return err("Enter the diagnosis.");
     if (!date) return err("Pick the record date.");
     if (date > V.today()) return err("The record date cannot be in the future.");
     if ($("ve-med").value.trim() && !saveRx()) return;
@@ -157,7 +166,8 @@
             diagnosis: diag,
             treatment: $("ve-treat").value.trim(),
             notes: $("ve-notes").value.trim(),
-            prescriptions: rx
+            prescriptions: rx,
+            vaccines: vaccinations.map((v) => ({ name: v.vaccine, dateAdministered: v.dateAdministered, nextDue: v.nextDue }))
           }
         });
       } catch (error) {
@@ -221,6 +231,16 @@
       recordsByOwner.set(ownerId, rec);
     }
     recordsByOwner.forEach((records, ownerId) => localStorage.setItem("pawpaw_records:" + ownerId, JSON.stringify(records)));
+    /* vaccinations saved on the server, so an existing record reopens with its vaccine blocks */
+    const vaccines = await window.PawApi.request("/api/vet/vaccinations");
+    const byOwner = new Map();
+    for (const v of vaccines.filter((x) => !x.scheduled)) {
+      const k = String(v.owner);
+      if (!byOwner.has(k)) byOwner.set(k, []);
+      byOwner.get(k).push({ id: "vx-" + v.id, apptId: v.appointmentId == null ? "" : String(v.appointmentId), petId: String(v.petId), vaccine: v.vaccine,
+        pet: v.pet, dateAdministered: v.dateAdministered, nextDue: v.nextDue || "", administeredBy: v.administeredBy || "", notes: v.notes || "" });
+    }
+    byOwner.forEach((list, ownerId) => localStorage.setItem("pawpaw_vaccinations:" + ownerId, JSON.stringify(list)));
   }
   A.ready.then(async (appointments) => {
     all = appointments;
@@ -230,4 +250,3 @@
     if (want) { const a = all.find((x) => key(x) === want && V.visible(x)); if (a) openEditor(a, V.hasRecord(a)); }
   }).catch((error) => S.toast(error.message));
 })();
-

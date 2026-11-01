@@ -128,7 +128,7 @@
   function pendingItem(a) {
     return `
       <div class="req">
-        <p class="req-title"><strong>${esc(a.petName || a.pet)}</strong> - ${esc(a.owner || "Owner")}${a.rescheduledFrom ? ` <span class="resch-tag" title="Was ${esc(a.rescheduledFrom.date)} ${esc(a.rescheduledFrom.time)}">Rescheduled</span>` : ""}</p>
+        <p class="req-title"><strong>${esc(a.petName || a.pet)}</strong> - ${esc(a.ownerName || a.owner || "Owner")}${a.rescheduledFrom ? ` <span class="resch-tag" title="Was ${esc(a.rescheduledFrom.date)} ${esc(a.rescheduledFrom.time)}">Rescheduled</span>` : ""}</p>
         <p class="req-sub">${esc(fmtDate(a.date))} (${esc(fmtTime(a.time))}) - ${esc(serviceText(a))}</p>
         <div class="req-actions">
           <button type="button" class="btn btn-primary" data-act="approve" data-id="${esc(a.id)}">Approve</button>
@@ -154,7 +154,7 @@
     $("stat-today").textContent = todays.length;
     $("today-sum").textContent = todaySummary(todays, ["appointment", "appointments"]);
     $("stat-pending").textContent = pending.length;
-    $("stat-walkins").textContent = all.filter((a) => a.date === today && a.walkIn && a.status !== "cancelled").length;
+    $("stat-confirmed").textContent = all.filter((a) => a.status === "confirmed").length;
     $("stat-checkedin").textContent = all.filter((a) => a.date === today && a.status === "checked_in").length;
 
     $("today-rows").innerHTML = todays.length
@@ -286,4 +286,12 @@
   });
 
   load().then((list) => { all = list; render(); }).catch((error) => say(error.message));
+
+  /* keep the cards and the pending list in step with new bookings (same 15 s rhythm as the notification bell) */
+  const refresh = () => {
+    if (document.hidden || reviewDlg.open || vetDlg.open) return;
+    load().then((list) => { all = list; render(); }).catch(() => { /* try again on the next tick */ });
+  };
+  setInterval(refresh, 15000);
+  document.addEventListener("visibilitychange", refresh);
 })();

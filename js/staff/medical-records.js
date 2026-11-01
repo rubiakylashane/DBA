@@ -80,8 +80,14 @@
   /* ----- details ----- */
   function details(kind, id) {
     const x = (kind === "v" ? visits : rxs).find((r) => r.id === id); if (!x) return;
+    const svcText = (v) => {
+      const vax = v.vaccinations || [];
+      const list = (v.services || []).filter((s) => !/^vaccine:/i.test(s.name || "")).map((s) => s.name + (s.quantity > 1 ? " x" + s.quantity : ""));
+      vax.forEach((g) => list.push("Vaccine: " + g.vaccine + " (given " + fmt(g.dateAdministered) + (g.nextDue ? ", next due " + fmt(g.nextDue) : "") + ")"));
+      return list.join("; ") || (v.services || []).map((s) => s.name).join("; ");
+    };
     const rows = kind === "v"
-      ? [["Pet", x.pet], ["Owner", ownerName(x.owner)], ["Date", fmt(x.date)], ["Diagnosis", x.diagnosis], ["Treatment", x.treatment], ["Notes", x.notes]]
+      ? [["Pet", x.pet], ["Owner", ownerName(x.owner)], ["Date", fmt(x.date)], ["Services performed", svcText(x)], ["Diagnosis", x.diagnosis], ["Treatment", x.treatment], ["Notes", x.notes]]
       : [["Pet", x.pet], ["Owner", ownerName(x.owner)], ["Date", fmt(x.date)], ["Medication", x.medication], ["Dose", x.dose], ["Instructions", x.instructions], ["Quantity", x.quantity]];
     $("detail-title").textContent = kind === "v" ? "Visit record" : "Prescription";
     $("detail-facts").innerHTML = rows.map(([k, val]) => `<div><dt>${esc(k)}</dt><dd>${esc(val || "-")}</dd></div>`).join("");

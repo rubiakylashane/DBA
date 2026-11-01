@@ -224,7 +224,7 @@
 .ap-field select.ap-qty:focus-visible { outline: 3px solid #fff; outline-offset: 1px; }
 
 /* ---------- Request Summary ---------- */
-.ap-side { position: sticky; top: 24px; display: flex; flex-direction: column; gap: 16px; }
+.ap-side { position: sticky; top: 24px; align-self: start; max-height: calc(100vh - 48px); overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
 .ap-summary {
   box-sizing: border-box;
   padding: 24px 24px 26px;
@@ -405,9 +405,13 @@
 }
 
 /* ---------- Smaller screens ---------- */
+/* Keep the summary beside the form (and sticky) on laptop-width windows */
 @media (max-width: 1100px) {
+  .ap-layout { grid-template-columns: minmax(0, 1fr) 270px; gap: 24px; }
+}
+@media (max-width: 900px) {
   .ap-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
-  .ap-side { position: static; }
+  .ap-side { position: static; max-height: none; overflow: visible; }
 }
 @media (max-width: 900px) {
   .ap-head h1 { font-size: 28px; }
@@ -418,4 +422,3 @@
   .ap-sub { padding-left: 16px; }
   .ap-sub-row { grid-template-columns: minmax(0, 1fr) auto 66px; }
 }
-

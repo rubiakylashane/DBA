@@ -78,7 +78,7 @@
       <div class="vh-row" role="row">
         ${cell("Vaccine", esc(r.vaccine), "vh-strong")}
         ${cell("Pet", esc(r.pet), "vh-strong")}
-        ${cell("Date Administered", dash(fmtDate(r.dateAdministered)), "vh-strong")}
+        ${cell("Date Administered", r.dateAdministered ? esc(fmtDate(r.dateAdministered)) : "Upcoming", "vh-strong")}
         ${cell("Next Due", dash(fmtDate(r.nextDue)))}
         ${cell("Administered By", dash(r.administeredBy))}
         ${cell("Notes", dash(r.notes))}

@@ -65,7 +65,7 @@
   let cur = null;
   const find = (u) => all.find((a) => a.owner + "|" + a.id === u);
   const given = (a) => (a.date && a.date <= today() ? a.date : today());
-  const vaccinesOf = (a) => (a.services || []).map((x) => x.name || "").filter((n) => /vaccin/i.test(n)).map((n) => { const m = n.match(/\(([^)]+)\)/); return m ? m[1].trim() : "Vaccination"; });
+  const vaccinesOf = (a) => (a.services || []).map((x) => x.name || "").filter((n) => /vaccin/i.test(n)).map((n) => { const m = n.match(/\(([^)]+)\)|vaccine:\s*(.+)$/i); return m ? (m[1] || m[2]).trim() : "Vaccination"; });
   function suggestDue(vaccine, from) {
     const v = vaccine.toLowerCase(); let m = INTERVAL_MONTHS.default;
     Object.keys(INTERVAL_MONTHS).forEach((k) => { if (v.indexOf(k) >= 0) m = INTERVAL_MONTHS[k]; });

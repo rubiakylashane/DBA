@@ -2,6 +2,24 @@ const express = require('express');
 const db = require('../config/db');
 const { authenticate, authorize } = require('../middleware/auth');
 const { asyncRoute, notFound, requiredString } = require('../utils/http');
+
+/* Diagnosis is only required for clinical visits (consultation, laboratory, dental). Vaccination, deworming and grooming visits may leave it blank. */
+async function resolveDiagnosis(queryable, appointmentId, value) {
+  const found = await queryable.query(
+    `SELECT COALESCE(bool_or(sv.service_name ~* '(consult|laborator|dental)'), true) AS required
+       FROM appointment a
+       LEFT JOIN appointment_service aps ON aps.appointment_id = a.appointment_id
+       LEFT JOIN service sv ON sv.service_id = aps.service_id
+      WHERE a.appointment_id = $1`,
+    [appointmentId]
+  );
+  if (found.rows[0] && found.rows[0].required === false) {
+    const text = String(value || '').trim();
+    if (text.length > 10000) throw Object.assign(new Error('Diagnosis is too long.'), { status: 400 });
+    return text || null;
+  }
+  return requiredString(value, 'Diagnosis', 10000);
+}
 const { sendSms } = require('../utils/sms');
 
 const router = express.Router();
@@ -50,7 +68,13 @@ const VISIT_SELECT = `
   SELECT r.record_id AS id, r.record_id, r.appointment_id AS "appointmentId",
          p.owner_id AS owner, o.name AS "ownerName", p.pet_id AS "petId",
          p.name AS pet, r.record_date::text AS date, r.diagnosis, r.treatment, r.notes,
-         v.name AS vet
+         v.name AS vet,
+         COALESCE((SELECT json_agg(json_build_object('name', sv.service_name, 'quantity', aps.quantity) ORDER BY sv.service_name)
+                     FROM appointment_service aps JOIN service sv ON sv.service_id = aps.service_id
+                    WHERE aps.appointment_id = r.appointment_id), '[]'::json) AS services,
+         COALESCE((SELECT json_agg(json_build_object('vaccine', vx.vaccine_type, 'dateAdministered', vx.date_administered::text,
+                                                     'nextDue', vx.next_due_date::text) ORDER BY vx.vaccination_id)
+                     FROM vaccination vx WHERE vx.appointment_id = r.appointment_id), '[]'::json) AS vaccinations
     FROM medical_record r
     JOIN appointment a ON a.appointment_id = r.appointment_id
     JOIN pet p ON p.pet_id = a.pet_id
@@ -298,17 +322,37 @@ router.get(['/vaccinations', '/vet/vaccinations'], authenticate, asyncRoute(asyn
               OR EXISTS (SELECT 1 FROM appointment a JOIN veterinarian av ON av.veterinarian_id = a.veterinarian_id
                           WHERE a.appointment_id = v.appointment_id AND av.user_id = $1))`
     : 'WHERE o.user_id = $1';
+  const scheduledOwner = isVetPage ? 'vt.user_id = $1' : 'o.user_id = $1';
   const result = await db.query(
-    `SELECT v.vaccination_id AS id, v.vaccination_id AS "vaccinationId",
-            p.owner_id AS owner, o.name AS "ownerName", p.pet_id AS "petId", p.name AS pet,
-            v.vaccine_type AS vaccine, v.date_administered::text AS "dateAdministered",
-            v.next_due_date::text AS "nextDue", v.administered_by AS "administeredBy",
-            v.notes, v.last_reminded_at AS "lastRemindedAt"
-       FROM vaccination v
-       JOIN pet p ON p.pet_id = v.pet_id
-       JOIN owner o ON o.owner_id = p.owner_id
-      ${conditions}
-      ORDER BY v.date_administered DESC, v.vaccination_id DESC`,
+    `SELECT * FROM (
+       SELECT v.vaccination_id AS id, v.vaccination_id AS "vaccinationId",
+              p.owner_id AS owner, o.name AS "ownerName", p.pet_id AS "petId", p.name AS pet,
+              v.vaccine_type AS vaccine, v.date_administered::text AS "dateAdministered",
+              v.next_due_date::text AS "nextDue", v.administered_by AS "administeredBy",
+              v.notes, v.last_reminded_at AS "lastRemindedAt", v.appointment_id AS "appointmentId", false AS scheduled
+         FROM vaccination v
+         JOIN pet p ON p.pet_id = v.pet_id
+         JOIN owner o ON o.owner_id = p.owner_id
+        ${conditions}
+       UNION ALL
+       SELECT -(a.appointment_id * 1000 + sv.service_id), -(a.appointment_id * 1000 + sv.service_id),
+              p.owner_id, o.name, p.pet_id, p.name,
+              regexp_replace(sv.service_name, '^Vaccin(e|ation):\\s*', ''), NULL::text,
+              a.appointment_date::text, COALESCE(vt.name, 'To be assigned'),
+              'Upcoming appointment', NULL::timestamp, a.appointment_id, true
+         FROM appointment a
+         JOIN pet p ON p.pet_id = a.pet_id
+         JOIN owner o ON o.owner_id = p.owner_id
+         JOIN appointment_service aps ON aps.appointment_id = a.appointment_id
+         JOIN service sv ON sv.service_id = aps.service_id
+         LEFT JOIN veterinarian vt ON vt.veterinarian_id = a.veterinarian_id
+        WHERE sv.service_name ILIKE '%vaccin%'
+          AND a.status IN ('Pending', 'Approved', 'Scheduled', 'Checked-in', 'In Progress')
+          AND a.appointment_date >= CURRENT_DATE
+          AND ${scheduledOwner}
+          AND NOT EXISTS (SELECT 1 FROM vaccination x WHERE x.appointment_id = a.appointment_id)
+     ) t
+     ORDER BY "dateAdministered" DESC NULLS FIRST, id DESC`,
     [req.user.userId]
   );
   return res.json(result.rows);
@@ -401,11 +445,13 @@ router.get('/staff/vaccination-reminders', authenticate, authorize('Admin', 'Sta
             v.vaccine_type AS vaccine, v.date_administered::text AS "dateAdministered",
             v.next_due_date::text AS "nextDue", v.administered_by AS "administeredBy",
             v.last_reminded_at AS "lastRemindedAt"
-       FROM vaccination v
+       FROM (SELECT DISTINCT ON (pet_id, lower(vaccine_type)) *
+               FROM vaccination
+              ORDER BY pet_id, lower(vaccine_type), date_administered DESC, vaccination_id DESC) v
        JOIN pet p ON p.pet_id = v.pet_id
        JOIN owner o ON o.owner_id = p.owner_id
        LEFT JOIN user_account u ON u.user_id = o.user_id
-      WHERE v.next_due_date IS NOT NULL
+      WHERE v.next_due_date IS NOT NULL AND p.pet_status = 'Active'
       ORDER BY v.next_due_date, o.name, p.name`
   );
   return res.json(result.rows);
@@ -456,7 +502,7 @@ router.post('/vaccination-reminders/:id/notify', authenticate, authorize('Admin'
 router.post('/vet/appointments/:id/complete', authenticate, authorize('Veterinarian'), asyncRoute(async (req, res) => {
   const appointmentId = validId(req.params.id);
   if (!appointmentId) return res.status(400).json({ error: 'Invalid appointment ID.' });
-  const diagnosis = requiredString(req.body.diagnosis, 'Diagnosis', 10000);
+  const diagnosis = await resolveDiagnosis(db, appointmentId, req.body.diagnosis);
   const prescriptions = req.body.prescription ? [req.body.prescription] : [];
   if (!Array.isArray(req.body.vaccines || [])) return res.status(400).json({ error: 'Vaccines must be an array.' });
 
