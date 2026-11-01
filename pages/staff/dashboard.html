@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="../../js/auth-guard.js" data-role="staff,admin"></script>
+  <title>Dashboard | Pawpaw Clinic Staff</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Self-contained: this page only needs its own CSS -->
+  <link rel="stylesheet" href="../../css/pages/staff/dashboard.css" />
+</head>
+<body class="sdash">
+
+  <!-- Mobile top bar -->
+  <header class="mobile-bar">
+    <button type="button" class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <span class="mobile-title">PAWPAW Clinic</span>
+  </header>
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="sidebar-brand">
+      <img src="../../assets/images/logo-staff.png" alt="" class="sidebar-logo" />
+      <span>PAWPAW Clinic</span>
+    </div>
+
+    <nav class="nav">
+      <a href="dashboard.html" class="nav-link active" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20h-5.5v-6h-5v6H4z"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="owners-pets.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><ellipse cx="5" cy="11" rx="2.2" ry="3"/><ellipse cx="9.5" cy="6" rx="2.2" ry="3"/><ellipse cx="14.5" cy="6" rx="2.2" ry="3"/><ellipse cx="19" cy="11" rx="2.2" ry="3"/><path d="M12 11c-3 0-6 3.5-6 6 0 2 1.7 3 3.3 3 1 0 1.8-.5 2.7-.5s1.7.5 2.7.5c1.6 0 3.3-1 3.3-3 0-2.5-3-6-6-6Z"/></svg>
+        <span>Owners and Pets</span>
+      </a>
+      <a href="appointments.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+        <span>Appointments</span>
+      </a>
+      <a href="vaccine-reminders.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.5 3 8 7.5 9.5 4.5-1.5 7.5-5 7.5-9.5V6L12 3Z"/></svg>
+        <span>Vaccine Reminders</span>
+      </a>
+      <a href="medical-records.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M6.5 2h7.2l5.8 5.8v11.7a2.5 2.5 0 0 1-2.5 2.5h-10.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2zM8.4 11.2h7.2a.9.9 0 0 1 0 1.8H8.4a.9.9 0 0 1 0-1.8zm0 4h7.2a.9.9 0 0 1 0 1.8H8.4a.9.9 0 0 1 0-1.8zM8.4 7.2h2.7a.9.9 0 0 1 0 1.8H8.4a.9.9 0 0 1 0-1.8z"/></svg>
+        <span>Medical Records</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="avatar" id="user-avatar"></div>
+      <div class="user-meta">
+        <strong id="sidebar-name">User Name</strong>
+        <a href="../auth/login.html" id="logout" class="logout">
+          LOG OUT
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/></svg>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <header class="page-head">
+      <h1 id="greeting">Dashboard</h1>
+      <p class="date" id="today"></p>
+      <p class="date today-sum" id="today-sum"></p>
+    </header>
+
+    <!-- Stats -->
+    <section class="stats" aria-label="Summary">
+      <a href="appointments.html?tab=scheduled" class="stat stat-link"><h3>Today's Appointment</h3><p class="stat-value" id="stat-today">0</p></a>
+      <a href="appointments.html?tab=pending" class="stat stat-link"><h3>Pending Requests</h3><p class="stat-value" id="stat-pending">0</p></a>
+      <a href="appointments.html?tab=confirmed" class="stat stat-link"><h3>Confirmed</h3><p class="stat-value" id="stat-confirmed">0</p></a>
+      <a href="appointments.html?tab=checked_in" class="stat stat-link"><h3>Checked-in Now</h3><p class="stat-value" id="stat-checkedin">0</p></a>
+    </section>
+
+    <div class="dash-grid">
+      <!-- Today's appointment -->
+      <section class="card" aria-labelledby="today-title">
+        <div class="card-head">
+          <h2 id="today-title">Today's appointment</h2>
+          <a href="appointments.html" class="link-sm">View All</a>
+        </div>
+        <div class="table" role="table" aria-label="Today's appointments">
+          <div class="row row-head" role="row">
+            <span role="columnheader">Time</span>
+            <span role="columnheader">Pet and Doctor</span>
+            <span role="columnheader">Services</span>
+            <span role="columnheader">Status</span>
+            <span role="columnheader" class="c-action">Action</span>
+          </div>
+          <div id="today-rows"></div>
+        </div>
+      </section>
+
+      <!-- Pending requests -->
+      <section class="card" aria-labelledby="pending-title">
+        <div class="card-head card-head-line">
+          <h2 id="pending-title">Pending requests</h2>
+        </div>
+        <div id="pending-list"></div>
+      </section>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </main>
+
+  <!-- Review a request -->
+  <dialog id="review-dialog" class="dlg" aria-labelledby="review-title">
+    <h2 id="review-title">Review request</h2>
+    <dl class="dlg-facts" id="review-facts"></dl>
+    <div id="review-vetbox">
+      <label class="dlg-label" for="review-vet">Veterinarian</label>
+      <select id="review-vet" class="dlg-select"></select>
+    </div>
+    <label class="dlg-label" for="review-reason">Reason if declined (seen by the owner)</label>
+    <textarea id="review-reason" class="dlg-select" rows="2" placeholder="e.g. Fully booked on this day."></textarea>
+    <p class="dlg-hint" id="review-hint"></p>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-outline" id="review-close">Close</button>
+      <button type="button" class="btn btn-danger" id="review-decline">Decline</button>
+      <button type="button" class="btn btn-primary" id="review-approve">Approve</button>
+    </div>
+  </dialog>
+
+  <!-- Assign a vet -->
+  <dialog id="vet-dialog" class="dlg" aria-labelledby="vet-title">
+    <h2 id="vet-title">Assign vet</h2>
+    <p class="dlg-sub" id="vet-sub"></p>
+    <label class="dlg-label" for="vet-select">Veterinarian</label>
+    <select id="vet-select" class="dlg-select"></select>
+    <p class="dlg-hint" id="vet-hint"></p>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-outline" id="vet-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="vet-save">Assign</button>
+    </div>
+  </dialog>
+
+  <script src="../../js/core/api.js"></script>
+  <script src="../../js/staff/staff-appts-store.js"></script>
+  <script src="../../js/staff/dashboard.js"></script>
+  <script src="../../js/own-profile.js"></script>
+  <script src="../../js/notifications.js"></script>
+</body>
+</html>

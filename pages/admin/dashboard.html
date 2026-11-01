@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="../../js/auth-guard.js" data-role="admin"></script>
+  <title>Dashboard | Pawpaw Clinic Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- shared dashboard look (staff) + the admin colours / layout (load admin.css last) -->
+  <link rel="stylesheet" href="../../css/pages/staff/dashboard.css" />
+  <link rel="stylesheet" href="../../css/pages/admin/admin.css" />
+</head>
+<body class="sdash adm">
+
+  <!-- Mobile top bar -->
+  <header class="mobile-bar">
+    <button type="button" class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <span class="mobile-title">PAWPAW Clinic</span>
+  </header>
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Sidebar (same on every admin page; only the "active" link changes) -->
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="sidebar-brand">
+      <img src="../../assets/images/logo-staff.png" alt="" class="sidebar-logo" />
+      <span>PAWPAW Clinic</span>
+    </div>
+
+    <nav class="nav">
+      <a href="dashboard.html" class="nav-link active" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20h-5.5v-6h-5v6H4z"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="users-staff.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5"/></svg>
+        <span>Users and Staff</span>
+      </a>
+      <a href="veterinarians.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.5 3 8 7.5 9.5 4.5-1.5 7.5-5 7.5-9.5V6L12 3Z"/></svg>
+        <span>Veterinarians</span>
+      </a>
+      <a href="owners-pets.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><ellipse cx="5" cy="11" rx="2.2" ry="3"/><ellipse cx="9.5" cy="6" rx="2.2" ry="3"/><ellipse cx="14.5" cy="6" rx="2.2" ry="3"/><ellipse cx="19" cy="11" rx="2.2" ry="3"/><path d="M12 11c-3 0-6 3.5-6 6 0 2 1.7 3 3.3 3 1 0 1.8-.5 2.7-.5s1.7.5 2.7.5c1.6 0 3.3-1 3.3-3 0-2.5-3-6-6-6Z"/></svg>
+        <span>Owners and Pets</span>
+      </a>
+      <a href="appointments.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2.5h2v2h6v-2h2v2h1.5A2.5 2.5 0 0 1 21 7v12.5a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 19.5V7a2.5 2.5 0 0 1 2.5-2.5H7zM5 10v9.5a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5V10z"/></svg>
+        <span>Appointments</span>
+      </a>
+      <a href="audit-log.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M6.5 2h7.2l5.8 5.8v11.7a2.5 2.5 0 0 1-2.5 2.5h-10.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2zM8.4 11.2h7.2a.9.9 0 0 1 0 1.8H8.4a.9.9 0 0 1 0-1.8zm0 4h7.2a.9.9 0 0 1 0 1.8H8.4a.9.9 0 0 1 0-1.8zM8.4 7.2h2.7a.9.9 0 0 1 0 1.8H8.4a.9.9 0 0 1 0-1.8z"/></svg>
+        <span>Audit Log</span>
+      </a>
+      <a href="reports.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.5 2h7l6 6v11.5A2.5 2.5 0 0 1 17 22H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2zM13 3.8V9h5.2z"/></svg>
+        <span>Reports</span>
+      </a>
+      <a href="services.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12.2V4.5h7.7l9.3 9.3-7.7 7.7z"/><circle cx="8" cy="9" r="1.4" fill="currentColor" stroke="none"/></svg>
+        <span>Services</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="avatar" id="user-avatar"></div>
+      <div class="user-meta">
+        <strong id="sidebar-name">User Name</strong>
+        <a href="../auth/login.html" id="logout" class="logout">
+          LOG OUT
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/></svg>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <header class="page-head">
+      <h1 id="greeting">Dashboard</h1>
+      <p class="date" id="today"></p>
+      <p class="date" id="subtitle">Clinic totals at a glance.</p>
+    </header>
+
+    <section class="stats" aria-label="Clinic totals">
+      <a href="owners-pets.html" class="stat stat-link"><h3>Total owners</h3><p class="stat-value" id="s-owners">0</p></a>
+      <a href="owners-pets.html#pets-title" class="stat stat-link"><h3>Total pets</h3><p class="stat-value" id="s-pets">0</p></a>
+      <a href="appointments.html" class="stat stat-link"><h3>Appointments this month</h3><p class="stat-value" id="s-appts">0</p><p class="stat-delta" id="s-appt-sub"></p></a>
+      <a href="reports.html" class="stat stat-link"><h3>Revenue this month</h3><p class="stat-value" id="s-rev">₱0</p><p class="stat-delta" id="s-rev-delta"></p><p class="stat-delta" id="s-rev-avg"></p></a>
+    </section>
+
+    <!-- Row 1: schedule | weekly revenue | revenue per service.  Row 2: recent activity | veterinarians | top services. -->
+    <div class="adm-dash">
+      <section class="card wide" aria-labelledby="td-title">
+        <div class="card-head card-head-line"><h2 id="td-title">Today's schedule</h2><span class="td-count" id="td-count"></span></div>
+        <ul class="td-list" id="td-list"></ul>
+        <a href="appointments.html" class="link-sm act-link">View all appointments</a>
+      </section>
+
+      <section class="card nar" aria-labelledby="wk-title">
+        <div class="card-head card-head-line"><h2 id="wk-title">Weekly revenue</h2><span class="td-count" id="wk-total"></span></div>
+        <div class="wk-cols" id="wk-cols"></div>
+      </section>
+
+      <section class="card nar" aria-labelledby="rev-title">
+        <div class="card-head card-head-line"><h2 id="rev-title">Revenue per service</h2></div>
+        <div id="rev-list"></div>
+      </section>
+
+      <section class="card wide" aria-labelledby="act-title">
+        <div class="card-head card-head-line"><h2 id="act-title">Recent activity</h2></div>
+        <ul class="act-list" id="act-list"></ul>
+        <a href="audit-log.html" class="link-sm act-link">Open audit log</a>
+      </section>
+
+      <section class="card nar" aria-labelledby="vw-title">
+        <div class="card-head card-head-line"><h2 id="vw-title">Veterinarians today</h2><span class="td-count">Done / booked</span></div>
+        <div id="vw-list"></div>
+      </section>
+
+      <section class="card nar" aria-labelledby="ts-title">
+        <div class="card-head card-head-line"><h2 id="ts-title">Top services</h2><span class="td-count">This week</span></div>
+        <div class="ts-wrap" id="ts-wrap"></div>
+      </section>
+
+
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </main>
+
+  <script src="../../js/core/api.js"></script>
+  <script src="../../js/staff/staff-appts-store.js"></script>
+  <script src="../../js/staff/staff-shell.js"></script>
+  <script src="../../js/admin/dashboard.js"></script>
+</body>
+</html>

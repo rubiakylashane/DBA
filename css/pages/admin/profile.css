@@ -1,0 +1,36 @@
+/* css/pages/admin/profile.css - admin My Profile (load after owners.css) */
+
+/* left column: name, email, phone, username - right column: picture */
+.adm #profile-form .oe-name { grid-column: 1; grid-row: 1; }
+.adm #profile-form .oe-email { grid-column: 1; grid-row: 2; }
+.adm #profile-form .oe-phone { grid-column: 1; grid-row: 3; }
+.adm #profile-form .oe-user { grid-column: 1; grid-row: 4; }
+.adm #profile-form .oe-picture { grid-column: 2; grid-row: 1 / 5; }
+
+.adm #profile-form .own-edit-card { padding: 22px 28px 22px; margin-bottom: 16px; }
+.adm #profile-form .oe-grid { row-gap: 14px; }
+.adm #profile-form .of-field > label, .adm #profile-form .of-label { margin-bottom: 6px; font-size: 12px; }
+.adm #profile-form .of-field input[type="text"], .adm #profile-form .of-field input[type="email"] { height: 42px; }
+.adm #profile-form .of-field > .of-photo-box { width: min(280px, 100%); }
+.adm #profile-form .own-pass { padding-top: 18px; padding-bottom: 20px; }
+.adm #profile-form .own-pass h2 { margin-bottom: 8px; font-size: 16px; }
+.adm #profile-form .of-pass input { height: 38px !important; }
+.adm #profile-form .of-actions-wide { margin: 18px 0 0; }
+
+/* username: grey only when it cannot be changed (no saved account) */
+.adm #profile-form #username[readonly] { color: #555; background: #f1f1f1; cursor: not-allowed; }
+.adm .pf-hint { margin: 6px 0 0; font-size: 11.5px; color: #666; }
+
+@media (max-width: 1280px) {
+  .adm #profile-form .oe-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 900px) {
+  .adm #profile-form .oe-grid { grid-template-columns: 1fr; }
+  .adm #profile-form .oe-grid > * { grid-column: 1 !important; grid-row: auto !important; }
+}
+
+/* "Picture" label sits right above the picture, both centered in the right column */
+.adm #profile-form .oe-picture { align-self: center; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.adm #profile-form .oe-picture .of-label { text-align: center; align-self: center; }
+.adm #profile-form .oe-picture .of-photo-box { margin: 0 auto; }
+@media (max-width: 800px) { .adm #profile-form .oe-picture { align-self: auto; } }

@@ -1,0 +1,58 @@
+/* css/pages/admin/audit-log.css - admin Audit Log (load after admin.css and users.css) */
+.adm .au-card { margin: 0 26px 16px; padding: 20px 24px 18px; color: #111; background: #fff; border: 1px solid var(--line); border-radius: 14px; }
+
+/* filters */
+.adm .au-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 200px)) repeat(2, minmax(0, 150px)); gap: 16px 18px; margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid #e6ebe9; }
+.adm .au-filters label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 600; color: #2a3a36; }
+.adm .au-filters select, .adm .au-filters input { width: 100%; height: 38px; padding: 0 10px; font: inherit; font-size: 13px; color: #111; background: #fff; border: 1px solid #c4ceca; border-radius: 8px; }
+.adm .au-filters select:hover, .adm .au-filters input:hover { border-color: #8fa39d; }
+.adm .au-filters select:focus-visible, .adm .au-filters input:focus-visible { outline: 3px solid rgba(15, 107, 92, .4); outline-offset: 1px; }
+
+/* table */
+.adm .au-row { display: grid; align-items: center; column-gap: 20px; padding: 14px 16px; min-height: 58px; font-size: 13px; border-bottom: 1px solid #edf1ef; grid-template-columns: minmax(106px, 1fr) repeat(3, minmax(0, 1fr)) minmax(0, 2.6fr);   /* the four short columns are equal; Details gets the rest */ transition: background .12s; }
+.adm .au-row:not(.au-headrow):hover { background: #f5f9f8; }
+.adm .au-row:last-child { border-bottom: 0; }
+.adm .au-headrow { min-height: 0; padding: 11px 16px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #3d4f4a; background: #eef3f1; border: 0; border-radius: 8px; }
+.adm .au-when b { display: block; font-weight: 700; color: #111; white-space: nowrap; }
+.adm .au-when i { display: block; margin-top: 2px; font-style: normal; font-size: 12px; color: #5b6b66; }
+.adm .au-who b { display: block; font-weight: 700; overflow-wrap: anywhere; }
+.adm .au-who i { display: block; margin-top: 2px; font-style: normal; font-size: 12px; color: #5b6b66; }
+.adm .au-det { overflow-wrap: anywhere; line-height: 1.5; color: #1d2a27; }
+
+/* every column (heading and entries) is centered */
+.adm .au-row > span { text-align: center; }
+
+/* action pill (same width for all three) and record type chip */
+.adm .au-pill { display: inline-flex; align-items: center; justify-content: center; min-width: 72px; padding: 4px 12px; font-size: 11px; font-weight: 700; letter-spacing: .04em; border-radius: 999px; }
+.adm .au-create { color: #0b5649; background: #cfeadf; }
+.adm .au-update { color: #1f3a9a; background: #dbe4fb; }
+.adm .au-delete { color: #a11212; background: #fbdada; }
+.adm .au-rec { display: inline-block; padding: 4px 10px; font-size: 12px; font-weight: 500; color: #33423e; background: #eef2f1; border-radius: 6px; }
+.adm .au-empty { padding: 36px 0; text-align: center; color: #555; font-size: 13px; }
+
+/* footer: count on the left, Previous / Next on the right */
+.adm .au-foot { display: flex; align-items: center; gap: 10px; margin-top: 14px; padding-top: 16px; border-top: 1px solid #e6ebe9; font-size: 13px; color: #44544f; }
+.adm .au-foot #au-count { margin-right: auto; }
+.adm .au-page { min-width: 92px; height: 36px; padding: 0 16px; font: inherit; font-size: 13px; font-weight: 600; color: #fff; background: var(--green); border: 0; border-radius: 8px; cursor: pointer; }
+.adm .au-page-next { color: #fff; background: #0f6b5c; }
+.adm .au-page:hover:not(:disabled) { filter: brightness(.94); }
+.adm .au-page:disabled { color: #8a9692; background: #e6ebe9; cursor: default; }
+.adm .au-page:focus-visible { outline: 3px solid rgba(15, 107, 92, .5); outline-offset: 2px; }
+
+@media (max-width: 1100px) {
+  .adm .au-filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .adm .au-card { margin-left: 0; margin-right: 0; padding: 16px; }
+  .adm .au-filters { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .adm .au-row.au-headrow { display: none; }
+  .adm .au-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 14px 4px; }
+  .adm .au-when, .adm .au-det { flex-basis: 100%; }
+  .adm .au-row > span { text-align: left; }      /* phone: the entries stack, so keep them left-aligned */
+}
+@media (max-width: 480px) {
+  .adm .au-filters { grid-template-columns: 1fr; }
+  .adm .au-foot { flex-wrap: wrap; }
+  .adm .au-foot #au-count { flex-basis: 100%; }
+  .adm .au-page { flex: 1; }
+}

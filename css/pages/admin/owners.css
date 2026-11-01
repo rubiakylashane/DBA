@@ -1,0 +1,126 @@
+/* css/pages/admin/owners.css - admin Owners and Pets list (load after users.css) */
+.adm .head-row { margin-bottom: 30px; }
+.adm .o-card { margin: 0 26px 16px; padding: 16px 20px 22px; color: #111; background: #fff; border: 1px solid var(--line); border-radius: 16px; }
+.adm .o-label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 600; }
+.adm .o-search { width: min(520px, 100%); height: 38px; margin-bottom: 14px; padding: 0 16px; font: inherit; font-size: 13px; color: #111; background: #fff; border: 1px solid #bbb; border-radius: 999px; }
+.adm .o-search:focus-visible { outline: 3px solid rgba(15, 107, 92, .4); outline-offset: 1px; }
+.adm .o-row { display: grid; align-items: center; column-gap: 14px; padding: 9px 8px; min-height: 44px; font-size: 13px; border-bottom: 1px solid #e3e3e3; grid-template-columns: minmax(0, 2.6fr) 70px minmax(0, 1fr) 172px; }
+.adm .o-prow { grid-template-columns: minmax(0, 1.2fr) minmax(0, .9fr) minmax(0, 1.1fr) minmax(0, .9fr) minmax(0, 1.1fr) 172px; padding-left: 0; padding-right: 0; }
+/* owners and pets side by side on wide screens (stacked below 1281px) */
+.adm .o-split { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; margin: 0 26px 16px; }
+.adm .o-split .o-card { margin: 0; }
+@media (min-width: 1281px) {
+  .adm .o-split { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+  .adm .o-split .o-card { padding-left: 16px; padding-right: 16px; }
+  .adm .o-split .o-search { width: 100%; }
+  /* narrower cards: owner (name, email, phone) | pets | registered | actions */
+  .adm .o-split .o-row:not(.o-prow) { column-gap: 10px; padding-left: 4px; padding-right: 4px; grid-template-columns: minmax(0, 1fr) 36px 88px 160px; }
+  .adm .o-split .o-prow { column-gap: 10px; grid-template-columns: minmax(0, 1fr) minmax(0, .8fr) minmax(0, 1fr) minmax(0, .7fr) minmax(0, .9fr) 160px; }
+  .adm .o-split .o-acts { gap: 6px; }
+}
+@media (max-width: 900px) { .adm .o-split { margin-left: 0; margin-right: 0; } }
+
+.adm .o-row:last-child { border-bottom: 0; }
+.adm .o-head { min-height: 0; padding-top: 8px; padding-bottom: 8px; font-size: 11px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: #333; border-bottom: 1px solid #aaa; }
+.adm .o-orow { cursor: pointer; border-radius: 6px; }
+.adm .o-orow:hover { background: #f3f7f5; }
+.adm .o-orow.sel { background: #e3f1ec; }
+.adm .o-main { display: block; font-weight: 700; }
+.adm .o-sub { display: block; margin-top: 1px; font-size: 11.5px; color: #555; overflow-wrap: anywhere; }
+.adm .o-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.adm .o-acts .u-act { display: inline-flex; align-items: center; text-decoration: none; }
+.adm .o-pets-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.adm .o-pets-head h2 { margin: 0; font-size: 16px; font-weight: 700; }
+.adm .o-btn { display: inline-flex; align-items: center; min-height: 32px; padding: 0 22px; font-size: 13px; font-weight: 500; color: #111; background: #fff; border: 1px solid #bbb; border-radius: 8px; text-decoration: none; }
+.adm .o-btn:hover { background: #f1f1f1; }
+.adm .o-btn[hidden] { display: none; }
+
+
+@media (max-width: 900px) {
+  .adm .o-card, .adm .v-warn { margin-left: 0; margin-right: 0; }
+  .adm .o-row.o-head { display: none; }
+  .adm .o-row, .adm .o-prow { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 12px 8px; }
+  .adm .o-row > span[data-label]::before { content: attr(data-label) ": "; color: #666; font-size: 11px; }
+  .adm .o-row > span:first-child { flex-basis: 100%; }
+  .adm .o-acts { flex-basis: 100%; }
+}
+
+.adm .v-warn { margin: 0 26px 16px; padding: 12px 16px; font-size: 12px; line-height: 1.5; color: #7a4a00; background: #fdf1d9; border-radius: 10px; }
+@media (max-width: 900px) { .adm .v-warn { margin-left: 0; margin-right: 0; } }
+
+/* ---------- Add / Edit pet: compact so Cancel / Confirm show without scrolling ---------- */
+.adm #pet-form.pf-card { padding: 20px 28px 22px; border-radius: 22px; }
+.adm #pet-form .pf-grid { row-gap: 15px; }
+.adm #pet-form .pf-field > label, .adm #pet-form .pf-label { margin-bottom: 5px; }
+.adm #pet-form .pf-field input[type="text"], .adm #pet-form .pf-field select, .adm #pet-form .pf-date input { height: 38px; }
+.adm #pet-form .pf-field textarea { height: 80px; }
+.adm #pet-form .pf-field > .pf-photo-box { width: 160px; }
+.adm #pet-form .pf-actions { margin-top: 20px; }
+.adm #pet-form .obtn { min-height: 42px; }
+.adm:has(#pet-form) .head-row { margin-bottom: 22px; }
+
+/* Inactive owner / pet tag */
+.adm .o-tag { display: inline-block; margin-left: 6px; padding: 1px 8px; font-size: 10.5px; font-weight: 700; color: #555; background: #e4e4e4; border-radius: 999px; vertical-align: middle; }
+
+/* ---------- Admin Edit owner: Phone Number sits under Address; the picture is centered next to the fields ---------- */
+.adm #owner-form .oe-phone { grid-column: 1; grid-row: 4; }
+.adm #owner-form .oe-picture { grid-column: 2; grid-row: 1 / 5; align-self: center; justify-self: center; width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.adm #owner-form .oe-picture .of-label { text-align: center; align-self: center; }
+.adm #owner-form .oe-picture .of-photo-box { margin: 0 auto; }
+@media (max-width: 800px) {
+  .adm #owner-form .oe-picture { align-self: auto; }
+}
+
+/* ---------- Admin Edit owner: same text sizes and spacing as the admin My Profile page ---------- */
+.adm #owner-form .own-edit-card { padding: 22px 28px 22px; margin-bottom: 16px; }
+.adm #owner-form .oe-grid { row-gap: 14px; }
+.adm #owner-form .of-field > label, .adm #owner-form .of-label { margin-bottom: 6px; font-size: 12px; }
+.adm #owner-form .of-field input[type="text"], .adm #owner-form .of-field input[type="email"] { height: 42px; }
+.adm #owner-form .of-field textarea { height: 124px; }
+.adm #owner-form .of-field > .of-photo-box { width: min(280px, 100%); }
+.adm #owner-form .own-pass { padding-top: 18px; padding-bottom: 20px; }
+.adm #owner-form .own-pass h2 { margin-bottom: 8px; font-size: 16px; }
+.adm #owner-form .oe-pass-grid .of-field > label { font-size: 12px; }
+.adm #owner-form .of-pass input { height: 38px !important; }
+.adm #owner-form .of-actions-wide { margin: 18px 0 0; }
+
+/* ---------- font sizes: Edit owner, Edit pet and My Profile all use the same text sizes ---------- */
+.adm #owner-form .of-field > label, .adm #owner-form .of-label,
+.adm #pet-form .pf-field > label, .adm #pet-form .pf-label { font-size: 12px; font-weight: 700; letter-spacing: -0.02em; }
+.adm #owner-form .of-field input, .adm #owner-form .of-field textarea,
+.adm #pet-form .pf-field input, .adm #pet-form .pf-field select, .adm #pet-form .pf-field textarea { font-size: 15px; }
+.adm #owner-form .of-error, .adm #pet-form .pf-error { font-size: 12px; }
+
+/* Edit pet: the "Picture" label sits right above the picture, both centered in the right column */
+.adm #pet-form .pf-picture { align-self: center; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.adm #pet-form .pf-picture .pf-label { text-align: center; align-self: center; }
+.adm #pet-form .pf-picture .pf-photo-box { margin: 0 auto; }
+@media (max-width: 800px) { .adm #pet-form .pf-picture { align-self: auto; } }
+
+/* Edit pet: Cancel / Confirm sit under the white card (same as Edit owner and My Profile) */
+.adm .pf-actions-out { margin: 18px 0 0; }
+
+/* Admin Edit owner / Add-Edit pet: Go Back and Save Changes / Confirm are amber again (they were green on green) */
+body.sdash.adm .abtn, body.sdash.adm .abtn-light, body.sdash.adm .obtn-amber { color: #1b1300; background: #e29d1a; border: 1px solid #c98712; }
+body.sdash.adm .abtn:hover, body.sdash.adm .abtn-light:hover, body.sdash.adm .obtn-amber:hover { background: #e29d1a; filter: brightness(1.07); }
+
+/* ===== Admin Owners and Pets: ayos ng spacing (Name | Species | Breed | Gender | Date of birth | Actions) =====
+   Hanggang 1719px: magkapatong ang Owners at Pets cards (buong lapad, maluwag).
+   1720px pataas: magkatabi pa rin, pero mas malapad ang Pets card. */
+.adm .o-prow { column-gap: 16px; grid-template-columns: minmax(0, 1.1fr) 90px minmax(0, 1.3fr) 80px 120px 172px; padding-left: 8px; padding-right: 8px; }
+.adm .o-prow.o-head span { white-space: nowrap; }
+.adm .o-prow .o-acts { flex-wrap: nowrap; justify-content: flex-start; }
+
+@media (min-width: 1281px) and (max-width: 1719px) {
+  .adm .o-split { grid-template-columns: minmax(0, 1fr); }
+  .adm .o-split .o-card { padding-left: 20px; padding-right: 20px; }
+  .adm .o-split .o-row:not(.o-prow) { column-gap: 14px; padding-left: 8px; padding-right: 8px; grid-template-columns: minmax(0, 2.6fr) 70px minmax(0, 1fr) 172px; }
+  .adm .o-split .o-prow { column-gap: 16px; grid-template-columns: minmax(0, 1.1fr) 90px minmax(0, 1.3fr) 80px 120px 172px; }
+  .adm .o-split .o-acts { gap: 8px; }
+}
+@media (min-width: 1720px) {
+  .adm .o-split { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); }
+  .adm .o-split .o-prow { column-gap: 12px; padding-left: 8px; padding-right: 8px; grid-template-columns: minmax(0, 1fr) 70px minmax(0, 1.1fr) 70px 104px 160px; }
+  .adm .o-split .o-prow .o-acts { gap: 6px; }
+}
+.adm .o-prow > span:nth-child(5) { white-space: nowrap; }  /* hindi na mag-wrap ang petsa (Sep 28, 2024) */

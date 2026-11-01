@@ -1,0 +1,38 @@
+/* css/pages/staff/profile.css - staff My Profile (load after owners.css) */
+
+/* left column: name, email, phone, username - right column: picture */
+.sdash #profile-form .oe-name { grid-column: 1; grid-row: 1; }
+.sdash #profile-form .oe-email { grid-column: 1; grid-row: 2; }
+.sdash #profile-form .oe-phone { grid-column: 1; grid-row: 3; }
+.sdash #profile-form .oe-user { grid-column: 1; grid-row: 4; }
+.sdash #profile-form .oe-picture { grid-column: 2; grid-row: 1 / 5; }
+
+.sdash #profile-form .own-edit-card { padding: 22px 28px 22px; margin-bottom: 16px; }
+.sdash #profile-form .oe-grid { row-gap: 14px; }
+.sdash #profile-form .of-field > label, .sdash #profile-form .of-label { margin-bottom: 6px; font-size: 12px; }
+.sdash #profile-form .of-field input[type="text"], .sdash #profile-form .of-field input[type="email"] { height: 42px; }
+.sdash #profile-form .of-field > .of-photo-box { width: min(280px, 100%); }
+.sdash #profile-form .own-pass { padding-top: 18px; padding-bottom: 20px; }
+.sdash #profile-form .own-pass h2 { margin-bottom: 8px; font-size: 16px; }
+.sdash #profile-form .of-pass input { height: 38px !important; }
+.sdash #profile-form .of-actions-wide { margin: 18px 0 0; }
+
+/* username: grey only when it cannot be changed (no saved account) */
+.sdash #profile-form #username[readonly] { color: #555; background: #f1f1f1; cursor: not-allowed; }
+.sdash .pf-hint { margin: 6px 0 0; font-size: 11.5px; color: #666; }
+
+@media (max-width: 1280px) {
+  .sdash #profile-form .oe-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 900px) {
+  .sdash #profile-form .oe-grid { grid-template-columns: 1fr; }
+  .sdash #profile-form .oe-grid > * { grid-column: 1 !important; grid-row: auto !important; }
+}
+/* ===== IDAGDAG ITO SA DULO NG css/pages/staff/profile.css (copy-paste lang) ===== */
+/* (gamit din ito ng Vet My Profile, kaya isang paste lang para sa staff at vet) */
+
+/* "Picture" label sits right above the picture, both centered in the right column */
+.sdash #profile-form .oe-picture { align-self: center; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.sdash #profile-form .oe-picture .of-label { text-align: center; align-self: center; }
+.sdash #profile-form .oe-picture .of-photo-box { margin: 0 auto; }
+@media (max-width: 900px) { .sdash #profile-form .oe-picture { align-self: auto; } }

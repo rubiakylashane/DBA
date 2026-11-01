@@ -1,0 +1,234 @@
+/* css/pages/staff/vet.css - vet-only pieces. Load after dashboard.css, owners.css, appointments.css, records.css.
+   Sections: Dashboard / My Appointments / Patient Profile / Vaccinations / Responsive */
+
+/* ---------- Dashboard ---------- */
+.sdash .vgrid { display: grid; grid-template-columns: minmax(0, 1fr) 306px; gap: 40px; align-items: start; }
+.sdash .vcol { display: flex; flex-direction: column; gap: 26px; min-width: 0; }
+.sdash .vgrid .card { min-height: 0; }
+.sdash .vrow-today { grid-template-columns: .9fr 1.4fr 1.2fr .9fr; }
+.sdash .vrow-up { grid-template-columns: 1.3fr 1.3fr 1fr .8fr 1fr; }
+.sdash .vrec { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.sdash .vrec .btn { flex: none; }
+.sdash .vrow-up .btn { white-space: nowrap; min-width: 0; }
+
+/* status colours used by the dashboard pills */
+.sdash .pill-completed { background: #d3d3d3; }
+.sdash .pill-no_show { background: #e3c4f0; }
+
+/* ---------- My Appointments ---------- */
+.sdash .vrow-ap { grid-template-columns: 1.15fr 1.1fr 1fr 1fr .9fr 1.7fr; }
+.sdash .orow.vrow-ap { min-height: 0; padding: 14px 0; }
+.sdash .vrow-ap .o-name { font-size: 13px; }
+.sdash .vrow-ap .o-email { font-size: 11.5px; }
+.sdash .vrow-ap > [role="cell"] { font-size: 13px; }
+.sdash .vrow-ap .a-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.sdash .vrow-ap .obtn-sm { min-height: 36px; padding: 0 12px; font-size: 11.5px; }
+.sdash .vflow { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; max-width: none; min-height: 0; margin: 24px 0 0; padding: 18px 28px; border-radius: 28px; }
+.sdash .vflow-step { padding: 4px 16px; border-radius: 999px; background: #8fd49b; font-size: 13px; }
+
+/* ---------- Patient Profile ---------- */
+/* grid of pet cards */
+.sdash .vp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 28px; }
+.sdash .vp-card, .sdash .vd-card { background: #fff; color: #111; border-radius: 12px; padding: 22px 22px 20px; }
+.sdash .vp-top { display: flex; align-items: center; gap: 16px; padding-bottom: 14px; margin-bottom: 8px; border-bottom: 1px solid #777; }
+.sdash .vp-top h3, .sdash .vp-top h2 { font-size: 16px; font-weight: 600; margin: 0; }
+.sdash .vp-top p { font-size: 13px; color: #444; margin: 2px 0 0; }
+.sdash .vp-photo { width: 70px; height: 70px; flex: none; border-radius: 10px; background: #d9d9d9 center / cover no-repeat; }
+.sdash .vp-photo-lg { width: 100px; height: 100px; }
+.sdash .vp-rows { margin: 0; }
+.sdash .vp-rows > div { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; font-size: 13px; }
+.sdash .vp-rows dt { color: #444; }
+.sdash .vp-rows dd { margin: 0; font-weight: 500; text-align: right; overflow-wrap: anywhere; }
+.sdash .vp-view { display: block; margin: 14px auto 0; padding: 7px 14px; border: 1px solid #d4b52a; border-radius: 6px; background: var(--orange); color: #111; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.sdash .vp-view:hover { filter: brightness(1.06); }
+.sdash .vp-link { color: #111; text-decoration: underline; }
+.sdash .vp-empty { color: #fff; font-size: 13px; }
+.sdash .vd-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 20px; align-items: stretch; }
+.sdash .vd-card { min-width: 0; }
+.sdash .vd-card h2 { font-size: 16px; font-weight: 600; margin: 0 0 10px; }
+.sdash .vd-card .vp-top h2 { margin: 0; }
+.sdash .vp-tr { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 12px; padding: 10px 0; font-size: 13px; border-bottom: 1px solid #bbb; overflow-wrap: anywhere; }
+.sdash .vp-tr:last-child { border-bottom: 0; }
+.sdash .vp-th { font-size: 11px; font-weight: 500; text-transform: uppercase; border-bottom: 1px solid #777; }
+.sdash .vp-none { font-size: 13px; color: #666; }
+.sdash .vd-rx .vp-tr { grid-template-columns: 1fr 1.1fr .8fr 1.4fr 1.1fr; }
+
+/* ---------- Vaccinations ---------- */
+.sdash .vrow-vx { grid-template-columns: 1.2fr 1.4fr 1.2fr 1.2fr; }
+.sdash .orow.vrow-vx { min-height: 0; padding: 16px 0; }
+.sdash .vrow-vx > [role="cell"] { font-size: 13px; }
+.sdash .vx-muted { color: #444; }
+.sdash .vx-bold { font-weight: 600; }
+.sdash .vx-due { font-weight: 600; }
+.sdash .vx-late { color: #e11b1b; }
+.sdash .vx-soon { color: #d98a00; }
+.sdash .vx-ok { color: #0f6b5c; }
+
+/* ---------- Medical Record ---------- */
+.sdash .vrow-rec { grid-template-columns: 1.3fr 1.3fr 1.1fr .9fr 1fr; }
+.sdash .orow.vrow-rec { min-height: 0; padding: 14px 0; }
+.sdash .vrow-rec > [role="cell"] { font-size: 13px; }
+.sdash .vrow-rec .o-name { font-size: 13px; }
+.sdash .vrow-rec .o-email { font-size: 11.5px; }
+/* Medical Record list: the two lists side by side on wide screens (stacked again below 1281px) */
+@media (min-width: 1281px) {
+  .sdash #rec-list { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  .sdash #rec-list .rec-card { margin: 0; padding: 20px 20px 24px; }
+  /* both lists only hold completed visits, so the Status column is left out here to give the other columns room */
+  .sdash #rec-list .vrow-rec { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr) minmax(0, 1.1fr) 104px; column-gap: 10px; }
+  .sdash #rec-list .vrow-rec > :nth-child(4) { display: none; }
+}
+.sdash .vr-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.sdash .vr-head h2 { margin: 0; }
+.sdash .vr-all { border: 0; background: none; cursor: pointer; font-family: inherit; }
+.sdash .vr-btn { min-height: 34px; padding: 0 16px; border-radius: 6px; font: inherit; font-size: 11.5px; font-weight: 600; cursor: pointer; border: 1px solid #333; background: #fff; color: #111; }
+.sdash .vr-add { background: var(--orange); border-color: #d4b52a; color: #111; }
+.sdash .vr-btn:hover { filter: brightness(.96); }
+
+.sdash .ve-bar { display: flex; flex-wrap: wrap; gap: 8px 36px; padding: 14px 22px; margin-bottom: 18px; border-radius: 14px; background: #f0d99a; color: #111; font-size: 13px; }
+.sdash .ve-bar strong { font-weight: 700; }
+.sdash .ve-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.sdash .ve-col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.sdash .ve-card { background: #fff; color: #111; border-radius: 16px; padding: 22px 22px 24px; min-width: 0; }
+.sdash .ve-card h2 { margin: 0 0 12px; font-size: 16px; font-weight: 700; }
+.sdash .ve-card h3 { margin: 18px 0 6px; padding-top: 14px; border-top: 1px solid #ddd; font-size: 14px; }
+.sdash .ve-label { display: block; margin: 12px 0 4px; font-size: 12px; color: #555; }
+.sdash .ve-input { width: 100%; box-sizing: border-box; padding: 10px 12px; font: inherit; font-size: 13px; color: #111; background: #fff; border: 1px solid #ccc; border-radius: 8px; resize: vertical; }
+.sdash .ve-input:focus-visible { outline: 3px solid rgba(15, 107, 92, .35); outline-offset: 1px; border-color: #0f6b5c; }
+.sdash .ve-input::placeholder { color: #999; }
+.sdash .ve-short { width: 200px; max-width: 100%; }
+.sdash .ve-add { display: flex; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid #ddd; }
+.sdash .ve-add select { flex: 1; }
+.sdash .ve-dark { padding: 0 20px; min-height: 40px; border: 0; border-radius: 8px; background: #0b5649; color: #fff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.sdash .ve-dark:hover { background: #084539; }
+.sdash .ve-wide { width: 100%; margin-top: 18px; min-height: 44px; }
+.sdash .ve-block { margin-top: 14px; padding: 12px 14px 16px; border: 1px solid #ddd; border-radius: 10px; background: #fafaf7; }
+.sdash .ve-bhead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.sdash .ve-chip { padding: 3px 12px; border-radius: 999px; background: #e1e4ee; font-size: 12px; font-weight: 700; }
+.sdash .ve-chip-v { background: #f6e6c0; }
+.sdash .ve-remove { border: 0; background: none; color: #b3261e; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+.sdash .ve-remove:hover { text-decoration: underline; }
+.sdash .ve-two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sdash .ve-three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.sdash .ve-rxitem { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; padding: 12px 14px; border: 1px solid #ddd; border-radius: 10px; }
+.sdash .ve-rxitem p { margin: 3px 0 0; font-size: 12px; color: #555; overflow-wrap: anywhere; }
+.sdash .ve-rxbtns { display: flex; align-items: center; gap: 12px; flex: none; }
+.sdash .ve-edit { padding: 8px 16px; border: 1px solid #bbb; border-radius: 8px; background: #fff; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+.sdash .ve-edit:hover { background: #eef1ee; }
+.sdash #ve-err { margin: 14px 0 0; padding: 10px 14px; border-radius: 8px; background: #fff; }
+.sdash .ve-actions { display: flex; gap: 24px; margin: 18px 0 8px; }
+.sdash .ve-cancel, .sdash .ve-save { min-width: 160px; min-height: 40px; border-radius: 8px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.sdash .ve-cancel { background: #fff; color: #e11b1b; border: 1px solid #111; }
+.sdash .ve-save { background: var(--orange); color: #111; border: 0; }
+.sdash .ve-save:hover { filter: brightness(1.05); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+  .sdash .vgrid { grid-template-columns: 1fr; }
+  .sdash .ve-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+  .sdash .vd-grid { grid-template-columns: 1fr; }
+  .sdash .vd-pet { order: 1; }
+  .sdash .vd-owner { order: 2; }
+  .sdash .vd-visits { order: 3; }
+  .sdash .vd-rx { order: 4; }
+}
+@media (max-width: 700px) {
+  .sdash .vrow-today, .sdash .vrow-up, .sdash .vrow-ap, .sdash .vrow-vx, .sdash .vrow-rec { grid-template-columns: 1fr 1fr; row-gap: 8px; }
+  .sdash .vrow-rec.orow-head, .sdash .vrow-ap.orow-head, .sdash .vrow-up.row-head, .sdash .vrow-today.row-head { display: none; }
+  .sdash .vp-tr, .sdash .vd-rx .vp-tr { grid-template-columns: 1fr 1fr; }
+  .sdash .vp-th { display: none; }
+  .sdash .ve-three, .sdash .ve-two { grid-template-columns: 1fr; }
+  .sdash .ve-actions { gap: 12px; }
+  .sdash .ve-cancel, .sdash .ve-save { min-width: 0; flex: 1; }
+}
+
+.sdash .vrow-ap.orow-head span,
+.sdash .vrow-vx.orow-head span,
+.sdash .vrow-rec.orow-head span { font-weight: 700; }
+ 
+@media (min-width: 1101px) {
+  /* mas mataas na rows, pantay ang gap */
+  .sdash .orow.vrow-ap, .sdash .orow.vrow-vx, .sdash .orow.vrow-rec { column-gap: 12px; padding: 18px 0; min-height: 88px; }
+  .sdash .orow.vrow-ap.orow-head, .sdash .orow.vrow-vx.orow-head, .sdash .orow.vrow-rec.orow-head { padding: 12px 0 16px; min-height: 0; }
+ 
+  /* My Appointments: Status at Actions nakagitna */
+  .sdash .vrow-ap { grid-template-columns: 1.15fr 1.3fr 1.2fr 1.2fr 1.1fr 1.9fr; }
+  .sdash .vrow-ap > :nth-child(n+5) { text-align: center; justify-self: center; }
+  .sdash .vrow-ap .a-actions { justify-content: center; }
+ 
+  /* Vaccinations: Administered at Next Due nakagitna */
+  .sdash .vrow-vx { grid-template-columns: 1.2fr 1.4fr 1.2fr 1.2fr; }
+  .sdash .vrow-vx > :nth-child(n+3) { text-align: center; justify-self: center; }
+ 
+  /* Medical Records: Status at Action nakagitna */
+  .sdash .vrow-rec > :nth-child(n+4) { text-align: center; justify-self: center; }
+}
+@media (min-width: 1101px) and (max-width: 1280px) {
+  .sdash .vrow-rec { grid-template-columns: 1.3fr 1.3fr 1.2fr 1.1fr 1.4fr; }
+}
+@media (min-width: 1281px) {
+  /* dalawang card magkatabi: walang Status column, kaya Action lang ang nakagitna */
+  .sdash #rec-list .vrow-rec > :nth-child(5) { text-align: center; justify-self: center; }
+}
+
+/* Vet My Appointments: "Mark as completed?" is wider and its 3 buttons are centered and fit their text */
+.sdash #done-dialog { width: min(640px, 94vw); }
+.sdash #done-dialog .dlg-actions { justify-content: center; flex-wrap: wrap; gap: 12px; }
+.sdash #done-dialog .dlg-actions .btn { flex: 0 0 auto !important; width: auto !important; min-width: 0 !important; padding: 0 20px !important; white-space: nowrap; }
+ 
+/* ===== IDAGDAG ITO SA DULO NG css/pages/vet/vet.css (copy-paste lang) =====
+   Vet dashboard: bagong design ng "Recently Completed".
+   Bawat item ay sariling kahon, at ang View Record ay nasa ilalim na kasinlapad ng kahon.
+   Ang buong Recently Completed box ay laging kasing-taas ng dalawang box sa kaliwa. */
+.sdash #recent-list .req { padding: 0; margin-top: 10px; border-bottom: 0; }
+.sdash #recent-list .vrec {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 6px;
+  min-height: 0;
+  padding: 8px 12px 10px;
+  background: #eef5f2;
+  border: 1px solid #cfe1da;
+  border-radius: 14px;
+}
+.sdash #recent-list .vrec > div { flex: 0 0 auto; margin: 0; }
+.sdash #recent-list .req-title { margin: 0; font-size: 12.5px; line-height: 1.3; }
+.sdash #recent-list .req-title strong { font-size: 13.5px; text-transform: uppercase; }
+.sdash #recent-list .req-sub { margin: 3px 0 0; font-size: 11.5px; line-height: 1.35; color: #3d4d48; }
+.sdash #recent-list .vrec .btn {
+  width: 100%;
+  min-height: 30px;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+/* Parehong taas ng Recently Completed at ng dalawang box sa kaliwa (laptop at mas malaki).
+   Ang laman ay hindi na nagpapataas ng box; kung sobra, may scroll sa loob. */
+@media (min-width: 1101px) {
+  .sdash .vgrid { align-items: stretch; }
+  .sdash .vgrid > .card { contain: size; overflow-y: auto; }
+}
+
+/* Kapantay ng "Upcoming" na stat box sa itaas: parehong 4 na kolum at parehong agwat ang stats at ang dalawang kolum sa ibaba.
+   Ang kaliwang kolum ay tatlong kolum ang lapad, at ang Recently Completed ay nasa pang-apat. (Malalapad na screen lang.) */
+@media (min-width: 1500px) {
+  .sdash .main:has(.vgrid) .stats { column-gap: 28px; }
+  .sdash .vgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 28px; }
+  .sdash .vgrid > .vcol { grid-column: 1 / span 3; }
+  .sdash .vgrid > .card { grid-column: 4; }
+}
+
+/* Listahan ng Medical Records: pantay ang taas ng "Appointments with No Records" at "Completed Appointments"
+   (magkatabi sila sa malalapad na screen). */
+@media (min-width: 1281px) {
+  .sdash #rec-list { align-items: stretch; }
+}

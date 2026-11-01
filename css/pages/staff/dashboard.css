@@ -1,0 +1,259 @@
+/* css/pages/staff/dashboard.css
+   Staff dashboard. Self-contained: everything is scoped under body.sdash,
+   so it does not depend on (or clash with) base.css / layout.css / components.css.
+   Background picture: assets/images/dashboard-bg.svg (url below is relative to THIS file). */
+
+body.sdash {
+  --orange: #f2d64f;   /* Golden Lemon (staff and vet sidebar, mobile bar, buttons) */
+  --on-lemon: #123d33;  /* dark green text on the lemon colour */
+  --green: #0f6b5c;
+  --green-dark: #0b5649;
+  --ink: #111;
+  --muted: #555;
+  --line: #bdbdbd;
+  --pill-green: #8fe3a8;
+  --pill-yellow: #f0d58a;
+  --pill-blue: #b9d5f2;
+  --sidebar-w: 318px;
+  --sidebar-bg: var(--orange);   /* also painted as a full-height strip behind the fixed sidebar, so a "capture full page" screenshot has no gap */
+  --strip: var(--sidebar-w);
+
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.01em;
+  /* same picture as the other dashboards; "multiply" tints the grey silhouette to a darker green */
+  background: url("../../../assets/images/dashboard-bg.svg") 25vw -10vh / 100vw auto no-repeat fixed, var(--green);
+  background-blend-mode: multiply, normal;
+  position: relative;
+}
+.sdash *, .sdash *::before, .sdash *::after { box-sizing: border-box; }
+.sdash a { color: inherit; text-decoration: none; }
+.sdash h1, .sdash h2, .sdash h3, .sdash p, .sdash dl, .sdash dd { margin: 0; padding: 0; }
+.sdash [hidden] { display: none !important; }
+
+/* Owner pages share this shell but keep their original teal-and-amber palette. */
+html[data-app-role="owner"] body.sdash {
+  --orange: #f2b53d;
+  --on-lemon: #fff;
+  --sidebar-bg: var(--green);
+  background:
+    url("../../../assets/images/dashboard-bg.svg") 25vw -10vh / 100vw auto no-repeat fixed,
+    #f5f6f4;
+  background-blend-mode: normal;
+}
+html[data-app-role="owner"] body.sdash::before { background: var(--green); }
+html[data-app-role="owner"] .sdash .sidebar { background: var(--green); color: #fff; }
+html[data-app-role="owner"] .sdash .nav-link { color: #fff; }
+html[data-app-role="owner"] .sdash .nav-link:hover { background: rgba(255, 255, 255, .12); }
+html[data-app-role="owner"] .sdash .nav-link.active,
+html[data-app-role="owner"] .sdash .nav-link.active:hover { color: #111; background: var(--orange); }
+html[data-app-role="owner"] .sdash .sidebar-user { border-top-color: rgba(255, 255, 255, .35); }
+html[data-app-role="owner"] .sdash .main { color: #0a0a0a; }
+html[data-app-role="owner"] .sdash .mobile-bar { color: #fff; background: var(--green); }
+html[data-app-role="owner"] .sdash .menu-btn { color: #fff; }
+
+/* ---------- Sidebar ---------- */
+/* the sidebar colour also runs behind it for the whole page height, so a "capture full page" screenshot has no green gap above or below the sidebar */
+body.sdash::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: var(--strip); background: var(--sidebar-bg); pointer-events: none; }
+.sdash .sidebar {
+  position: fixed; inset: 0 auto 0 0;
+  width: var(--sidebar-w);
+  display: flex; flex-direction: column;
+  background: var(--orange);
+  color: var(--on-lemon);
+  z-index: 40;
+}
+.sdash .sidebar-brand {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 30px 0; height: 100px;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 700; font-size: 17px; letter-spacing: 0.04em;
+}
+.sdash .sidebar-logo { width: 70px; height: 70px; flex: none; object-fit: contain; margin-left: -6px; }
+.sdash .nav { display: flex; flex-direction: column; gap: 6px; padding: 76px 16px 0; }
+.sdash .nav-link {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 12px; border-radius: 8px;
+  font-size: 22px; font-weight: 600; letter-spacing: -0.02em; color: var(--on-lemon);
+  transition: background .15s;
+}
+.sdash .nav-link svg { width: 28px; height: 28px; flex: none; }
+.sdash .nav-link:hover { background: rgba(18, 61, 51, .12); }
+.sdash .nav-link.active, .sdash .nav-link.active:hover { background: var(--green); color: #fff; }
+.sdash .sidebar-user {
+  margin: auto 8px 0; padding: 18px 16px 22px;
+  display: flex; align-items: center; gap: 22px;
+  border-top: 1px solid rgba(18, 61, 51, .35);
+}
+.sdash .avatar {
+  width: 80px; height: 80px; flex: none; border-radius: 50%;
+  background: #d9d9d9 center / cover no-repeat;
+}
+.sdash .user-meta { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.sdash .user-meta strong {
+  font-size: 22px; font-weight: 600; letter-spacing: -0.02em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.sdash .logout { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 500; }
+.sdash .logout svg { width: 18px; height: 18px; }
+.sdash .logout:hover { text-decoration: underline; }
+
+/* ---------- Main ---------- */
+.sdash .main { margin-left: var(--sidebar-w); padding: 54px 48px 56px 32px; color: #fff; }
+.sdash .page-head { margin-bottom: 26px; }
+.sdash .page-head h1 { font-size: 36px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; }
+.sdash .date { margin-top: 8px; font-size: 14px; }
+.sdash .today-sum { margin-top: 4px; font-weight: 600; }
+
+/* Stats */
+.sdash .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin-bottom: 46px; }
+.sdash .stat {
+  min-height: 100px; padding: 18px 18px 16px;
+  color: var(--ink); background: #fff;
+  border: 1px solid var(--line); border-radius: 26px;
+}
+/* the cards are links (appointments filtered by status) */
+.sdash a.stat-link { display: block; text-decoration: none; color: var(--ink); cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+.sdash a.stat-link:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0, 0, 0, .18); }
+.sdash a.stat-link:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .sdash a.stat-link { transition: none; } .sdash a.stat-link:hover { transform: none; } }
+.sdash .stat h3 { font-size: 12.5px; font-weight: 400; color: #333; letter-spacing: 0; }
+.sdash .stat-value { margin-top: 10px; padding-left: 8px; font-size: 28px; font-weight: 700; line-height: 1; }
+
+/* Cards */
+.sdash .dash-grid { display: grid; grid-template-columns: minmax(0, 1fr) 306px; gap: 40px; align-items: start; }
+.sdash .card {
+  min-height: 0; padding: 22px 20px 24px;
+  color: var(--ink); background: #fff;
+  border: 1px solid var(--line); border-radius: 28px;
+}
+.sdash .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.sdash .card-head h2 { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
+.sdash .card-head-line { padding-bottom: 8px; margin-bottom: 10px; border-bottom: 1px solid #777; }
+.sdash .link-sm { font-size: 12px; font-weight: 600; color: var(--green); }
+.sdash .link-sm:hover { text-decoration: underline; }
+
+/* Today's appointment table */
+.sdash .row {
+  display: grid; align-items: center; column-gap: 12px;
+  grid-template-columns: 0.9fr 1.35fr 1fr 0.9fr 1fr;
+  padding: 12px 4px; min-height: 46px;
+  border-bottom: 1px solid #bbb;
+}
+.sdash .row-head {
+  min-height: 0; padding: 6px 4px;
+  font-size: 11px; font-weight: 500; letter-spacing: 0; text-transform: uppercase; color: #333;
+  border-bottom: 1px solid #777;
+}
+.sdash .row:last-child { border-bottom: 0; }
+.sdash .c-time { font-size: 13px; }
+.sdash .cell-main { display: block; font-size: 13px; font-weight: 700; }
+.sdash .cell-sub { display: block; margin-top: 2px; font-size: 11.5px; font-weight: 500; color: #333; }
+.sdash .c-service { font-size: 13px; }
+.sdash .c-action { text-align: center; }
+.sdash .row > .c-action { display: flex; justify-content: center; font-size: 11.5px; font-weight: 500; }
+
+.sdash .pill {
+  display: inline-block; padding: 1px 16px; border-radius: 999px;
+  font-size: 11px; font-weight: 500; color: #3a3a3a;
+}
+.sdash .pill-confirmed { background: var(--pill-green); }
+.sdash .pill-checked_in { background: var(--pill-yellow); }
+.sdash .pill-with_vet { background: var(--pill-blue); }
+
+/* Buttons */
+.sdash .btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 5px 14px; min-width: 88px;
+  font: inherit; font-size: 11.5px; font-weight: 600; letter-spacing: 0;
+  border: 1px solid transparent; border-radius: 6px; cursor: pointer;
+  transition: background .15s;
+}
+.sdash .btn-primary { color: #fff; background: var(--green); }
+.sdash .btn-primary:hover { background: var(--green-dark); }
+.sdash .btn-outline { color: #111; background: #fff; border-color: #333; }
+.sdash .btn-outline:hover { background: #eef1ee; }
+.sdash .btn-danger { color: #b3261e; background: #fff; border-color: #b3261e; }
+.sdash .btn-danger:hover { background: #fdeceb; }
+.sdash .btn:focus-visible, .sdash .link-sm:focus-visible, .sdash .nav-link:focus-visible {
+  outline: 3px solid rgba(15, 107, 92, .45); outline-offset: 2px;
+}
+
+/* Pending requests */
+.sdash .req { padding: 12px 0 16px; border-bottom: 1px solid #777; }
+.sdash .req:last-child { border-bottom: 0; }
+.sdash .req-title { font-size: 13px; }
+.sdash .req-title strong { font-weight: 700; }
+.sdash .req-sub { margin-top: 2px; font-size: 11.5px; color: #333; }
+.sdash .req-actions { display: flex; gap: 14px; margin-top: 10px; }
+.sdash .req-actions .btn { min-width: 88px; padding: 6px 14px; }
+
+.sdash .empty { padding: 22px 4px; font-size: 13px; color: var(--muted); }
+
+/* Toast */
+.sdash .toast {
+  position: fixed; left: 50%; bottom: 28px; z-index: 80;
+  transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+  padding: 10px 20px; color: #fff; background: #111; border-radius: 8px;
+  font-size: 14px; transition: opacity .2s, transform .2s;
+}
+.sdash .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* Dialogs (Review / Assign vet) */
+.sdash .dlg {
+  position: fixed; inset: 0; margin: auto;
+  width: min(440px, calc(100vw - 32px)); padding: 24px;
+  color: var(--ink); background: #fff;
+  border: 1px solid #555; border-radius: 16px;
+}
+.sdash .dlg::backdrop { background: rgba(0, 0, 0, .45); }
+.sdash .dlg h2 { font-size: 16px; font-weight: 700; }
+.sdash .dlg-sub { margin-top: 4px; font-size: 13px; color: var(--muted); }
+.sdash .dlg-facts { display: grid; gap: 8px; margin-top: 14px; font-size: 13px; }
+.sdash .dlg-facts div { display: grid; grid-template-columns: 110px 1fr; gap: 10px; }
+.sdash .dlg-facts dt { font-weight: 600; }
+.sdash .dlg-label { display: block; margin: 16px 0 6px; font-size: 12px; font-weight: 600; }
+.sdash .dlg-select { width: 100%; height: 40px; padding: 0 10px; font: inherit; font-size: 13px; border: 1px solid #555; border-radius: 8px; background: #fff; }
+.sdash .dlg-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+.sdash .dlg .btn { font-size: 13px; padding: 8px 16px; }
+
+/* Mobile */
+.sdash .mobile-bar, .sdash .overlay { display: none; }
+@media (max-width: 1100px) {
+  .sdash .dash-grid { grid-template-columns: 1fr; }
+  .sdash .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  body.sdash { --strip: 0px; }   /* the sidebar slides in on phones: no strip */
+  .sdash .mobile-bar {
+    position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; color: var(--on-lemon); background: var(--orange);
+  }
+  .sdash .menu-btn { display: grid; place-items: center; width: 40px; height: 40px; color: var(--on-lemon); background: none; border: 0; border-radius: 8px; cursor: pointer; }
+  .sdash .menu-btn svg { width: 26px; height: 26px; }
+  .sdash .mobile-title { font-family: "IBM Plex Mono", monospace; font-weight: 700; }
+  .sdash .sidebar { width: min(300px, 85vw); transform: translateX(-100%); transition: transform .2s; }
+  .sdash .sidebar.open { transform: none; }
+  .sdash .overlay { position: fixed; inset: 0; z-index: 35; background: rgba(0, 0, 0, .4); }
+  .sdash .overlay.show { display: block; }
+  .sdash .main { margin-left: 0; padding: 24px 16px 40px; }
+  .sdash .row { grid-template-columns: 1fr 1fr; row-gap: 6px; }
+  .sdash .row-head { display: none; }
+  .sdash .row > .c-action { justify-content: flex-start; }
+}
+@media (max-width: 520px) {
+  .sdash .stats { grid-template-columns: 1fr; }
+}
+.sdash textarea.dlg-select { height: auto; padding: 8px 10px; resize: vertical; }
+.sdash .dlg-hint { margin-top: 10px; min-height: 18px; font-size: 13px; color: #2e7d32; font-weight: 600; }
+.sdash .dlg-hint.bad { color: #b36b00; }
+.sdash .resch-tag { display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 999px; background: #e8d5f5; color: #4a2a63; font-size: 11px; font-weight: 700; vertical-align: middle; }
+
+/* sidebar: picture and name open My Profile (a long name is cut with "...") */
+.sdash .user-link { display: block; flex: none; color: inherit; text-decoration: none; border-radius: 50%; }
+.sdash .user-meta .user-link { flex: 0 1 auto; min-width: 0; max-width: 100%; overflow: hidden; border-radius: 4px; }
+.sdash .user-meta .user-link strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sdash .user-meta .user-link:hover strong { text-decoration: underline; }
+.sdash .user-link:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }

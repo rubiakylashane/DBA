@@ -1,0 +1,332 @@
+/* css/pages/profile.css
+   My Profile and Edit Profile. Self-contained: does not need pets.css.
+   Classes start with pr- so they cannot clash with components.css. */
+
+/* ---------- Shared pieces (buttons, page title, pet card, toast) ----------
+   Copied from pets.css so this page looks right even when pets.css is not loaded. */
+/* ---------- Page header ---------- */
+.pets-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+.pets-head h1 {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+.pets-sub { margin: 8px 0 0; font-size: 14px; }
+
+/* ---------- Buttons ---------- */
+.pbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 36px;
+  padding: 7px 20px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.pbtn-primary { color: #fff; background: var(--green, #0f6b5c); }
+.pbtn-primary:hover { background: var(--green-deep, #0b5649); text-decoration: none; }
+.pbtn-outline { color: var(--ink, #111); background: #fff; border-color: #444; }
+.pbtn-outline:hover { background: #eef1ee; text-decoration: none; }
+.pbtn:focus-visible { outline: 3px solid color-mix(in srgb, var(--green, #0f6b5c) 40%, transparent); outline-offset: 2px; }
+.pbtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.pet-card {
+  box-sizing: border-box;
+  padding: 24px 22px;
+  background: #fff;
+  border: 1px solid #555;
+  border-radius: 22px;
+}
+.pet-card-top { display: flex; align-items: center; gap: 18px; }
+.pet-photo {
+  width: 70px;
+  height: 70px;
+  flex-shrink: 0;
+  background: #d9d9d9 center / cover no-repeat;
+  border-radius: 14px;
+}
+.pet-id { min-width: 0; }
+.pet-id h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pet-id p { margin: 4px 0 0; font-size: 13px; color: #555; }
+
+.pet-facts {
+  margin: 18px 0 0;
+  padding: 16px 0;
+  border-top: 1px solid #888;
+  border-bottom: 1px solid #888;
+}
+.pet-facts > div { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; font-size: 13px; }
+.pet-facts dt { color: #555; }
+.pet-facts dd { margin: 0; font-weight: 600; color: #333; text-align: right; }
+
+.pets-empty {
+  grid-column: 1 / -1;
+  max-width: 520px;
+  padding: 32px 28px;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #555;
+  border-radius: 22px;
+}
+.pets-grid[hidden], .pets-empty[hidden], .pbtn[hidden] { display: none; }
+.pets-empty h2 { margin: 0 0 6px; font-size: 16px; }
+.pets-empty p { font-size: 13px; }
+.pets-empty p { margin: 0 0 18px; color: #555; }
+
+/* ---------- Toast ---------- */
+.pets-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  z-index: 50;
+  padding: 11px 18px;
+  color: #fff;
+  font-size: 13px;
+  background: #222;
+  border-radius: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 16px);
+  transition: opacity 0.25s, transform 0.25s;
+}
+.pets-toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+.pbtn-sm { min-height: 36px; padding: 5px 24px; font-size: 12px; }
+
+/* ---------- My Profile: wide profile card on top, then the pet cards ---------- */
+.pr-card {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  padding: 32px 40px 38px;
+  background: #fff;
+  border: 1px solid #555;
+  border-radius: 22px;
+}
+.pr-avatar {
+  flex: none;
+  width: 200px;
+  height: 200px;
+  background: #d9d9d9 center / cover no-repeat;
+  border-radius: 50%;
+}
+.pr-info { flex: 1; min-width: 0; }
+.pr-info h2 { margin: 0 0 14px; font-size: 24px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.pr-info p { margin: 4px 0 0; font-size: 16px; color: #333; overflow-wrap: anywhere; }
+.pr-info strong { font-weight: 700; color: #111; }
+.pr-edit { flex: none; margin-left: auto; min-width: 157px; min-height: 35px; padding: 0 18px; font-size: 11.5px; border-radius: 6px; }
+
+.pr-pets-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 40px 0 22px 4px; }
+.pr-pets-head h2 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+.pr-pets-actions { display: flex; align-items: center; gap: 18px; }
+.pr-viewall { font-size: 13px; font-weight: 700; color: inherit; text-decoration: underline; }
+.pr-pets-actions .pbtn { min-height: 35px; padding: 7px 14px; font-size: 15px; border-radius: 6px; color: #111; background: var(--yellow, #f0b94a); }
+.pr-pets-actions .pbtn:hover { background: var(--yellow, #f0b94a); filter: brightness(1.06); }
+.pr-viewall[hidden], .pets-toast[hidden] { display: none; }
+
+.pr-pets { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 30px; }
+.pr-pet { display: block; padding: 22px 22px 26px; border-radius: 16px; color: inherit; text-decoration: none; transition: border-color 0.15s, transform 0.15s; }
+.pr-pet:hover { text-decoration: none; border-color: var(--green, #0f6b5c); transform: translateY(-2px); }
+.pr-pet h3 { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: -0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pr-pet .pet-facts { margin: 14px 0 0; padding: 12px 0 0; border-bottom: 0; }
+.pr-pet .pet-card-top { gap: 18px; }
+
+/* ---------- Edit Profile ---------- */
+.pr-head { margin-bottom: 14px; }
+.pr-form { display: flex; flex-direction: column; gap: 16px; }
+.pr-box {
+  box-sizing: border-box;
+  padding: 20px 28px 24px;
+  background: #fff;
+  border: 1px solid #555;
+  border-radius: 14px;
+}
+
+.pr-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 48px;
+  row-gap: 14px;
+}
+.pr-name    { grid-column: 1; grid-row: 1; }
+.pr-email   { grid-column: 1; grid-row: 2; }
+.pr-address { grid-column: 1; grid-row: 3; }
+.pr-picture { grid-column: 2; grid-row: 1 / 3; text-align: center; }
+.pr-phone   { grid-column: 2; grid-row: 3; align-self: end; }
+.pr-picture .pr-label { text-align: left; }
+
+.pr-field { min-width: 0; }
+.pr-field > label, .pr-label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 700; letter-spacing: -0.02em; }
+
+.pr-field input[type="text"], .pr-field input[type="email"], .pr-field input[type="tel"],
+.pr-field input[type="password"], .pr-field textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink, #111);
+  background: #fff;
+  border: 1px solid #555;
+  border-radius: 8px;
+}
+.pr-field textarea { height: 92px; padding: 12px 14px; resize: vertical; }
+.pr-field ::placeholder { color: #777; opacity: 1; }
+.pr-field input:focus-visible, .pr-field textarea:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--green, #0f6b5c) 35%, transparent);
+  outline-offset: 1px;
+  border-color: var(--green, #0f6b5c);
+}
+.pr-field [aria-invalid="true"] { border-color: #b91c1c; }
+.pr-error { margin: 6px 0 0; font-size: 12px; color: #b91c1c; }
+.pr-error[hidden] { display: none; }
+
+/* picture */
+.pr-field > .pr-photo-box {
+  position: relative;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: min(200px, 100%);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  overflow: hidden;
+  line-height: 1.3;
+  color: #666;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  background: #fff;
+  border: 1px solid #555;
+  border-radius: 18%;
+  cursor: pointer;
+}
+.pr-photo-box:hover, .pr-photo-box:focus-within { border-color: var(--green, #0f6b5c); }
+.pr-photo-box img { width: 100%; height: 100%; object-fit: cover; }
+.pr-photo-box img[hidden], .pr-photo-box span[hidden] { display: none; }
+.pr-photo-box input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.pr-photo-remove {
+  margin-top: 8px;
+  padding: 0;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green, #0f6b5c);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.pr-photo-remove[hidden] { display: none; }
+
+/* change password */
+.pr-pass { padding-top: 18px; padding-bottom: 22px; }
+.pr-pass h2 { margin: 0 0 2px; font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
+.pr-hint { margin: 0 0 12px; font-size: 12px; color: #555; }
+.pr-pass-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 40px; }
+.pr-pass .pr-field > label { font-size: 12px; }
+.pr-pass input[type="password"], .pr-pass input[type="text"] { height: 38px; padding-right: 46px; }
+.pr-pw { position: relative; }
+.pr-pw input { padding-right: 46px; }
+.pr-eye {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  color: var(--ink, #111);
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+.pr-eye:hover { background: #eef1ee; }
+.pr-eye:focus-visible { outline: 3px solid color-mix(in srgb, var(--green, #0f6b5c) 35%, transparent); }
+.pr-eye svg { width: 22px; height: 22px; }
+.pr-eye[aria-pressed="true"] { color: var(--green, #0f6b5c); }
+
+/* buttons */
+.pr-actions { display: flex; justify-content: center; gap: 36px; margin: 2px 0 16px; }
+.pr-actions .pbtn { min-width: 178px; min-height: 44px; font-size: 13px; border-radius: 8px; }
+.pr-cancel { color: #e11d1d; }
+
+/* ---------- Smaller screens ---------- */
+@media (max-width: 1000px) {
+  .pr-card { flex-direction: column; align-items: flex-start; gap: 20px; padding: 26px 24px; }
+  .pr-edit { margin-left: 0; }
+  .pr-pass-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .pr-grid { grid-template-columns: 1fr; }
+  .pr-name, .pr-email, .pr-address, .pr-picture, .pr-phone { grid-column: 1; grid-row: auto; }
+  .pr-picture { order: -1; }
+  .pr-box { padding: 22px 18px 26px; }
+  .pr-actions { flex-direction: column-reverse; gap: 14px; }
+  .pr-actions .pbtn { width: 100%; min-height: 54px; }
+}
+@media (max-width: 560px) {
+  .pr-pets { grid-template-columns: 1fr; }
+  .pr-avatar { width: 130px; height: 130px; }
+  .pr-edit { width: 100%; }
+  .pr-pets-head h2 { font-size: 20px; }
+}
+
+/* ===== Bagong design ng Edit Profile (pareho ng admin at staff) ===== */
+.pbtn-amber { color: #111; background: var(--yellow, #f0b94a); }
+.pbtn-amber:hover { background: var(--yellow, #f0b94a); filter: brightness(1.06); text-decoration: none; }
+
+/* Phone nasa ilalim ng Address; nakagitna ang picture sa kanan */
+.pr-name    { grid-column: 1; grid-row: 1; }
+.pr-email   { grid-column: 1; grid-row: 2; }
+.pr-address { grid-column: 1; grid-row: 3; }
+.pr-phone   { grid-column: 1; grid-row: 4; align-self: start; }
+.pr-picture { grid-column: 2; grid-row: 1 / 5; align-self: center; display: flex; flex-direction: column; align-items: center; text-align: center; }
+
+/* "Picture" nasa ibabaw mismo ng picture, nakagitna */
+.pr-picture .pr-label { text-align: center; align-self: center; }
+.pr-picture .pr-photo-box { margin: 0 auto; }
+
+/* mas malaking picture */
+.pr-field > .pr-photo-box { width: min(280px, 100%); }
+
+/* parehong laki ng font */
+.pr-field > label, .pr-label { font-size: 12px; font-weight: 700; }
+.pr-field input[type="text"], .pr-field input[type="email"], .pr-field input[type="tel"],
+.pr-field input[type="password"], .pr-field textarea { font-size: 15px; }
+.pr-error { font-size: 12px; }
+
+@media (max-width: 760px) {
+  .pr-phone { grid-column: 1; grid-row: auto; }
+  .pr-picture { align-self: auto; }
+}

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="../../js/auth-guard.js" data-role="owner"></script>
+  <title>Book Appointment | Pawpaw Clinic</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../css/base.css" />
+  <link rel="stylesheet" href="../../css/layout.css" />
+  <link rel="stylesheet" href="../../css/components.css" />
+  <link rel="stylesheet" href="../../css/pages/owner/appointments.css" />
+</head>
+<body class="app">
+
+  <!-- Mobile top bar -->
+  <header class="mobile-bar">
+    <button type="button" class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <span class="mobile-title">PAWPAW Clinic</span>
+  </header>
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="sidebar-brand">
+      <img src="../../assets/images/logo.svg" alt="" class="sidebar-logo" />
+      <span>PAWPAW Clinic</span>
+    </div>
+
+    <nav class="nav">
+      <a href="dashboard.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3 2 11.5h2.5V21h6v-6h3v6h6v-9.5H22L12 3Z"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="my-pets.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><ellipse cx="5" cy="11" rx="2.2" ry="3"/><ellipse cx="9.5" cy="6" rx="2.2" ry="3"/><ellipse cx="14.5" cy="6" rx="2.2" ry="3"/><ellipse cx="19" cy="11" rx="2.2" ry="3"/><path d="M12 11c-3 0-6 3.5-6 6 0 2 1.7 3 3.3 3 1 0 1.8-.5 2.7-.5s1.7.5 2.7.5c1.6 0 3.3-1 3.3-3 0-2.5-3-6-6-6Z"/></svg>
+        <span>My Pets</span>
+      </a>
+      <a href="book-appointment.html" class="nav-link active" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+        <span>Book Appointments</span>
+      </a>
+      <a href="my-appointments.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <span>My Appointments</span>
+      </a>
+      <a href="medical-records.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M6.5 2h7.2l5.8 5.8v11.7a2.5 2.5 0 0 1-2.5 2.5h-10.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2zM8.4 11.2h7.2a.9.9 0 0 1 0 1.8H8.4a.9.9 0 0 1 0-1.8zm0 4h7.2a.9.9 0 0 1 0 1.8H8.4a.9.9 0 0 1 0-1.8zM8.4 7.2h2.7a.9.9 0 0 1 0 1.8H8.4a.9.9 0 0 1 0-1.8z"/></svg>
+        <span>Medical Records</span>
+      </a>
+      <a href="vaccination-history.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.5 3 8 7.5 9.5 4.5-1.5 7.5-5 7.5-9.5V6L12 3Z"/></svg>
+        <span>Vaccination History</span>
+      </a>
+      <a href="services.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8L3 12Z"/><circle cx="7.5" cy="8.5" r="1.2" fill="currentColor"/></svg>
+        <span>Services</span>
+      </a>
+      <a href="profile.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.5-7 8-7s8 2.5 8 7"/></svg>
+        <span>My Profile</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="avatar" id="user-avatar"></div>
+      <div class="user-meta">
+        <strong id="sidebar-name">User Name</strong>
+        <a href="../auth/login.html" id="logout" class="logout">
+          LOG OUT
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/></svg>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <header class="ap-head">
+      <h1>Book Appointment</h1>
+      <p class="ap-sub-title">Pick a pet, a time, and what they need. The clinic will confirm your request.</p>
+    </header>
+    <p id="booking-error" class="ap-error" role="alert" hidden></p>
+
+    <div class="ap-layout" id="book-layout">
+      <form id="appt-form" class="ap-card" novalidate>
+        <div class="ap-grid">
+          <div class="ap-field">
+            <label for="pet">Pet</label>
+            <select id="pet" name="pet" required><option value=""></option></select>
+            <p class="ap-hint" id="no-pets" hidden>You have no pets yet. <a href="add-pet.html">Add a pet</a> first.</p>
+            <p class="ap-error" id="err-pet" role="alert" hidden></p>
+          </div>
+
+          <div class="ap-field">
+            <label for="vet">Veterinarian</label>
+            <select id="vet" name="vet"><option value="">To be assigned</option></select>
+          </div>
+
+          <div class="ap-field">
+            <label for="date">Date</label>
+            <div class="ap-date">
+              <input id="date" name="date" type="text" inputmode="numeric" placeholder="MM/DD/YYYY" maxlength="10" autocomplete="off" required />
+              <button type="button" class="ap-date-btn" id="date-btn" aria-label="Pick a date from the calendar"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></button>
+              <input id="date-picker" class="ap-date-native" type="date" tabindex="-1" aria-hidden="true" />
+            </div>
+            <p class="ap-error" id="err-date" role="alert" hidden></p>
+          </div>
+
+          <div class="ap-field">
+            <label for="time">Time</label>
+            <select id="time" name="time" required><option value="">Select time</option></select>
+            <p class="ap-error" id="err-time" role="alert" hidden></p>
+          </div>
+
+          <div class="ap-field ap-full">
+            <label for="reason">Reason for visit</label>
+            <textarea id="reason" name="reason" placeholder="Ex. Throwing up, Overdue Vaccination, etc." maxlength="500"></textarea>
+          </div>
+
+          <div class="ap-field ap-full">
+            <span class="ap-label" id="services-label">Services</span>
+            <div id="services" class="ap-services" role="group" aria-labelledby="services-label"></div>
+            <p class="ap-error" id="err-services" role="alert" hidden></p>
+          </div>
+        </div>
+      </form>
+
+      <div class="ap-side">
+      <aside class="ap-summary" aria-label="Request summary">
+        <h2>Request Summary</h2>
+        <div class="ap-sum-rows">
+          <div class="ap-sum-row"><span class="ap-sum-label">Pet</span><span id="sum-pet">—</span></div>
+          <div class="ap-sum-row"><span class="ap-sum-label">Vet</span><span id="sum-vet">To be assigned</span></div>
+          <div class="ap-sum-row"><span class="ap-sum-label">When</span><span id="sum-when">—</span></div>
+        </div>
+        <div class="ap-sum-lines" id="sum-lines"></div>
+        <div class="ap-total"><span>Estimated Total</span><strong id="sum-total">₱0</strong></div>
+        <p class="ap-note">Prices follow the current service list and may change. Your request starts as Pending until staff approve it.</p>
+        <div class="ap-sum-actions">
+          <button type="submit" form="appt-form" class="abtn abtn-primary">Request Appointment</button>
+          <a href="dashboard.html" class="abtn abtn-cancel">Cancel</a>
+        </div>
+      </aside>
+
+      <!-- Shown under the summary after a request is sent -->
+      <section class="ap-done" id="done" hidden aria-live="polite">
+        <div class="ap-done-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </div>
+        <h2>Request sent</h2>
+        <p class="ap-done-text" id="done-text"></p>
+        <p class="ap-done-status">Status: <span class="ap-pill">Pending</span> The clinic will confirm your request.</p>
+        <div class="ap-done-actions">
+          <a href="my-appointments.html" class="abtn abtn-outline">View My Appointments</a>
+          <button type="button" class="abtn abtn-primary" id="book-another">Book another</button>
+        </div>
+      </section>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="../../js/core/api.js"></script>
+  <script src="../../js/owner/app-shell.js"></script>
+  <script src="../../js/owner/calendar.js"></script>
+  <script src="../../js/owner/pets-store.js"></script>
+  <script src="../../js/owner/appts-store.js"></script>
+  <script src="../../js/owner/book-appointment.js"></script>
+    
+</body>
+</html>

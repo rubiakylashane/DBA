@@ -1,0 +1,39 @@
+/* Dashboard-only layout */
+
+.page-head h1 { font-size: 36px; font-weight: 700; line-height: 1.2; }
+.date { margin-top: 4px; font-size: 14px; }
+
+.stats { margin-top: 28px; }
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2.4fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 60px);
+  align-items: start;
+  margin-top: 44px;
+}
+.col { display: flex; flex-direction: column; gap: 22px; }
+
+@media (max-width: 1100px) { .dash-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .page-head h1 { font-size: 28px; } }
+
+/* My pets / Overdue vaccinations list */
+.dash-grid .list { list-style: none; margin: 0; padding: 0; border-top: 1px solid #333; }
+.dash-grid .list li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+}
+.dash-grid .list li:last-child { border-bottom: 0; }
+.dash-grid .list-thumb {
+  flex: none;
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  background: #d9d9d9 center / cover no-repeat;
+}
+.dash-grid .list strong { display: block; font-size: 13px; font-weight: 600; }
+.dash-grid .list small { display: block; margin-top: 3px; font-size: 11.5px; color: #222; }
+.dash-grid .card-foot { display: flex; justify-content: center; padding-top: 14px; }

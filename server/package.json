@@ -1,0 +1,21 @@
+{
+  "name": "pawpaw-clinic-server",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "migrate": "node migrate.js",
+    "seed": "node scripts/seed.js",
+    "create-admin": "node scripts/create-admin.js",
+    "check": "node --check index.js && node --check app.js && node --check routes/auth.js && node --check routes/clinic.js && node --check routes/integrations.js && node --check routes/password-reset.js && node --check utils/sms.js && node --check utils/mailer.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "nodemailer": "^10.2.1",
+    "pg": "^8.13.1"
+  }
+}

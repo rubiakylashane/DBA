@@ -1,0 +1,54 @@
+/* css/pages/staff/records.css - staff Records page (builds on dashboard.css + owners.css) */
+.sdash .a-muted { color: #777; }
+.sdash .head-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+
+/* search + sort sit on the green background */
+.sdash .rec-toolbar { margin: 0 0 22px; }
+.sdash .rec-toolbar .own-sort { color: #fff; background: transparent; margin-left: auto; }
+.sdash .rec-toolbar .own-sort select { color: #fff; background-color: transparent; border: 0; border-bottom: 1px solid rgba(255, 255, 255, .7); font-weight: 600; }
+.sdash .rec-toolbar .own-sort select option { color: #111; background: #fff; }
+
+.sdash .rec-card { max-width: none; margin: 0 0 28px; padding: 24px 30px 28px; min-height: 0; }
+.sdash .rec-card h2 { font-size: 16px; font-weight: 700; margin: 0 0 12px; }
+
+.sdash .rrow { gap: 16px; min-height: 0; padding: 14px 0; cursor: pointer; }
+.sdash .rrow.orow-head { cursor: default; padding: 10px 0 12px; }
+.sdash .rrow:not(.orow-head):hover { background: #f4f8f5; }
+.sdash .rrow-visit { grid-template-columns: 1.2fr 1.1fr 1.4fr 1.4fr 1.5fr; }
+.sdash .rrow-rx { grid-template-columns: 1.2fr 1.1fr 1.3fr 1fr 1.6fr .9fr; }
+.sdash .rrow > [role="cell"] { font-size: 13px; }
+.sdash .rrow .o-name { font-size: 13px; }
+.sdash .r-clip { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+
+@media (max-width: 1100px) {
+  .sdash .rec-card .otable { overflow-x: auto; }
+  .sdash .rrow-visit { min-width: 820px; }
+  .sdash .rrow-rx { min-width: 960px; }
+}
+
+/* dialog bits used by the vet's add forms */
+.sdash .dlg-text { width: 100%; padding: 10px; font: inherit; font-size: 14px; border: 1px solid #555; border-radius: 8px; resize: vertical; box-sizing: border-box; }
+.sdash .dlg-two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sdash .dlg-hint { margin-top: 10px; min-height: 18px; font-size: 13px; font-weight: 600; }
+.sdash .dlg-hint.bad { color: #b3261e; }
+.sdash .dlg { width: min(440px, 92vw); }
+
+.sdash .rec-scope { margin: 0 0 14px; font-size: 12px; color: #fff; }
+.sdash .rec-scope button { margin-left: 10px; padding: 4px 14px; border: 1px solid #fff; border-radius: 999px; background: transparent; color: #fff; font: inherit; font-size: 12px; cursor: pointer; }
+.sdash .rec-scope button:hover { background: rgba(255, 255, 255, .15); }
+
+/* table headers: bold */
+.sdash .rrow.orow-head span { font-weight: 700; }
+ 
+/* spacing: pantay ang gap ng columns */
+.sdash .rrow { column-gap: 20px; }
+.sdash .rrow-visit { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.sdash .rrow-rx { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+
+.sdash .rrow.orow-head span { font-weight: 700; }
+ 
+.sdash .rrow { column-gap: 12px; padding: 18px 0; min-height: 88px; }
+.sdash .rrow.orow-head { padding: 12px 0 16px; min-height: 0; }
+.sdash .rrow-visit { grid-template-columns: 1.4fr 1.3fr 1.4fr 1.4fr 1.5fr; }
+.sdash .rrow-rx { grid-template-columns: 1.3fr 1.3fr 1.3fr 1fr 1.6fr .9fr; }
+ 

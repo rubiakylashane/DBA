@@ -1,0 +1,54 @@
+/* css/pages/services.css
+   Services page. Works on top of layout.css. Classes start with svc- so they cannot clash with components.css.
+   The background (assets/images/dashboard-bg.svg) comes from layout.css like the other owner pages. */
+
+.svc-head { margin-bottom: 36px; }
+.svc-head h1 { margin: 0; font-size: 36px; font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; }
+.svc-sub { margin: 8px 0 0; font-size: 14px; }
+
+.svc-list {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 46px;
+  min-height: calc(100vh - 190px);   /* spreads the rows over the whole screen height */
+  padding: 0 12px 24px 0;
+}
+.svc-row { display: flex; gap: 32px; }
+.svc-row > .svc-card { margin-right: 10px; }   /* room for the yellow shadow */
+.svc-row.is-shifted { padding-left: 12%; }   /* every other row is shifted to the right */
+
+.svc-card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 207px;
+  padding: 22px 26px 18px;
+  color: var(--ink, #111);
+  text-decoration: none;
+  background: #fff;
+  border: 1px solid #555;
+  border-radius: 14px;
+  box-shadow: 10px 10px 0 var(--yellow, #f0b94a);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.svc-card:hover { text-decoration: none; transform: translate(-2px, -2px); box-shadow: 12px 12px 0 var(--yellow, #f0b94a); }
+.svc-card:focus-visible { outline: 3px solid color-mix(in srgb, var(--green, #0f6b5c) 45%, transparent); outline-offset: 3px; }
+.svc-card h2 { margin: 0 0 12px; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+.svc-card p { margin: 0; font-size: 17px; line-height: 1.35; color: #444; }
+.svc-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding: 14px 6px 0 0; color: var(--green, #0f6b5c); }
+.svc-foot strong { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; }
+.svc-foot svg { width: 26px; height: 26px; }
+.svc-empty { margin: 0; color: #555; }
+
+@media (max-width: 1100px) {
+  .svc-row.is-shifted { padding-left: 0; }
+}
+@media (max-width: 760px) {
+  .svc-head h1 { font-size: 28px; }
+  .svc-list { gap: 28px; padding-right: 10px; }
+  .svc-row { flex-direction: column; gap: 28px; }
+  .svc-card { min-height: 0; }
+}

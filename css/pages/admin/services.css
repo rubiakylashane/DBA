@@ -1,0 +1,58 @@
+/* css/pages/admin/services.css - admin Services list + Add / Edit service (load after admin.css and users.css) */
+.adm .sv-warn { margin: 0 26px 14px; padding: 12px 16px; font-size: 12px; line-height: 1.5; color: #7a4a00; background: #fdf1d9; border-radius: 10px; }
+.adm .sv-card { margin: 0 26px 18px; padding: 14px 20px 18px; color: #111; background: #fff; border: 1px solid var(--line); border-radius: 14px; }
+
+.adm .sv-row { display: grid; align-items: center; column-gap: 18px; padding: 12px 0; min-height: 50px; font-size: 13px; border-bottom: 1px solid #e3e3e3; grid-template-columns: minmax(0, 1.2fr) minmax(0, 2.4fr) 110px 172px; }
+.adm .sv-row:last-child { border-bottom: 0; }
+.adm .sv-head { min-height: 0; padding: 8px 0; font-size: 11px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: #333; border-bottom: 1px solid #aaa; }
+.adm .sv-name { font-weight: 700; overflow-wrap: anywhere; }
+.adm .sv-desc { overflow-wrap: anywhere; }
+.adm .sv-price { font-weight: 700; }
+.adm .sv-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.adm .sv-empty { padding: 22px 0 6px; font-size: 14px; color: #555; }
+
+/* add / edit form */
+.adm .sv-form { padding: 18px 20px 22px; }
+.adm .sv-form h2 { margin: 0 0 14px; font-size: 16px; font-weight: 700; color: #111; }
+.adm .sv-grid { display: grid; grid-template-columns: minmax(0, 1.9fr) minmax(0, 1.3fr) minmax(0, 1.5fr); gap: 14px 20px; margin-bottom: 18px; align-items: start; }
+.adm .sv-field label { display: block; margin-bottom: 7px; font-size: 12px; font-weight: 700; }
+.adm .sv-field input { width: 100%; height: 50px; padding: 0 14px; font: inherit; font-size: 14px; color: #111; background: #fff; border: 1px solid #c9c9c9; border-radius: 8px; }
+.adm .sv-field input::placeholder { color: #8a8a8a; }
+.adm .sv-field input:focus-visible { outline: 3px solid rgba(15, 107, 92, .4); outline-offset: 1px; border-color: #0f6b5c; }
+.adm .sv-field [aria-invalid="true"] { border-color: #c0281c; }
+.adm .sv-err { margin-top: 5px; font-size: 12.5px; font-weight: 500; color: #c0281c; }
+.adm .sv-hint { margin-top: 5px; font-size: 12px; color: #555; }
+.adm .sv-actions { display: flex; gap: 16px; }
+.adm .sv-btn { display: inline-flex; align-items: center; justify-content: center; min-width: 120px; min-height: 50px; padding: 0 22px; font: inherit; font-size: 13px; font-weight: 700; border-radius: 8px; cursor: pointer; text-decoration: none; border: 1px solid transparent; }
+.adm .sv-btn-cancel { color: #e11b1b; background: #fff; border-color: #222; }
+.adm .sv-btn-cancel:hover { background: #fdf0f0; }
+.adm .sv-btn-ok { color: #fff; background: #0f6b5c; border-color: #0d5a4d; }
+.adm .sv-btn-ok:hover { filter: brightness(1.07); }
+.adm .sv-btn:focus-visible { outline: 3px solid rgba(15, 107, 92, .5); outline-offset: 2px; }
+
+@media (max-width: 1100px) {
+  .adm .sv-grid { grid-template-columns: 1fr 1fr; }
+  .adm .sv-f-desc { grid-column: 1 / -1; }
+}
+@media (max-width: 900px) {
+  .adm .sv-warn, .adm .sv-card { margin-left: 0; margin-right: 0; }
+  .adm .sv-row.sv-head { display: none; }
+  .adm .sv-row { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 14px 0; }
+  .adm .sv-row .sv-name { flex-basis: 100%; font-size: 15px; }
+  .adm .sv-row .sv-desc { flex-basis: 100%; }
+  .adm .sv-acts { flex-basis: 100%; }
+}
+@media (max-width: 560px) {
+  .adm .sv-grid { grid-template-columns: 1fr; }
+  .adm .sv-actions { flex-direction: column; }
+  .adm .sv-btn { width: 100%; }
+}
+.adm .sv-acts .u-act { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+
+/* Inactive service */
+.adm .sv-off .sv-name, .adm .sv-off .sv-desc, .adm .sv-off .sv-price { color: #777; }
+.adm .sv-tag { display: inline-block; margin-left: 6px; padding: 1px 8px; font-size: 10.5px; font-weight: 700; color: #555; background: #e4e4e4; border-radius: 999px; vertical-align: middle; }
+
+/* Admin Services: the Add service / Save button uses the admin amber */
+body.sdash.adm .sv-btn-ok { color: #1b1300; background: #e29d1a; border: 1px solid #c98712; }
+body.sdash.adm .sv-btn-ok:hover { background: #e29d1a; filter: brightness(1.07); }

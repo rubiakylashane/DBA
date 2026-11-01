@@ -1,0 +1,33 @@
+:root {
+  --green: #0f6b5c;
+  --green-deep: #0d5a4d;
+  --yellow: #f2b53d;
+  --paper: #f5f6f4;
+  --ink: #0a0a0a;
+  --muted: #5b625f;
+  --border: #6b7370;
+  --line: #3d4341;
+  --font: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --font-ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  font-family: var(--font);
+  color: var(--ink);
+  background: var(--paper);
+}
+
+a {
+  color: var(--green);
+  font-weight: 600;
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+a:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--green) 35%, transparent);
+  border-radius: 2px;
+}

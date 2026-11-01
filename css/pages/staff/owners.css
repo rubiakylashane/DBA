@@ -1,0 +1,494 @@
+/* css/pages/staff/owners.css
+   Staff "Owners and Pets" pages: owner list, register walk-in, view / edit owner, add / edit pet.
+   Used together with dashboard.css (sidebar, page shell, colours). Everything is scoped under body.sdash. */
+
+.sdash .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- Page header ---------- */
+.sdash .head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 28px; }
+.sdash .head-row .page-head { margin-bottom: 0; }
+.sdash .head-row .sub { margin-top: 8px; font-size: 14px; }
+.sdash .abtn {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  min-height: 35px; padding: 7px 14px; margin-top: 12px;
+  color: #123d33; background: var(--orange); border: 0; border-radius: 6px;
+  font: inherit; font-size: 15px; font-weight: 600; letter-spacing: -0.01em; cursor: pointer;
+  transition: filter .15s;
+}
+.sdash .abtn:hover { filter: brightness(1.07); }
+.sdash .abtn-wide { min-width: 204px; }
+.sdash .abtn-light { background: #f8ab2b; min-width: 156px; }
+/* staff and vet: Golden Lemon buttons with black text (the admin pages keep their own orange) */
+.sdash:not(.adm) .abtn, .sdash:not(.adm) .abtn-light { color: #111; background: var(--orange); }
+
+/* ---------- Big buttons (forms) ---------- */
+.sdash .obtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 66px; padding: 0 20px;
+  font: inherit; font-size: 18px; font-weight: 600; letter-spacing: -0.01em;
+  border: 1px solid transparent; border-radius: 8px; cursor: pointer;
+  transition: background .15s, filter .15s;
+}
+.sdash .obtn-sm { min-height: 35px; padding: 0 18px; font-size: 11.5px; border-radius: 6px; }
+.sdash .obtn-green { color: #fff; background: var(--green); }
+.sdash .obtn-green:hover { background: var(--green-dark); }
+.sdash .obtn-amber { color: #fff; background: #f8ab2b; }
+.sdash .obtn-amber:hover { filter: brightness(1.06); }
+.sdash:not(.adm) .obtn-amber { color: #111; background: var(--orange); }
+.sdash .obtn-cancel { color: #e11b1b; background: #fff; border-color: #111; }
+.sdash .obtn-cancel:hover { background: #fdf0f0; }
+.sdash .obtn-outline { color: #111; background: #fff; border-color: #444; font-weight: 500; }
+.sdash .obtn-outline:hover { background: #eef1ee; }
+.sdash .obtn:focus-visible, .sdash .abtn:focus-visible, .sdash .spet:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, .9); outline-offset: 2px;
+}
+
+/* ---------- White cards ---------- */
+.sdash .own-card {
+  color: #111; background: #fff;
+  border: 1px solid var(--line); border-radius: 26px;
+}
+.sdash .own-missing { padding: 18px 4px; color: #fff; font-size: 13px; }
+.sdash .own-missing a { text-decoration: underline; }
+
+/* ---------- Owner list ---------- */
+.sdash .own-list { max-width: 960px; margin: 0 auto; padding: 14px 20px 30px; }
+.sdash .own-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+.sdash .own-search {
+  width: min(280px, 60%); height: 35px; padding: 0 16px;
+  font: inherit; font-size: 12px; color: #111; background: #fff;
+  border: 1px solid #555; border-radius: 999px;
+}
+.sdash .own-search::placeholder { color: #666; opacity: 1; }
+.sdash .own-search:focus-visible, .sdash .own-sort select:focus-visible { outline: 3px solid rgba(15, 107, 92, .4); outline-offset: 1px; }
+.sdash .own-sort select {
+  height: 35px; width: 150px; padding: 0 26px 0 0; font: inherit; font-size: 12px; font-weight: 600; text-align: center; text-align-last: center;
+  color: #111; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23555' stroke-width='1.3'/%3E%3C/svg%3E") no-repeat right 10px center;
+  border: 0; border-bottom: 1px solid #ddd; border-radius: 0; appearance: none; -webkit-appearance: none; cursor: pointer;
+}
+.sdash .orow {
+  display: grid; align-items: center; column-gap: 12px;
+  grid-template-columns: 2.1fr 1.5fr .7fr 1.7fr 1.5fr;
+  padding: 14px 0; min-height: 66px; border-bottom: 1px solid #777;
+}
+.sdash .orow-head { min-height: 0; padding: 10px 0 12px; font-size: 11px; font-weight: 500; text-transform: uppercase; color: #222; border-bottom: 1px solid #777; }
+.sdash .orow:last-child { border-bottom: 0; }
+.sdash .c-center { text-align: center; justify-self: center; }
+.sdash .o-name { display: block; font-size: 13px; font-weight: 700; line-height: 1.15; }
+.sdash .o-email { display: block; font-size: 11.5px; line-height: 1.15; overflow-wrap: anywhere; }
+.sdash .o-phone { font-size: 13px; }
+.sdash .orow > [role="cell"]:not(.o-phone) { font-size: 13px; }
+.sdash .o-empty { padding: 28px 4px 12px; font-size: 13px; color: #555; }
+
+
+/* ---------- Owner list: bigger, easier to read ---------- */
+.sdash .own-list { max-width: none; padding: 22px 30px 40px; min-height: 520px; }
+.sdash .own-toolbar { margin-bottom: 18px; }
+.sdash .own-search { width: min(360px, 60%); height: 44px; font-size: 12px; padding: 0 20px; }
+.sdash .own-sort select { height: 44px; width: 180px; font-size: 12px; }
+.sdash .orow { grid-template-columns: 2.3fr 1.6fr .7fr 1.7fr 1.5fr; padding: 18px 0; min-height: 88px; }
+.sdash .orow.orow-head { min-height: 0; padding: 12px 0 16px; font-size: 11px; }
+.sdash .o-name { font-size: 13px; line-height: 1.25; }
+.sdash .o-email { margin-top: 2px; font-size: 11.5px; line-height: 1.25; }
+.sdash .o-phone, .sdash .orow > [role="cell"]:not(.o-phone) { font-size: 13px; }
+.sdash .orow .obtn-sm { min-height: 44px; padding: 0 22px; font-size: 11.5px; }
+.sdash .o-empty { padding: 36px 4px 16px; font-size: 13px; }
+
+/* ---------- Register walk-in / forms ---------- */
+.sdash .own-narrow { max-width: 585px; margin: 0 auto; padding: 38px 70px 62px; }
+.sdash .of-field { margin-bottom: 20px; }
+.sdash .of-field > label, .sdash .of-label { display: block; margin-bottom: 8px; font-size: 17px; font-weight: 700; letter-spacing: -0.02em; }
+.sdash .of-field input[type="text"], .sdash .of-field input[type="email"], .sdash .of-field input[type="password"],
+.sdash .of-field textarea {
+  display: block; width: 100%; height: 54px; padding: 0 14px;
+  font: inherit; font-size: 15px; color: #111; background: #fff;
+  border: 1px solid #555; border-radius: 8px;
+}
+.sdash .of-field textarea { height: 158px; padding: 12px 14px; resize: vertical; }
+.sdash .of-field ::placeholder { color: #777; opacity: 1; }
+.sdash .of-field input:focus-visible, .sdash .of-field textarea:focus-visible {
+  outline: 3px solid rgba(15, 107, 92, .35); outline-offset: 1px; border-color: #0f6b5c;
+}
+.sdash .of-field [aria-invalid="true"] { border-color: #b91c1c; }
+.sdash .of-error { margin: 6px 0 0; font-size: 12px; color: #b91c1c; }
+.sdash .of-actions { display: grid; gap: 38px; justify-content: center; }
+.sdash .of-actions-narrow { grid-template-columns: 200px 207px; margin-top: 56px; }
+.sdash .of-actions-wide { grid-template-columns: 178px 210px; gap: 38px; margin: 40px 0 8px; }
+.sdash .of-actions .obtn { white-space: nowrap; }
+
+/* ---------- Owner details ---------- */
+.sdash .own-profile { display: flex; align-items: center; gap: 48px; padding: 32px 40px 38px; margin-bottom: 40px; border-radius: 22px; }
+.sdash .own-avatar { flex: none; width: 200px; height: 200px; border-radius: 50%; background: #d9d9d9 center / cover no-repeat; }
+.sdash .own-info { flex: 1; min-width: 0; }
+.sdash .own-info h2 { margin-bottom: 14px; font-size: 24px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; overflow-wrap: anywhere; }
+.sdash .own-info p { margin: 4px 0 0; font-size: 16px; color: #333; overflow-wrap: anywhere; }
+.sdash .own-info p strong { color: #111; font-weight: 700; }
+.sdash .own-phone-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.sdash .own-phone-row .obtn { flex: none; min-width: 157px; }
+
+.sdash .pets-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 0 22px 4px; }
+.sdash .pets-head h2 { font-size: 24px; font-weight: 700; letter-spacing: -0.03em; }
+.sdash .pets-head .abtn { margin-top: 18px; margin-right: 0; }
+.sdash .spets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 30px; }
+.sdash .spets-empty { grid-column: 1 / -1; padding: 8px 4px; font-size: 13px; }
+.sdash .spet {
+  display: block; padding: 22px 22px 26px; color: #111; background: #fff;
+  border: 1px solid var(--line); border-radius: 16px; transition: transform .15s, box-shadow .15s;
+}
+.sdash .spet:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 0, 0, .22); }
+.sdash .spet-top { display: flex; align-items: center; gap: 18px; padding-bottom: 12px; margin-bottom: 14px; border-bottom: 1px solid #777; }
+.sdash .spet-photo { flex: none; width: 70px; height: 70px; border-radius: 14px; background: #d9d9d9 center / cover no-repeat; }
+.sdash .spet-top h3 { font-size: 16px; font-weight: 500; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.sdash .spet-top p { margin-top: 2px; font-size: 13px; color: #555; }
+.sdash .spet-facts { display: grid; gap: 10px; margin: 0; font-size: 13px; }
+.sdash .spet-facts div { display: flex; justify-content: space-between; gap: 12px; }
+.sdash .spet-facts dt { color: #555; }
+.sdash .spet-facts dd { margin: 0; font-weight: 500; text-align: right; overflow-wrap: anywhere; }
+
+/* ---------- Edit owner ---------- */
+.sdash .own-edit-card { padding: 34px 30px 30px; margin-bottom: 22px; border-radius: 10px; }
+.sdash .oe-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 40px; row-gap: 22px; }
+.sdash .oe-grid .of-field { margin: 0; min-width: 0; }
+.sdash .oe-name { grid-column: 1; grid-row: 1; }
+.sdash .oe-email { grid-column: 1; grid-row: 2; }
+.sdash .oe-address { grid-column: 1; grid-row: 3; }
+.sdash .oe-picture { grid-column: 2; grid-row: 1 / 4; text-align: center; }
+.sdash .oe-phone { grid-column: 2; grid-row: 4; }
+.sdash .oe-picture .of-label { text-align: left; }
+.sdash .of-field > .of-photo-box {
+  position: relative; display: grid; place-items: center; width: min(280px, 100%); aspect-ratio: 1; margin: 0 auto; overflow: hidden;
+  color: #666; font-size: 14px; font-weight: 500; letter-spacing: 0; background: #fff;
+  border: 1px solid #555; border-radius: 18%; cursor: pointer;
+}
+.sdash .of-photo-box:hover, .sdash .of-photo-box:focus-within { border-color: #0f6b5c; }
+.sdash .of-photo-box img { width: 100%; height: 100%; object-fit: cover; }
+.sdash .of-photo-box img[hidden], .sdash .of-photo-box span[hidden] { display: none; }
+.sdash .of-photo-box input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.sdash .of-photo-remove { margin-top: 8px; padding: 0; font: inherit; font-size: 13px; font-weight: 600; color: #0f6b5c; background: none; border: 0; text-decoration: underline; cursor: pointer; }
+.sdash .of-photo-remove[hidden] { display: none; }
+.sdash .own-pass h2 { margin-bottom: 14px; font-size: 21px; font-weight: 700; letter-spacing: -0.02em; }
+.sdash .oe-pass-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
+.sdash .oe-pass-grid .of-field { margin: 0; }
+.sdash .oe-pass-grid .of-field > label { font-size: 17px; }
+.sdash .of-pass { position: relative; }
+.sdash .of-pass input { height: 40px !important; padding-right: 44px !important; border-radius: 8px; }
+.sdash .of-eye { position: absolute; top: 50%; right: 8px; display: grid; place-items: center; width: 30px; height: 30px; padding: 0; color: #111; background: none; border: 0; border-radius: 6px; transform: translateY(-50%); cursor: pointer; }
+.sdash .of-eye:hover { background: #eef1ee; }
+.sdash .of-eye svg { width: 24px; height: 24px; }
+
+/* ---------- Add / Edit pet buttons ---------- */
+.sdash .pf-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 326px)); justify-content: center; gap: 62px; margin-top: 36px; }
+.sdash .pf-card { max-width: 1000px; margin: 0 auto; }
+.sdash .pf-card { color: #111; }
+.sdash .pf-grid label { color: #111; }
+
+
+/* ---------- Edit owner: compact so the Cancel / Save Changes buttons are visible without scrolling ---------- */
+.sdash #owner-form .own-edit-card { padding: 22px 28px 22px; margin-bottom: 16px; }
+.sdash #owner-form .oe-grid { row-gap: 14px; }
+.sdash #owner-form .of-field > label, .sdash #owner-form .of-label { margin-bottom: 6px; font-size: 17px; }
+.sdash #owner-form .of-field input[type="text"], .sdash #owner-form .of-field input[type="email"] { height: 50px; }
+.sdash #owner-form .of-field textarea { height: 124px; }
+.sdash #owner-form .of-field > .of-photo-box { width: min(240px, 100%); }
+.sdash #owner-form .own-pass { padding-top: 18px; padding-bottom: 20px; }
+.sdash #owner-form .own-pass h2 { margin-bottom: 8px; font-size: 21px; }
+.sdash #owner-form .oe-pass-grid .of-field > label { font-size: 17px; }
+.sdash #owner-form .of-pass input { height: 38px !important; }
+.sdash #owner-form .of-actions-wide { margin: 18px 0 0; }
+.sdash #owner-form .obtn { min-height: 52px; font-size: 18px; }
+
+/* ---------- Smaller screens ---------- */
+@media (max-width: 1100px) {
+  .sdash .oe-pass-grid { grid-template-columns: 1fr; gap: 18px; }
+}
+@media (max-width: 800px) {
+  .sdash .head-row { flex-direction: column; }
+  .sdash .own-narrow { padding: 28px 22px 36px; }
+  .sdash .of-actions-narrow, .sdash .of-actions-wide, .sdash .pf-actions { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .sdash .own-profile { flex-direction: column; align-items: flex-start; padding: 24px; gap: 20px; }
+  .sdash .own-info h2 { font-size: 20px; } .sdash .own-info p { font-size: 15px; }
+  .sdash .own-phone-row { flex-direction: column; align-items: flex-start; }
+  .sdash .oe-grid, .sdash .pf-grid { grid-template-columns: 1fr; }
+  .sdash .oe-grid > *, .sdash .pf-grid > * { grid-column: 1 !important; grid-row: auto !important; }
+  .sdash .orow { grid-template-columns: 1fr 1fr; row-gap: 6px; }
+  .sdash .orow-head { display: none; }
+  .sdash .c-center { justify-self: start; text-align: left; }
+}
+
+/* ---------- Calendar popup (js/owner/calendar.js) ---------- */
+/* ---------- Add / Edit form ---------- */
+.sdash .pf-card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none; /* fills the whole main area; put a number here (e.g. 1200px) to limit it */
+  padding: 34px 28px 34px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+}
+
+.sdash .pf-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 40px;
+  row-gap: 22px;
+  padding: 0 4px;
+}
+.sdash .pf-field { min-width: 0; }
+
+/* left column rows 1-5, right column: picture rows 1-3, birth date row 4, notes row 5 */
+.sdash .pf-name { grid-column: 1; grid-row: 1; }
+.sdash .pf-species { grid-column: 1; grid-row: 2; }
+.sdash .pf-breed { grid-column: 1; grid-row: 3; }
+.sdash .pf-sex { grid-column: 1; grid-row: 4; }
+.sdash .pf-allergies { grid-column: 1; grid-row: 5; }
+.sdash .pf-picture { grid-column: 2; grid-row: 1 / 4; }
+.sdash .pf-dob { grid-column: 2; grid-row: 4; }
+.sdash .pf-notes { grid-column: 2; grid-row: 5; }
+
+.sdash .pf-field > label,
+.sdash .pf-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.sdash .pf-field input[type="text"],
+.sdash .pf-field input[type="date"],
+.sdash .pf-field select,
+.sdash .pf-field textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 54px;
+  padding: 0 14px;
+  font: inherit;
+  font-size: 15px;
+  color: #111;
+  background: #fff;
+  border: 1px solid #555;
+  border-radius: 8px;
+}
+.sdash .pf-field textarea { height: 158px; padding: 12px 14px; resize: vertical; }
+.sdash .pf-field ::placeholder { color: #777; opacity: 1; }
+.sdash .pf-field input:focus-visible,
+.sdash .pf-field select:focus-visible,
+.sdash .pf-field textarea:focus-visible {
+  outline: 3px solid color-mix(in srgb, #0f6b5c 35%, transparent);
+  outline-offset: 1px;
+  border-color: #0f6b5c;
+}
+.sdash .pf-field [aria-invalid="true"] { border-color: #b91c1c; }
+
+/* dropdown arrow */
+.sdash .pf-field select {
+  padding-right: 42px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='10' viewBox='0 0 14 10'%3E%3Cpath d='M1 2l6 6 6-6z' fill='%23111'/%3E%3C/svg%3E") no-repeat right 14px center;
+}
+/* locked field (species when editing): no arrow, no pointer */
+.sdash .pf-field select:disabled { cursor: default; opacity: 1; color: #111; }
+.sdash .pf-field select#species:disabled { background-image: none; }
+.sdash .pf-field select#breed:disabled { opacity: 0.55; }
+
+/* date field: type MM/DD/YYYY, or click the calendar icon to pick */
+.sdash .pf-date { position: relative; }
+.sdash .pf-date input#dob { padding-right: 56px; }
+.sdash .pf-date-btn {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  color: #111;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+.sdash .pf-date-btn:hover { background: #eef1ee; }
+.sdash .pf-date-btn:focus-visible { outline: 3px solid color-mix(in srgb, #0f6b5c 35%, transparent); }
+.sdash .pf-date-btn svg { width: 26px; height: 26px; }
+/* hidden native picker, only used to show the calendar popup */
+.sdash .pf-field input.pf-date-native {
+  position: absolute !important;
+  right: 0;
+  bottom: 0;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  font-size: 10px !important;   /* Chrome sizes the calendar popup from this: smaller number = smaller calendar */
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* picture */
+.sdash .pf-picture { text-align: center; }
+.sdash .pf-picture .pf-label { text-align: left; }
+.sdash .pf-field > .pf-photo-box {
+  position: relative;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: min(280px, 100%);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  overflow: hidden;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  background: #fff;
+  border: 1px solid #555;
+  border-radius: 18%;
+  cursor: pointer;
+}
+.sdash .pf-photo-box:hover,
+.sdash .pf-photo-box:focus-within { border-color: #0f6b5c; }
+.sdash .pf-photo-box img { width: 100%; height: 100%; object-fit: cover; }
+.sdash .pf-photo-box img[hidden],
+.sdash .pf-photo-box span[hidden] { display: none; }
+.sdash .pf-photo-box input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.sdash .pf-photo-remove {
+  margin-top: 8px;
+  padding: 0;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f6b5c;
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.sdash .pf-photo-remove[hidden] { display: none; }
+
+.sdash .pf-error { margin: 6px 0 0; font-size: 12px; color: #b91c1c; }
+.sdash .pf-error[hidden] { display: none; }
+
+
+/* ---------- Calendar popup (opened by the calendar icon; js/owner/calendar.js) ---------- */
+/* to resize it: change .pcal width and .pcal-day width/height. Selected-day color: --pcal-accent */
+.pcal {
+  --pcal-accent: #0f6b5c;
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 6px);
+  right: 0;
+  box-sizing: border-box;
+  width: 300px;
+  padding: 0 0 14px;
+  color: #1b1b1b;
+  font: inherit;
+  font-size: 14px;
+  background: #fff;
+  border: 1px solid #ececec;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.16), 0 0 2px rgba(0,0,0,.14);
+}
+.pcal * { box-sizing: border-box; }
+.pcal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 50px;
+  padding: 0 14px 0 16px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #ececec;
+}
+.pcal-title {
+  padding: 4px 0;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1b1b1b;
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.pcal-title:hover:not(.is-static) { color: var(--pcal-accent); }
+.pcal-title.is-static { cursor: default; }
+.pcal-arrows { display: flex; gap: 10px; }
+.pcal-nav {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: #8a8a8a;
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.pcal-nav svg { width: 9px; height: 9px; }
+.pcal-nav:hover:not(:disabled) { background: #f1f1f1; color: #333; }
+.pcal-nav:disabled { opacity: .35; cursor: default; }
+.pcal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 2px;
+  justify-items: center;
+  padding: 0 10px;
+  text-align: center;
+}
+.pcal-dow {
+  padding: 10px 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1b1b1b;
+}
+.pcal-day {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  font: inherit;
+  font-size: 14px;
+  color: #1b1b1b;
+  background: none;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.pcal-day.is-other { color: #707070; }
+.pcal-day:hover:not(:disabled):not(.is-sel) { background: #f1f1f1; }
+.pcal-day.is-today:not(.is-sel) { box-shadow: inset 0 0 0 1.5px var(--pcal-accent); }
+.pcal-day.is-sel { color: #fff; background: var(--pcal-accent); }
+.pcal-day:disabled { color: #c4c4c4; cursor: default; }
+.pcal-pick {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 6px 14px 0;
+}
+.pcal-cell {
+  height: 44px;
+  font: inherit;
+  font-size: 14px;
+  color: #1b1b1b;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.pcal-cell:hover:not(:disabled):not(.is-sel) { background: #f1f1f1; }
+.pcal-cell.is-sel { color: #fff; background: var(--pcal-accent); }
+.pcal-cell:disabled { color: #c4c4c4; cursor: default; }
+.pcal button:focus-visible { outline: 2px solid var(--pcal-accent); outline-offset: 1px; }
+@media (max-width: 420px) {
+  .pcal { width: min(300px, calc(100vw - 32px)); }
+}
+
+/* Owners and Pets list: bold ang column names (Owner, Phone, Pets, Registered, Actions) */
+.sdash .otable[aria-label="Owners and their pets"] .orow-head span { font-weight: 700; }
+ 

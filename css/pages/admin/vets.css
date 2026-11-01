@@ -1,0 +1,54 @@
+/* css/pages/admin/vets.css - Veterinarians page (load after users.css) */
+
+.adm .v-warn { margin: 0 26px 14px; padding: 12px 16px; font-size: 12px; line-height: 1.5; color: #7a4a00; background: #fdf1d9; border-radius: 10px; }
+.adm .v-card { margin: 0 26px 18px; padding: 14px 20px 20px; color: #111; background: #fff; border: 1px solid var(--line); border-radius: 14px; }
+.adm .v-row { display: grid; align-items: center; column-gap: 14px; padding: 12px 0; min-height: 50px; font-size: 13px; border-bottom: 1px solid #e3e3e3; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, .9fr) minmax(0, 1.5fr) 172px; }
+.adm .v-row:last-child { border-bottom: 0; }
+.adm .v-head { min-height: 0; padding: 8px 0; font-size: 11px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: #333; border-bottom: 1px solid #aaa; }
+.adm .v-name { font-weight: 700; }
+.adm .v-email { overflow-wrap: anywhere; }
+.adm .v-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.adm .v-add { padding: 18px 20px 22px; }
+.adm .v-add h2 { margin: 0 0 4px; font-size: 16px; font-weight: 700; }
+.adm .v-hint { margin: 0 0 14px; font-size: 12px; color: #555; }
+.adm .v-hint a { color: var(--green); font-weight: 600; text-decoration: underline; }
+.adm .v-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 18px; margin-bottom: 14px; }
+.adm .v-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.adm .v-field label { display: block; margin-bottom: 5px; font-size: 12px; font-weight: 600; }
+.adm .v-field input, .adm .v-field select { width: 100%; height: 38px; padding: 0 12px; font: inherit; font-size: 13px; color: #111; background: #fff; border: 1px solid #bbb; border-radius: 8px; }
+.adm .v-field input:focus-visible, .adm .v-field select:focus-visible { outline: 3px solid rgba(15, 107, 92, .4); outline-offset: 1px; }
+.adm .v-field [aria-invalid="true"] { border-color: #c0281c; }
+.adm .v-err { margin-top: 4px; font-size: 12px; font-weight: 500; color: #c0281c; }
+.adm .v-btn { min-height: 36px; padding: 0 20px; font: inherit; font-size: 13px; font-weight: 700; color: #fff; background: var(--green); border: 0; border-radius: 8px; cursor: pointer; }
+.adm .v-btn:hover { background: var(--green-dark); }
+.adm .v-btn:disabled { color: #6b7774; background: #d5dcda; cursor: not-allowed; }
+.adm .v-btn:disabled:hover { background: #d5dcda; }
+.adm .v-dlg { width: min(560px, calc(100vw - 32px)); }
+.adm .v-dlg .v-grid { margin-bottom: 8px; }
+
+@media (max-width: 1350px) {
+  .adm .v-row { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); row-gap: 8px; }
+  .adm .v-email { grid-column: span 2; }
+  .adm .v-head span:nth-child(5), .adm .v-head span:nth-child(6) { display: none; }
+}
+@media (max-width: 900px) {
+  .adm .v-warn, .adm .v-card { margin-left: 0; margin-right: 0; }
+  .adm .v-row.v-head { display: none; }
+  .adm .v-row { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 14px 0; }
+  .adm .v-row > span[data-label]::before { content: attr(data-label) ": "; color: #666; font-size: 11px; font-weight: 500; }
+  .adm .v-row > span.v-name::before { content: none; }
+  .adm .v-row .v-name { flex-basis: 100%; font-size: 15px; }
+  .adm .v-acts { flex-basis: 100%; }
+  .adm .v-grid, .adm .v-grid-2 { grid-template-columns: 1fr; }
+}
+
+/* Add Veterinarian: smaller Cancel / Confirm buttons, set below the white card */
+.adm #vet-actions .u-btn { min-width: 140px; min-height: 44px; padding: 0 24px; font-size: 15px; }
+@media (max-width: 900px) {
+  .adm #vet-actions .u-btn { width: 100%; min-height: 46px; font-size: 15px; }
+}
+
+/* deactivated veterinarians */
+.adm .v-row.is-off .v-name, .adm .v-row.is-off > span[data-label] { opacity: .6; }
+.adm .v-tag { display: inline-block; margin-left: 6px; padding: 1px 8px; font-style: normal; font-size: 11px; font-weight: 600; color: #555; background: #e6e6e6; border-radius: 999px; vertical-align: middle; }

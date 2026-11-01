@@ -1,0 +1,83 @@
+/* css/pages/staff/vaccines.css - Vaccination Reminder list + Book a Vaccination (builds on dashboard.css + owners.css) */
+.sdash .a-muted { color: #666; }
+
+/* list */
+.sdash .vx-list .vrow { grid-template-columns: 1fr 1.25fr 1.1fr 1.1fr 1.35fr 1.35fr; gap: 14px; min-height: 0; }
+.sdash .vx-list .vrow.orow-head { min-height: 0; }
+.sdash .vx-list .orow > [role="cell"] { font-size: 13px; }
+.sdash .vx-list .o-name { font-weight: 700; }
+.sdash .vpill { display: inline-block; padding: 5px 14px; border-radius: 999px; font-size: 11px; font-weight: 600; color: #fff; }
+.sdash .vpill-red { background: #d9534f; }
+.sdash .vpill-orange { background: #e8892b; }
+.sdash .vpill-green { background: #3ea86a; }
+.sdash .v-actions { display: flex; gap: 8px; }
+.sdash .v-actions .obtn-sm { min-height: 40px; padding: 0 16px; font-size: 11.5px; text-decoration: none; display: inline-flex; align-items: center; white-space: nowrap; }
+
+/* book form */
+.sdash .vx-book { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 28px; align-items: start; }
+.sdash .vx-form { max-width: none; padding: 26px 30px 30px; }
+.sdash .vx-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 30px; }
+.sdash .vx-f label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 600; }
+.sdash .vx-f select, .sdash .vx-f textarea, .sdash .vx-datebtn { width: 100%; font: inherit; font-size: 15px; color: #111; background: #fff; border: 1px solid #555; border-radius: 10px; box-sizing: border-box; }
+.sdash .vx-f select, .sdash .vx-datebtn { height: 46px; padding: 0 14px; }
+.sdash .vx-f textarea { padding: 12px 14px; resize: vertical; }
+.sdash .vx-datebtn { display: flex; align-items: center; justify-content: space-between; color: #777; cursor: pointer; }
+.sdash .vx-datebtn.has { color: #111; }
+.sdash .vx-datebtn svg { color: #111; }
+.sdash .vx-wide { margin-top: 18px; }
+.sdash .vx-err { margin-top: 12px; font-size: 14px; font-weight: 600; color: #b3261e; }
+.sdash .vx-h { margin: 26px 0 10px; font-size: 14px; font-weight: 700; }
+.sdash .vx-svc { margin-bottom: 14px; border: 1px solid #555; border-radius: 10px; background: #fff; }
+.sdash .vx-svc.on { background: #0f6b5c; color: #fff; border-color: #0f6b5c; }
+.sdash .vx-svc-head { display: flex; align-items: center; gap: 14px; padding: 16px 18px; cursor: pointer; font-size: 16px; font-weight: 500; }
+.sdash .vx-svc-head input { width: 20px; height: 20px; accent-color: var(--orange); }
+.sdash .vx-svc-name { flex: 1; }
+.sdash .vx-price { font-weight: 600; font-size: 15px; }
+.sdash .vx-types { padding: 0 18px 16px 52px; display: grid; gap: 10px; }
+.sdash .vx-type { display: grid; grid-template-columns: 1fr 110px 80px; gap: 12px; align-items: center; font-size: 14px; font-weight: 600; }
+.sdash .vx-type select { height: 30px; border-radius: 999px; border: 0; padding: 0 10px; font: inherit; font-size: 13px; background: #fff; color: #111; }
+
+/* summary */
+.sdash .vx-sum { padding: 22px 24px 26px; max-width: none; }
+.sdash .vx-sum h2 { font-size: 16px; font-weight: 700; padding-bottom: 12px; border-bottom: 1px solid #777; }
+.sdash .vx-sum dl { margin-top: 12px; display: grid; gap: 10px; font-size: 15px; }
+.sdash .vx-sum dl div { display: flex; justify-content: space-between; gap: 14px; }
+.sdash .vx-sum dt { color: #444; }
+.sdash .vx-sum dd { margin: 0; text-align: right; }
+.sdash .vx-total { display: flex; justify-content: space-between; margin-top: 16px; padding-top: 14px; border-top: 1px solid #777; font-size: 19px; }
+.sdash .vx-note { margin: 12px 0 18px; font-size: 12px; color: #444; line-height: 1.4; }
+.sdash .vx-sum .obtn { display: flex; width: 100%; justify-content: center; margin-top: 10px; text-decoration: none; box-sizing: border-box; }
+
+@media (max-width: 1100px) {
+  .sdash .vx-book { grid-template-columns: 1fr; }
+  .sdash .vx-list .otable { overflow-x: auto; }
+  .sdash .vx-list .vrow { min-width: 980px; }
+}
+@media (max-width: 640px) { .sdash .vx-grid { grid-template-columns: 1fr; } .sdash .vx-type { grid-template-columns: 1fr 90px 70px; } }
+
+.sdash .v-sent { display: block; margin-top: 4px; font-size: 12px; color: #555; }
+
+/* table header: bold na lahat ng column names */
+.sdash .vx-list .vrow.orow-head span { font-weight: 700; }
+ 
+/* spacing: pantay ang gap ng columns; Status at Contact lang ang medyo mas malapad para hindi mag-wrap */
+.sdash .vx-list .vrow { grid-template-columns: 1fr 1.1fr 1fr 1fr 1.35fr 2fr; column-gap: 20px; }
+.sdash .vx-list .vpill { white-space: nowrap; }
+ 
+/* buttons nagsisimula agad pagkatapos ng Status column; pare-pareho ang lapad ng "Send" button */
+.sdash .vx-list .v-actions { justify-content: flex-start; flex-wrap: wrap; }
+.sdash .vx-list .v-actions .obtn-sm[data-remind] { min-width: 126px !important; justify-content: center; }
+.sdash .vx-list .vrow.orow-head span:last-child { text-align: left; justify-self: start; }
+
+.sdash .vx-list .vrow.orow-head span { font-weight: 700; }
+ 
+.sdash .vx-list .vrow { grid-template-columns: 1.1fr 1.4fr 1.3fr 1.2fr 1.5fr 2.2fr; column-gap: 12px; padding: 18px 0; min-height: 88px; }
+.sdash .vx-list .vrow.orow-head { padding: 12px 0 16px; min-height: 0; }
+ 
+/* Next Due, Status, Contact nakagitna */
+.sdash .vx-list .vrow > :nth-child(n+4) { text-align: center; justify-self: center; }
+.sdash .vx-list .vrow.orow-head > span:nth-child(n+4) { justify-self: center; text-align: center; }
+.sdash .vx-list .v-actions { justify-content: center; flex-wrap: wrap; }
+.sdash .vx-list .vpill { white-space: nowrap; }
+.sdash .vx-list .v-actions .obtn-sm[data-remind] { min-width: 126px !important; justify-content: center; }
+ 

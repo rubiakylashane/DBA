@@ -1,0 +1,222 @@
+/* css/pages/admin/admin.css
+   Admin pages. Load AFTER ../staff/dashboard.css (same body.sdash look); this file only changes
+   the sidebar colour, the stat cards and adds the admin Dashboard parts. */
+
+body.sdash.adm { --admin-dark: #0d2a25; --sidebar-bg: #0d2a25; }
+.adm .sidebar { background: var(--admin-dark); color: #fff; }
+.adm .nav-link { color: #fff; }
+.adm .sidebar-user { border-top-color: rgba(255, 255, 255, .3); }
+.adm .menu-btn, .adm .mobile-bar { color: #fff; }
+.adm .nav { gap: 6px; padding-top: 64px; }
+.adm .nav-link { font-size: 21px; padding: 18px 14px; }
+.adm .nav-link:hover { background: rgba(255, 255, 255, .1); }
+.adm .nav-link.active, .adm .nav-link.active:hover { color: #fff; background: var(--green); }
+.adm .sidebar-user { border-top-color: rgba(255, 255, 255, .3); }
+
+/* smaller stat cards: small label, big number */
+.adm .stats { gap: 18px; margin-bottom: 22px; }
+.adm .stat { min-height: 86px; padding: 14px 18px 12px; border-radius: 12px; }
+.adm .stat h3 { font-size: 12.5px; color: #444; }
+.adm .stat-value { margin-top: 6px; padding-left: 0; font-size: 28px; }
+.adm .page-head { margin-bottom: 30px; }
+
+/* Dashboard: revenue per service + recent activity */
+.adm .adm-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.adm .card { min-height: 0; border-radius: 12px; padding: 18px 20px 20px; }
+.adm .card-head h2 { font-size: 16px; }
+.adm .rev-row { display: grid; grid-template-columns: 150px minmax(0, 1fr) 76px; align-items: center; gap: 16px; padding: 10px 0; font-size: 13px; }
+.adm .rev-bar { height: 8px; border-radius: 99px; background: #e6ebe9; overflow: hidden; }
+.adm .rev-bar > i { display: block; height: 100%; border-radius: 99px; background: var(--green); }
+.adm .rev-amt { font-weight: 600; text-align: right; font-size: 12.5px; }
+.adm .act-list { list-style: none; margin: 0; padding: 0; }
+.adm .act-list li { display: flex; justify-content: space-between; gap: 14px; padding: 8px 0; font-size: 13px; }
+.adm .act-list strong { font-weight: 700; }
+.adm .act-list time { flex: none; color: #777; font-size: 12px; }
+.adm .act-link { display: inline-block; margin-top: 14px; font-size: 13px; }
+.adm .empty { padding: 12px 0; font-size: 13px; color: #666; }
+
+@media (max-width: 1100px) {
+  .adm .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .adm .adm-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 520px) {
+  .adm .rev-row { grid-template-columns: 1fr 70px; }
+  .adm .rev-bar { grid-column: 1 / -1; order: 3; }
+}
+
+/* phone top bar in the admin colour */
+.adm .mobile-bar { background: var(--admin-dark); }
+
+/* Dashboard: stat notes, Needs attention, Today's schedule, Veterinarians today, Busiest days and hours */
+.adm .stat-delta { margin-top: 4px; font-size: 12px; font-weight: 600; color: #555; }
+.adm .stat-delta.up { color: #0b7a5c; }
+.adm .stat-delta.down { color: #c0281c; }
+
+.adm .att-list, .adm .td-list { list-style: none; margin: 0; padding: 0; }
+.adm .att-list li { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 9px 0; font-size: 13px; border-bottom: 1px solid #eee; }
+.adm .att-list li:last-child { border-bottom: 0; }
+.adm .att-n { display: inline-grid; place-items: center; min-width: 30px; height: 26px; padding: 0 8px; font-size: 12.5px; font-weight: 700; color: #7a5200; background: #f9e7b0; border-radius: 999px; }
+.adm .att-n.red { color: #a11212; background: #fbdada; }
+.adm .att-list a { font-size: 12px; font-weight: 600; color: var(--green); white-space: nowrap; }
+.adm .att-list a:hover { text-decoration: underline; }
+.adm .att-list li.att-ok, .adm .td-list li.empty { display: block; }
+.adm .att-ok { padding: 14px 0 4px; font-size: 13px; color: #0b5649; font-weight: 600; }
+
+.adm .td-count { font-size: 12px; font-weight: 600; color: #555; }
+.adm .td-list li { display: grid; grid-template-columns: 62px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 9px 0; font-size: 13px; border-bottom: 1px solid #eee; }
+.adm .td-list li:last-child { border-bottom: 0; }
+.adm .td-time { font-weight: 700; font-variant-numeric: tabular-nums; }
+.adm .td-main b { display: block; font-weight: 700; overflow-wrap: anywhere; }
+.adm .td-main i { display: block; margin-top: 1px; font-style: normal; font-size: 11.5px; color: #666; overflow-wrap: anywhere; }
+.adm .td-pill { display: inline-block; padding: 3px 10px; font-size: 10.5px; font-weight: 700; border-radius: 999px; white-space: nowrap; }
+.adm .td-pending { color: #7a5200; background: #f9e7b0; }
+.adm .td-confirmed { color: #2a3a9a; background: #dde3fa; }
+.adm .td-checked_in { color: #5a2ea8; background: #e7ddf8; }
+.adm .td-with_vet { color: #0b5b7a; background: #d3edf6; }
+.adm .td-completed { color: #0b5649; background: #cfeadf; }
+.adm .td-no_show, .adm .td-cancelled { color: #555; background: #e4e4e4; }
+
+@media (max-width: 520px) {
+  .adm .td-list li { grid-template-columns: 56px minmax(0, 1fr); }
+  .adm .td-list li .td-pill { grid-column: 2; justify-self: start; }
+  .adm .att-list li { grid-template-columns: 34px minmax(0, 1fr); }
+  .adm .att-list li a { grid-column: 2; }
+}
+
+.adm .adm-grid-2 { margin-top: 20px; }
+.adm .vw-row { display: grid; grid-template-columns: minmax(110px, 190px) minmax(0, 1fr) 76px; align-items: center; gap: 14px; padding: 9px 0; font-size: 13px; border-bottom: 1px solid #eee; }
+.adm .vw-row:last-child { border-bottom: 0; }
+.adm .vw-name { overflow-wrap: anywhere; }
+.adm .vw-track { height: 8px; background: #e6ebea; border-radius: 99px; overflow: hidden; }
+.adm .vw-track > i { display: block; height: 100%; min-width: 0; background: var(--green); border-radius: 99px; }
+.adm .vw-val { white-space: nowrap; text-align: right; font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.adm .vw-val.none { font-weight: 400; color: #777; }
+.adm .vw-note { margin: 10px 0 0; font-size: 12px; color: #7a5200; font-weight: 600; }
+
+.adm .bz-label { margin: 6px 0 8px; font-size: 12px; font-weight: 600; color: #444; }
+.adm .bz-cols { display: flex; align-items: flex-end; gap: 6px; height: 96px; margin-bottom: 30px; padding: 0 2px; border-bottom: 1px solid #ddd; position: relative; }
+.adm .bz-cols:last-child { margin-bottom: 22px; }
+.adm .bz-col { flex: 1 1 0; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; position: relative; }
+.adm .bz-col i { display: block; background: #9fc9c0; border-radius: 3px 3px 0 0; min-height: 2px; }
+.adm .bz-col.top i { background: var(--green); }
+.adm .bz-col b { display: block; margin-bottom: 3px; text-align: center; font-size: 11px; font-weight: 600; color: #333; }
+.adm .bz-col span { position: absolute; left: -4px; right: -4px; bottom: -20px; text-align: center; font-size: 10.5px; color: #555; white-space: nowrap; overflow: hidden; }
+
+@media (max-width: 520px) {
+  .adm .vw-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .adm .vw-track { grid-column: 1 / -1; order: 3; }
+}
+
+/* Dashboard: Weekly revenue, Top services */
+.adm .wk-cols { display: flex; align-items: flex-end; gap: 10px; height: 210px; margin: 6px 0 30px; padding: 0 2px; border-bottom: 1px solid #ddd; position: relative; }
+.adm .wk-col { flex: 1 1 0; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; position: relative; }
+.adm .wk-col i { display: block; background: #e3ece9; border-radius: 8px 8px 0 0; min-height: 4px; }
+.adm .wk-col.top i { background: var(--green); }
+.adm .wk-col b { align-self: center; margin-bottom: 6px; padding: 3px 8px; font-size: 11.5px; font-weight: 700; color: #fff; background: #111; border-radius: 8px; white-space: nowrap; }
+.adm .wk-col span { position: absolute; left: 0; right: 0; bottom: -22px; text-align: center; font-size: 11.5px; color: #555; }
+.adm .wk-col.today span { font-weight: 700; color: #111; }
+
+.adm .ts-wrap { display: grid; grid-template-columns: minmax(130px, 170px) minmax(0, 1fr); gap: 22px; align-items: center; min-height: 190px; }
+.adm .ts-main small { display: block; font-size: 12px; color: #555; }
+.adm .ts-main strong { display: block; margin: 4px 0 2px; font-size: 14px; font-weight: 700; overflow-wrap: anywhere; }
+.adm .ts-main em { display: block; font-style: normal; font-size: 40px; font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; }
+.adm .ts-main p { margin: 14px 0 0; font-size: 12.5px; color: #444; }
+.adm .ts-row { display: grid; grid-template-columns: minmax(90px, 130px) minmax(0, 1fr) 30px; align-items: center; gap: 12px; padding: 7px 0; font-size: 12.5px; }
+.adm .ts-row .vw-track > i { background: #9fc9c0; }
+.adm .ts-row.top .vw-track > i { background: var(--green); }
+.adm .ts-row b { text-align: right; font-weight: 700; }
+.adm .ts-empty { grid-column: 1 / -1; margin: 0; font-size: 13px; color: #666; }
+
+@media (max-width: 520px) {
+  .adm .ts-wrap { grid-template-columns: 1fr; gap: 14px; }
+  .adm .wk-cols { gap: 5px; }
+}
+
+/* Dashboard layout: 3 columns (wide card + 2 narrow cards), rows line up.
+   Row 1: Today's schedule | Weekly revenue | Revenue per service
+   Row 2: Recent activity  | Veterinarians   | Top services */
+/* same 4 columns and gap as the stat cards, so every box lines up; both rows get the same height */
+.adm .adm-dash { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 18px; align-items: stretch; }
+.adm .adm-dash > .wide { grid-column: span 2; }
+.adm .adm-dash > .card { min-width: 0; }
+.adm .adm-dash > .span2 { grid-column: span 2; }
+/* narrow cards: names and amounts on one line, the bar underneath */
+.adm .nar .rev-row, .adm .nar .vw-row { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; }
+.adm .nar .rev-bar, .adm .nar .vw-track { grid-column: 1 / -1; order: 3; }
+.adm .nar .ts-wrap { grid-template-columns: minmax(0, 1fr); gap: 12px; min-height: 0; align-items: start; }
+.adm .nar .ts-row { grid-template-columns: minmax(0, 1fr) 28px; gap: 6px 10px; }
+.adm .nar .ts-row .vw-track { grid-column: 1 / -1; order: 3; }
+.adm .nar .ts-main em { font-size: 30px; }
+.adm .nar .wk-cols { gap: 6px; height: 170px; }
+.adm .nar .wk-col span { font-size: 10.5px; }
+.adm .nar .wk-col b { font-size: 10.5px; padding: 2px 6px; }
+@media (max-width: 1280px) {
+  .adm .adm-dash { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-auto-rows: auto; }
+  .adm .adm-dash > .wide, .adm .adm-dash > .span2 { grid-column: 1 / -1; }
+}
+@media (max-width: 700px) {
+  .adm .adm-dash { grid-template-columns: minmax(0, 1fr); grid-auto-rows: auto; }
+}
+.adm .nar .card-head { flex-wrap: wrap; row-gap: 2px; }
+.adm .nar .td-count { white-space: nowrap; font-size: 12px; }
+
+/* Sidebar on a short screen: the admin menu has 8 links, so it can scroll and the links get tighter instead of being cut off */
+.adm .sidebar { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.adm .sidebar::-webkit-scrollbar { display: none; }
+@media (max-height: 860px) {
+  .adm .nav { padding-top: 28px; gap: 2px; }
+  .adm .nav-link { padding: 11px 14px; font-size: 19px; }
+}
+@media (max-height: 700px) {
+  .adm .nav { padding-top: 12px; gap: 0; }
+  .adm .nav-link { padding: 8px 14px; font-size: 17px; }
+}
+
+/* Keep admin actions aligned with the teal dashboard palette. */
+.adm .abtn, .adm .abtn-light, .adm .obtn-amber { color: #fff; background: var(--green); border: 1px solid var(--green-deep); }
+
+/* Dashboard top cards are links (owners, pets, appointments, reports) */
+.adm a.stat-link { display: block; text-decoration: none; color: var(--ink); cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+.adm a.stat-link:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0, 0, 0, .18); }
+.adm a.stat-link:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .adm a.stat-link { transition: none; } .adm a.stat-link:hover { transform: none; } }
+
+/* sidebar: the admin's picture and name open My Profile */
+.adm .user-link { display: block; flex: none; color: inherit; text-decoration: none; border-radius: 50%; }
+.adm .user-meta .user-link { min-width: 0; overflow: hidden; border-radius: 4px; }
+.adm .user-meta .user-link:hover strong { text-decoration: underline; }
+.adm .user-link:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+.adm a.user-link:hover .avatar { filter: brightness(.94); }
+
+@media (min-height: 861px) {
+  .adm .nav { padding-top: 24px; }
+}
+ 
+/* ===== Admin: pare-parehong laki ng Cancel button (kapareho ng Save / Confirm) ===== */
+.adm .obtn-cancel,
+.adm .u-btn-cancel,
+.adm .sv-btn-cancel,
+.adm .dlg-actions .btn,
+.adm .dlg-actions .u-btn,
+.adm .dlg-actions .sv-btn {
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  min-width: 150px !important;
+  padding: 0 24px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+}
+@media (max-width: 560px) {
+  .adm .obtn-cancel, .adm .u-btn-cancel, .adm .sv-btn-cancel { width: 100% !important; }
+}
+
+/* Appointments > Edit appointment: 3 buttons, kailangan ng mas malapad na dialog para hindi maputol */
+.adm #edit-dialog { width: min(560px, calc(100vw - 32px)) !important; max-width: none !important; }
+.adm #edit-dialog .dlg-actions { display: flex !important; justify-content: center !important; align-items: center; gap: 16px !important; }
+.adm #edit-dialog .dlg-actions .btn { margin: 0 !important; }

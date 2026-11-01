@@ -1,0 +1,74 @@
+/* css/pages/admin/appointments.css - admin Appointments (load after admin.css) */
+.adm .ap-head { margin-bottom: 30px; }
+.adm .ap-head .sub { margin-top: 8px; font-size: 14px; }
+.adm .ap-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px 34px; }
+.adm .ap-tab { min-height: 32px; padding: 0 20px; font: inherit; font-size: 12.5px; font-weight: 500; color: #111; background: #fff; border: 1px solid #ccc; border-radius: 999px; cursor: pointer; }
+.adm .ap-tab:hover { background: #f3f3f3; }
+.adm .ap-tab.on { color: #fff; font-weight: 700; background: #0f6b5c; border-color: #0d5a4d; }
+.adm .ap-tab:focus-visible, .adm .ap-page:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+.adm .ap-card { margin: 0 26px 16px; padding: 14px 20px 22px; color: #111; background: #fff; border: 1px solid var(--line); border-radius: 14px; }
+.adm .ap-filters { display: grid; grid-template-columns: 240px 170px 170px; gap: 18px; margin-bottom: 12px; }
+.adm .ap-filters label { display: block; margin-bottom: 5px; font-size: 12px; font-weight: 600; }
+.adm .ap-filters select, .adm .ap-filters input { width: 100%; height: 36px; padding: 0 10px; font: inherit; font-size: 13px; color: #111; background: #fff; border: 1px solid #bbb; border-radius: 6px; }
+.adm .ap-filters select:focus-visible, .adm .ap-filters input:focus-visible { outline: 3px solid rgba(15, 107, 92, .4); outline-offset: 1px; }
+
+.adm .ap-row { display: grid; align-items: center; column-gap: 14px; padding: 9px 0; min-height: 46px; font-size: 12.5px; border-bottom: 1px solid #e3e3e3; grid-template-columns: 105px minmax(0, 1.4fr) minmax(0, 1.1fr) minmax(0, 1.5fr) 70px 100px 150px; }
+.adm .ap-row:last-child { border-bottom: 0; }
+.adm .ap-headrow { min-height: 0; padding: 8px 0; font-size: 10.5px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: #333; border-bottom: 1px solid #aaa; }
+.adm .ap-when b { display: block; font-weight: 700; }
+.adm .ap-when i { display: block; margin-top: 1px; font-style: normal; font-size: 11px; color: #555; }
+.adm .ap-tba { font-weight: 700; color: #b45f06; }
+.adm .ap-total { font-weight: 700; }
+.adm .ap-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.adm .ap-pill { display: inline-block; padding: 3px 12px; font-size: 11px; font-weight: 700; border-radius: 999px; white-space: nowrap; }
+.adm .ap-pending { color: #7a5200; background: #f9e7b0; }
+.adm .ap-confirmed { color: #2a3a9a; background: #dde3fa; }
+.adm .ap-checked_in { color: #5a2ea8; background: #e7ddf8; }
+.adm .ap-with_vet { color: #0b5b7a; background: #d3edf6; }
+.adm .ap-completed { color: #0b5649; background: #cfeadf; }
+.adm .ap-cancelled { color: #555; background: #e4e4e4; }
+.adm .ap-no_show { color: #6b2a86; background: #ecd3f6; }
+.adm .ap-foot { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 12px; color: #444; }
+.adm .ap-foot #ap-count { margin-right: 4px; }
+.adm .ap-page { min-height: 26px; padding: 0 14px; font: inherit; font-size: 11px; font-weight: 600; color: #fff; background: var(--green); border: 0; border-radius: 6px; cursor: pointer; }
+.adm .ap-page-next { color: #fff; background: #0f6b5c; }
+.adm .ap-page:disabled { opacity: .45; cursor: default; }
+
+.adm .btn-cancel-red { color: #e11b1b; background: #fff; border: 1px solid #111; }
+.adm .dlg-hint.bad { color: #b45f06; }
+.adm #e-override { margin-right: auto; }
+
+@media (max-width: 1350px) {
+  .adm .ap-row { grid-template-columns: 105px minmax(0, 1.4fr) minmax(0, 1.1fr) minmax(0, 1.3fr) 70px 100px; row-gap: 6px; }
+  .adm .ap-acts { grid-column: 1 / -1; }
+  .adm .ap-headrow span:last-child { display: none; }
+}
+@media (max-width: 900px) {
+  .adm .ap-tabs { margin-left: 0; gap: 8px; }
+  .adm .ap-tab { padding: 0 14px; }
+  .adm .ap-head .sub { font-size: 13px; }
+  .adm .ap-foot { flex-wrap: wrap; }
+  .adm .ap-foot #ap-count { flex-basis: 100%; margin-bottom: 4px; }
+  .adm .ap-card { margin-left: 0; margin-right: 0; }
+  .adm .ap-filters { grid-template-columns: 1fr; gap: 10px; }
+  .adm .ap-row.ap-headrow { display: none; }
+  .adm .ap-row { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 12px 0; }
+  .adm .ap-row > span[data-label]::before { content: attr(data-label) ": "; color: #666; font-size: 11px; }
+  .adm .ap-when { flex-basis: 100%; }
+  .adm .ap-acts { flex-basis: 100%; }
+}
+
+/* Admin Appointments: the selected tab and Previous / Next use the admin amber */
+body.sdash.adm .ap-tab.on { color: #1b1300; font-weight: 700; background: #e29d1a; border: 1px solid #c98712; }
+body.sdash.adm .ap-page, body.sdash.adm .ap-page-next { color: #1b1300; background: #e29d1a; border: 1px solid #c98712; }
+body.sdash.adm .ap-page:not(:disabled):hover { filter: brightness(1.07); }
+
+/* Dialogs on small screens: stack the buttons so nothing is cut off (admin.css forces min-width 150px on them) */
+.adm .dlg { max-height: calc(100vh - 32px); overflow-y: auto; }
+@media (max-width: 560px) {
+  .adm .ap-card { padding: 12px 12px 18px; }
+  .adm #edit-dialog .dlg-actions, .adm #ov-dialog .dlg-actions, .adm #cx-dialog .dlg-actions { flex-direction: column-reverse !important; align-items: stretch !important; gap: 10px !important; }
+  .adm #edit-dialog .dlg-actions .btn, .adm #ov-dialog .dlg-actions .btn, .adm #cx-dialog .dlg-actions .btn { width: 100% !important; min-width: 0 !important; }
+  .adm #e-override { margin-right: 0; }
+}

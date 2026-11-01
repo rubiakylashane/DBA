@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign in | Pawpaw Clinic</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../css/base.css" />
+  <link rel="stylesheet" href="../../css/pages/auth.css" />
+</head>
+<body>
+  <main class="page">
+    <!-- Left panel -->
+    <section class="brand" aria-label="Pawpaw Clinic">
+      <div class="brand-top">
+        <img class="brand-logo" src="../../assets/images/logo.svg" alt="" />
+        <span class="brand-name">PAWPAW Clinic</span>
+      </div>
+
+      <div class="brand-copy">
+        <h2>Care for every pets</h2>
+        <p>Book visits, keep medical records, and stay on top of every vaccine.</p>
+      </div>
+    </section>
+
+    <!-- Right panel -->
+    <section class="form-side">
+      <div class="form-wrap">
+        <h1>Welcome back</h1>
+        <p class="subtitle">Log in to your Pawpaw Clinic account.</p>
+
+        <form id="login-form" novalidate>
+          <div class="field">
+            <label for="username">Username or Email</label>
+            <input id="username" name="username" type="text" placeholder="Enter your username or email" autocomplete="username" required />
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="input-wrap">
+              <input id="password" name="password" type="password" class="has-toggle" placeholder="Enter your password" autocomplete="current-password" required />
+              <button type="button" class="toggle" id="toggle-password" aria-label="Show password" aria-pressed="false">
+                <svg class="eye-on" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 5C6.5 5 2.7 9 1 12c1.7 3 5.5 7 11 7s9.3-4 11-7c-1.7-3-5.5-7-11-7Zm0 11.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Zm0-7a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z"/>
+                </svg>
+                <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 3l18 18M10.6 6.1A9.8 9.8 0 0 1 12 6c5 0 8.3 3.6 10 6-.8 1.2-2 2.6-3.6 3.8M6.5 7.6C4.5 9 3 10.8 2 12c1.7 2.4 5 6 10 6 1.5 0 2.8-.3 4-.8M9.9 9.9a3 3 0 0 0 4.2 4.2"/>
+                </svg>
+              </button>
+            </div>
+            <a href="forgot-password.html" class="forgot">Forget password?</a>
+          </div>
+
+          <button type="submit" class="submit">Log in</button>
+        </form>
+
+        <p class="signup"><span>New pet owner?</span><a href="register.html">Create an account</a></p>
+      </div>
+    </section>
+  </main>
+  <script src="../../js/auth/brand-carousel.js"></script>
+  <script src="../../js/core/api.js"></script>
+  <script src="../../js/auth/login.js"></script>
+</body>
+</html>

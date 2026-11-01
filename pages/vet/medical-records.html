@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="../../js/auth-guard.js" data-role="vet"></script>
+  <title>Medical Record | Pawpaw Clinic Vet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- dashboard.css = staff sidebar / page shell, owners.css = Owners and Pets pages -->
+  <link rel="stylesheet" href="../../css/pages/staff/dashboard.css" />
+  <link rel="stylesheet" href="../../css/pages/staff/owners.css" />
+  <link rel="stylesheet" href="../../css/pages/staff/appointments.css" />
+  <link rel="stylesheet" href="../../css/pages/staff/records.css" />
+  <link rel="stylesheet" href="../../css/pages/vet/vet.css" />
+</head>
+<body class="sdash">
+
+  <!-- Mobile top bar -->
+  <header class="mobile-bar">
+    <button type="button" class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <span class="mobile-title">PAWPAW Clinic</span>
+  </header>
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="sidebar-brand">
+      <img src="../../assets/images/logo-staff.png" alt="" class="sidebar-logo" />
+      <span>PAWPAW Clinic</span>
+    </div>
+
+    <nav class="nav" aria-label="Vet navigation">
+      <a href="dashboard.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20h-5.5v-6h-5v6H4z"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="my-appointments.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+        <span>My Appointments</span>
+      </a>
+      <a href="patients.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><ellipse cx="5" cy="11" rx="2.2" ry="3"/><ellipse cx="9.5" cy="6" rx="2.2" ry="3"/><ellipse cx="14.5" cy="6" rx="2.2" ry="3"/><ellipse cx="19" cy="11" rx="2.2" ry="3"/><path d="M12 11c-3 0-6 3.5-6 6 0 2 1.7 3 3.3 3 1 0 1.8-.5 2.7-.5s1.7.5 2.7.5c1.6 0 3.3-1 3.3-3 0-2.5-3-6-6-6Z"/></svg>
+        <span>Patient Profile</span>
+      </a>
+      <a href="vaccinations.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.5 3 8 7.5 9.5 4.5-1.5 7.5-5 7.5-9.5V6L12 3Z"/></svg>
+        <span>Vaccinations</span>
+      </a>
+      <a href="medical-records.html" class="nav-link active" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M6.5 2h7.2l5.8 5.8v11.7a2.5 2.5 0 0 1-2.5 2.5h-10.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2zM8.4 11.2h7.2a.9.9 0 0 1 0 1.8H8.4a.9.9 0 0 1 0-1.8zm0 4h7.2a.9.9 0 0 1 0 1.8H8.4a.9.9 0 0 1 0-1.8zM8.4 7.2h2.7a.9.9 0 0 1 0 1.8H8.4a.9.9 0 0 1 0-1.8z"/></svg>
+        <span>Medical Records</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="avatar" id="user-avatar"></div>
+      <div class="user-meta">
+        <strong id="sidebar-name">User Name</strong>
+        <a href="../auth/login.html" id="logout" class="logout">
+          LOG OUT
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/></svg>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <header class="head-row">
+      <div class="page-head">
+        <h1>Medical Record</h1>
+        <p class="sub">Create or edit the diagnosis, treatment, and prescriptions for a visit.</p>
+      </div>
+    </header>
+
+    <!-- list -->
+    <div id="rec-list">
+      <section class="own-card rec-card" aria-labelledby="nr-title">
+        <div class="vr-head"><h2 id="nr-title">Appointments with No Records</h2><button type="button" class="link-sm vr-all" id="nr-all" hidden>View All</button></div>
+        <div class="otable" role="table" aria-label="Appointments with no records">
+          <div class="orow orow-head vrow-rec" role="row"><span role="columnheader">Date and Time</span><span role="columnheader">Pet and Owner</span><span role="columnheader">Services</span><span role="columnheader">Status</span><span role="columnheader">Action</span></div>
+          <div id="nr-rows"></div>
+        </div>
+      </section>
+      <section class="own-card rec-card" aria-labelledby="cp-title">
+        <div class="vr-head"><h2 id="cp-title">Completed Appointments</h2><button type="button" class="link-sm vr-all" id="cp-all" hidden>View All</button></div>
+        <div class="otable" role="table" aria-label="Completed appointments with records">
+          <div class="orow orow-head vrow-rec" role="row"><span role="columnheader">Date and Time</span><span role="columnheader">Pet and Owner</span><span role="columnheader">Services</span><span role="columnheader">Status</span><span role="columnheader">Action</span></div>
+          <div id="cp-rows"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- editor -->
+    <div id="rec-edit" hidden>
+      <div class="ve-bar" id="ve-bar"></div>
+      <div class="ve-grid">
+        <div class="ve-col">
+          <section class="ve-card" aria-labelledby="ve-vr">
+            <h2 id="ve-vr">Visit record</h2>
+            <label class="ve-label" for="ve-diag">Diagnosis</label>
+            <input type="text" id="ve-diag" class="ve-input" maxlength="150" />
+            <label class="ve-label" for="ve-treat">Treatment</label>
+            <textarea id="ve-treat" class="ve-input" rows="3" maxlength="300"></textarea>
+            <label class="ve-label" for="ve-notes">Notes</label>
+            <textarea id="ve-notes" class="ve-input" rows="3" maxlength="500"></textarea>
+            <label class="ve-label" for="ve-date">Record date</label>
+            <input type="date" id="ve-date" class="ve-input ve-short" />
+          </section>
+          <section class="ve-card" aria-labelledby="ve-sv">
+            <h2 id="ve-sv">Services on this visit</h2>
+            <label class="ve-label" for="ve-svc">Add a service</label>
+            <div class="ve-add"><select id="ve-svc" class="ve-input"></select><button type="button" class="ve-dark" id="ve-svc-add">Add service</button></div>
+            <div id="ve-blocks"></div>
+          </section>
+        </div>
+        <section class="ve-card ve-rx" aria-labelledby="ve-px">
+          <h2 id="ve-px">Prescriptions</h2>
+          <div id="ve-rx-list"></div>
+          <h3 id="ve-rx-h">Add prescription</h3>
+          <label class="ve-label" for="ve-med">Medication</label>
+          <input type="text" id="ve-med" class="ve-input" maxlength="120" placeholder="Medication name" />
+          <div class="ve-two">
+            <div><label class="ve-label" for="ve-dose">Dosage</label><input type="text" id="ve-dose" class="ve-input" maxlength="80" placeholder="e.g. 5 mL" /></div>
+            <div><label class="ve-label" for="ve-qty">Quantity</label><input type="text" id="ve-qty" class="ve-input" maxlength="40" value="1" /></div>
+          </div>
+          <label class="ve-label" for="ve-inst">Instructions</label>
+          <textarea id="ve-inst" class="ve-input" rows="3" maxlength="300" placeholder="How and when to give it"></textarea>
+          <button type="button" class="ve-dark ve-wide" id="ve-rx-add">Add prescription</button>
+        </section>
+      </div>
+      <p class="dlg-hint bad" id="ve-err" hidden></p>
+      <div class="ve-actions">
+        <button type="button" class="ve-cancel" id="ve-cancel">Cancel</button>
+        <button type="button" class="ve-save" id="ve-save">Save</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </main>
+
+  <script src="../../js/staff/owners-store.js"></script>
+  <script src="../../js/staff/staff-shell.js"></script>
+  <script src="../../js/core/api.js"></script>
+  <script src="../../js/staff/staff-appts-store.js"></script>
+  <script src="../../js/vet/vet-common.js"></script>
+  <script src="../../js/vet/vet-records.js"></script>
+</body>
+</html>

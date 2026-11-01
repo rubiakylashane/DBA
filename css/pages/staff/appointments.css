@@ -1,0 +1,99 @@
+/* css/pages/staff/appointments.css - staff Appointments (builds on dashboard.css + owners.css) */
+.sdash .head-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+
+/* status tabs */
+.sdash .apt-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+.sdash .apt-tab { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border: 0; border-radius: 999px; font-family: inherit; font-size: 12.5px; font-weight: 500; line-height: 1; color: #222; background: #eef1ee; cursor: pointer; }
+.sdash .apt-tab:hover { background: #dfe6e0; }
+.sdash .apt-tab i { font-style: normal; font-weight: 700; font-size: 11px; background: #fff; border-radius: 999px; padding: 2px 8px; }
+.sdash .apt-tab.on { background: #0f6b5c; color: #fff; }
+.sdash .apt-tab.on i { color: #0f6b5c; }
+
+/* date filter */
+.sdash .apt-date { display: flex; align-items: center; gap: 6px; }
+.sdash .apt-datebtn { display: inline-flex; align-items: center; justify-content: space-between; gap: 14px; min-width: 190px; height: 46px; padding: 0 18px; font: inherit; font-size: 12px; color: #111; background: #fff; border: 1px solid #444; border-radius: 999px; cursor: pointer; }
+.sdash .apt-datebtn svg { color: #0f6b5c; }
+.sdash .apt-dateclear { width: 34px; height: 34px; border: 0; border-radius: 50%; font-size: 22px; line-height: 1; background: #eef1ee; cursor: pointer; }
+.sdash .own-toolbar .own-sort { margin-left: auto; }
+
+/* table */
+.sdash .apt-list .arow { grid-template-columns: 1.05fr .9fr 1.05fr 1fr .8fr 2.4fr; gap: 14px; cursor: pointer; min-height: 0; }
+.sdash .apt-list .arow.orow-head { cursor: default; }
+.sdash .arow:not(.orow-head):hover { background: #f4f8f5; }
+.sdash .arow.is-clash { background: #fff8e6; }
+.sdash .arow .o-name, .sdash .arow .o-email { display: block; }
+.sdash .arow .o-name { font-weight: 700; font-size: 13px; }
+.sdash .arow > [role="cell"] { font-size: 13px; }
+.sdash .a-muted { color: #666; }
+.sdash .a-warn { display: flex; align-items: center; gap: 5px; margin-top: 4px; font-size: 12px; font-weight: 600; color: #8a5a00; }
+.sdash .a-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: nowrap; }
+.sdash .a-actions .obtn-sm { min-height: 40px; padding: 0 12px; font-size: 11.5px; white-space: nowrap; text-decoration: none; display: inline-flex; align-items: center; }
+
+/* status pills */
+.sdash .spill { display: inline-block; padding: 5px 16px; border-radius: 999px; font-size: 11px; font-weight: 600; background: #cfd8d2; color: #111; }
+.sdash .spill-pending { background: #f6d98a; }
+.sdash .spill-confirmed { background: #8fd49b; }
+.sdash .spill-checked_in { background: #f3e27a; }
+.sdash .spill-with_vet { background: #9cc7ee; }
+.sdash .spill-completed { background: #c9c9c9; }
+.sdash .spill-no_show { background: #e3c4f0; }
+.sdash .spill-cancelled { background: #f1b0aa; }
+
+/* footer (show more) */
+.sdash .apt-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid #cfd6d1; font-size: 12px; color: #333; }
+
+/* dialogs */
+.sdash .dlg-text { width: 100%; padding: 10px; font: inherit; font-size: 13px; border: 1px solid #555; border-radius: 8px; resize: vertical; box-sizing: border-box; }
+.sdash .dlg-two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sdash .dlg-hint { margin-top: 10px; min-height: 18px; font-size: 13px; color: #2e7d32; font-weight: 600; }
+.sdash .dlg-hint.bad { color: #b36b00; }
+.sdash .dlg { width: min(440px, 92vw); }
+
+@media (max-width: 1100px) {
+  .sdash .apt-list .otable { overflow-x: auto; }
+  .sdash .apt-list .arow { min-width: 1000px; }
+}
+
+/* vet pages */
+.sdash .vrow-pt { grid-template-columns: 1.2fr 1.2fr 1.4fr .9fr 1.4fr; }
+.sdash .vet-pick select { height: 46px; padding: 0 16px; font: inherit; font-size: 12.5px; font-weight: 600; border: 0; border-radius: 10px; background: #fff; color: #111; }
+.sdash .dlg-wide { width: min(560px, 94vw); max-height: 92vh; overflow-y: auto; }
+.sdash .dlg-h { margin: 20px 0 4px; font-size: 13px; font-weight: 700; padding-top: 14px; border-top: 1px solid #ddd; }
+.sdash .dlg-h small { font-weight: 500; color: #666; }
+.sdash .dlg-vacc-h { margin-top: 20px; }
+@media (max-width: 640px) {
+  .sdash .own-toolbar { flex-wrap: wrap; }
+  .sdash .own-toolbar .own-sort { margin-left: 0; width: 100%; }
+  .sdash .own-toolbar .own-sort select { width: 100%; }
+}
+.sdash .resch-tag { display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 999px; background: #e8d5f5; color: #4a2a63; font-size: 11px; font-weight: 700; vertical-align: middle; }
+
+
+/* "Rescheduled" tag: sits under the status with a little space */
+.sdash .spill + .resch-tag { display: table; margin: 6px 0 0; padding: 3px 10px; }
+
+/* table header: bold column names, with an "Actions" label over the buttons */
+.sdash .arow.orow-head span { font-weight: 700; }
+.sdash .arow.orow-head span:last-child::before { content: "Actions"; }
+
+/* table spacing: five equal columns + a wider Actions column */
+.sdash .apt-list .arow { grid-template-columns: repeat(5, minmax(0, 1fr)) minmax(0, 1.5fr); column-gap: 20px; }
+.sdash .a-actions { justify-content: flex-start; }                       /* buttons start right after the Status column */
+.sdash .arow.orow-head span:last-child { text-align: left; justify-self: start; }
+ 
+.sdash .arow.orow-head span { font-weight: 700; }
+.sdash .arow.orow-head span:last-child::before { content: "Actions"; }
+ 
+.sdash .apt-list .arow { grid-template-columns: 1.15fr 1.3fr 1.2fr 1.3fr 1.2fr 2.2fr; column-gap: 12px; padding: 18px 0; min-height: 88px; }
+.sdash .apt-list .arow.orow-head { padding: 12px 0 16px; min-height: 0; }
+ 
+/* Status at Actions nakagitna */
+.sdash .arow > :nth-child(n+5) { text-align: center; justify-self: center; }
+.sdash .arow.orow-head > span:nth-child(n+5) { justify-self: center; text-align: center; }
+.sdash .a-actions { justify-content: center; flex-wrap: wrap; }
+ 
+/* "Rescheduled" tag: may space sa ilalim ng status */
+.sdash .spill + .resch-tag { display: table; margin: 6px auto 0; padding: 3px 10px; }
+ 
+/* Appointments rows: the action buttons wrap to a second line instead of pushing No-show off the screen */
+.sdash .a-actions { flex-wrap: wrap; row-gap: 8px; }

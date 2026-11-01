@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="../../js/auth-guard.js" data-role="owner"></script>
+  <title>Appointments | Pawpaw Clinic Staff</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- dashboard.css = staff sidebar / page shell, owners.css = Owners and Pets pages -->
+  <link rel="stylesheet" href="../../css/pages/staff/dashboard.css" />
+  <link rel="stylesheet" href="../../css/pages/staff/owners.css" />
+  <link rel="stylesheet" href="../../css/pages/staff/appointments.css" />
+</head>
+<body class="sdash">
+
+  <!-- Mobile top bar -->
+  <header class="mobile-bar">
+    <button type="button" class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <span class="mobile-title">PAWPAW Clinic</span>
+  </header>
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="sidebar-brand">
+      <img src="../../assets/images/logo-staff.png" alt="" class="sidebar-logo" />
+      <span>PAWPAW Clinic</span>
+    </div>
+
+    <nav class="nav">
+      <a href="dashboard.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20h-5.5v-6h-5v6H4z"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="owners-pets.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><ellipse cx="5" cy="11" rx="2.2" ry="3"/><ellipse cx="9.5" cy="6" rx="2.2" ry="3"/><ellipse cx="14.5" cy="6" rx="2.2" ry="3"/><ellipse cx="19" cy="11" rx="2.2" ry="3"/><path d="M12 11c-3 0-6 3.5-6 6 0 2 1.7 3 3.3 3 1 0 1.8-.5 2.7-.5s1.7.5 2.7.5c1.6 0 3.3-1 3.3-3 0-2.5-3-6-6-6Z"/></svg>
+        <span>Owners and Pets</span>
+      </a>
+      <a href="appointments.html" class="nav-link active" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+        <span>Appointments</span>
+      </a>
+      <a href="vaccine-reminders.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.5 3 8 7.5 9.5 4.5-1.5 7.5-5 7.5-9.5V6L12 3Z"/></svg>
+        <span>Vaccine Reminders</span>
+      </a>
+      <a href="medical-records.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="M6.5 2h7.2l5.8 5.8v11.7a2.5 2.5 0 0 1-2.5 2.5h-10.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2zM8.4 11.2h7.2a.9.9 0 0 1 0 1.8H8.4a.9.9 0 0 1 0-1.8zm0 4h7.2a.9.9 0 0 1 0 1.8H8.4a.9.9 0 0 1 0-1.8zM8.4 7.2h2.7a.9.9 0 0 1 0 1.8H8.4a.9.9 0 0 1 0-1.8z"/></svg>
+        <span>Medical Records</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="avatar" id="user-avatar"></div>
+      <div class="user-meta">
+        <strong id="sidebar-name">User Name</strong>
+        <a href="../auth/login.html" id="logout" class="logout">
+          LOG OUT
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/></svg>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <header class="head-row">
+      <div class="page-head">
+        <h1>Appointments</h1>
+        <p class="sub">Approve requests, check pets in, and assign veterinarians.</p>
+      </div>
+      <div class="head-btns">
+        <button type="button" class="abtn abtn-light" id="add-btn">+ Add Appointment</button>
+        <a href="register-walkin.html" class="abtn">Register Walk-in Customer</a>
+      </div>
+    </header>
+
+    <section class="own-card own-list apt-list" aria-label="Appointments">
+      <div class="apt-tabs" id="tabs" role="tablist" aria-label="Filter by status"></div>
+      <div class="own-toolbar">
+        <input type="search" id="search" class="own-search" placeholder="Search" aria-label="Search appointments" autocomplete="off" />
+        <div class="apt-date">
+          <button type="button" id="date-btn" class="apt-datebtn" aria-label="Filter by date">
+            <span id="date-label">All dates</span>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+          </button>
+          <button type="button" id="date-clear" class="apt-dateclear" aria-label="Clear date filter" hidden>&times;</button>
+        </div>
+        <label class="own-sort">
+          <span class="sr-only">Sort appointments</span>
+          <select id="sort">
+            <option value="soon">Sort</option>
+            <option value="soon">Soonest first</option>
+            <option value="late">Latest first</option>
+            <option value="status">Status</option>
+            <option value="pet">Pet name (A-Z)</option>
+          </select>
+        </label>
+      </div>
+      <div class="otable" role="table" aria-label="Appointments">
+        <div class="orow arow orow-head" role="row">
+          <span role="columnheader">Date and Time</span>
+          <span role="columnheader">Pet and Owner</span>
+          <span role="columnheader">Veterinarian</span>
+          <span role="columnheader">Services</span>
+          <span role="columnheader">Status</span>
+          <span role="columnheader" aria-label="Actions"></span>
+        </div>
+        <div id="appt-rows"></div>
+      </div>
+      <div class="apt-foot" id="foot">
+        <span id="count"></span>
+        <button type="button" class="obtn obtn-outline obtn-sm" id="more" hidden>Show more</button>
+      </div>
+    </section>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </main>
+
+  <dialog id="detail-dialog" class="dlg" aria-labelledby="detail-title">
+    <h2 id="detail-title">Appointment details</h2>
+    <dl class="dlg-facts" id="detail-facts"></dl>
+    <div class="dlg-actions"><button type="button" class="btn btn-outline" id="detail-close">Close</button></div>
+  </dialog>
+
+  <dialog id="approve-dialog" class="dlg" aria-labelledby="approve-title">
+    <h2 id="approve-title">Approve and assign vet</h2>
+    <p class="dlg-sub" id="approve-sub"></p>
+    <label class="dlg-label" for="approve-vet">Veterinarian</label>
+    <select id="approve-vet" class="dlg-select"></select>
+    <p class="dlg-hint" id="approve-hint"></p>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-outline" data-close>Cancel</button>
+      <button type="button" class="btn btn-primary" id="approve-ok">Approve</button>
+    </div>
+  </dialog>
+
+  <dialog id="vet-dialog" class="dlg" aria-labelledby="vet-title">
+    <h2 id="vet-title">Assign vet</h2>
+    <p class="dlg-sub" id="vet-sub"></p>
+    <label class="dlg-label" for="vet-select">Veterinarian</label>
+    <select id="vet-select" class="dlg-select"></select>
+    <p class="dlg-hint" id="vet-hint"></p>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-outline" data-close>Cancel</button>
+      <button type="button" class="btn btn-primary" id="vet-save">Assign</button>
+    </div>
+  </dialog>
+
+  <dialog id="resched-dialog" class="dlg" aria-labelledby="resched-title">
+    <h2 id="resched-title">Reschedule appointment</h2>
+    <p class="dlg-sub" id="resched-sub"></p>
+    <label class="dlg-label" for="resched-date">New date</label>
+    <input type="date" id="resched-date" class="dlg-select" />
+    <label class="dlg-label" for="resched-time">New time</label>
+    <select id="resched-time" class="dlg-select"></select>
+    <label class="dlg-label" for="resched-reason">Reason (visible to the owner)</label>
+    <textarea id="resched-reason" class="dlg-text" rows="3" placeholder="e.g. The vet is unavailable at the original time."></textarea>
+    <p class="dlg-hint" id="resched-hint"></p>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-outline" data-close>Cancel</button>
+      <button type="button" class="btn btn-primary" id="resched-ok">Save</button>
+    </div>
+  </dialog>
+
+  <dialog id="decline-dialog" class="dlg" aria-labelledby="decline-title">
+    <h2 id="decline-title">Decline this request?</h2>
+    <p class="dlg-sub" id="decline-sub"></p>
+    <label class="dlg-label" for="decline-reason">Reason (visible to the owner)</label>
+    <textarea id="decline-reason" class="dlg-text" rows="3" placeholder="e.g. Fully booked on this day."></textarea>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-outline" data-close>Keep it</button>
+      <button type="button" class="btn btn-danger" id="decline-ok">Decline</button>
+    </div>
+  </dialog>
+
+  <dialog id="add-dialog" class="dlg" aria-labelledby="add-title">
+    <h2 id="add-title">Add appointment</h2>
+    <p class="dlg-sub">For an owner and pet that are already registered.</p>
+    <label class="dlg-label" for="add-owner">Owner</label>
+    <select id="add-owner" class="dlg-select"></select>
+    <label class="dlg-label" for="add-pet">Pet</label>
+    <select id="add-pet" class="dlg-select"></select>
+    <label class="dlg-label" for="add-service">Service</label>
+    <select id="add-service" class="dlg-select"></select>
+    <div class="dlg-two">
+      <div><label class="dlg-label" for="add-date">Date</label><input type="date" id="add-date" class="dlg-select" /></div>
+      <div><label class="dlg-label" for="add-time">Time</label><select id="add-time" class="dlg-select"></select></div>
+    </div>
+    <label class="dlg-label" for="add-vet">Veterinarian</label>
+    <select id="add-vet" class="dlg-select"></select>
+    <p class="dlg-hint" id="add-hint"></p>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-outline" data-close>Cancel</button>
+      <button type="button" class="btn btn-primary" id="add-ok">Save</button>
+    </div>
+  </dialog>
+
+  <script src="../../js/core/api.js"></script>
+  <script src="../../js/staff/owners-store.js"></script>
+  <script src="../../js/staff/staff-shell.js"></script>
+  <script src="../../js/owner/calendar.js"></script>
+  <script src="../../js/staff/staff-appts-store.js"></script>
+  <script src="../../js/staff/appointments.js"></script>
+  <script src="../../js/notifications.js"></script>
+</body>
+</html>

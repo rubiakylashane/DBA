@@ -1,0 +1,90 @@
+/* css/pages/admin/users.css - Users and Staff + Register User (load after admin.css) */
+
+.adm { --accent: #e29d1a; --accent-dark: #c98712; }
+.adm .head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 34px; }
+.adm .head-row .page-head { margin-bottom: 0; }
+.adm .head-row .sub { margin-top: 8px; font-size: 14px; }
+
+/* orange buttons (dark text: readable on orange) */
+.adm .a-btn, .adm .u-btn { display: inline-flex; align-items: center; justify-content: center; font: inherit; font-weight: 700; letter-spacing: -0.01em; border-radius: 8px; cursor: pointer; border: 1px solid transparent; text-decoration: none; transition: filter .15s, background .15s; }
+.adm .a-btn-main { flex: none; min-width: 204px; min-height: 36px; padding: 0 18px; font-size: 16px; color: #1b1300; background: var(--accent); border-color: #c98712; }
+.adm .a-btn-main:hover { filter: brightness(1.07); }
+.adm .a-btn:focus-visible, .adm .u-btn:focus-visible, .adm .u-tab:focus-visible, .adm .u-act:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+/* role filter */
+.adm .u-tabs { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 14px 26px; }
+.adm .u-tab { min-height: 34px; padding: 0 20px; font: inherit; font-size: 13px; font-weight: 500; color: #111; background: #fff; border: 1px solid #ccc; border-radius: 999px; cursor: pointer; }
+.adm .u-tab:hover { background: #f3f3f3; }
+.adm .u-tab.on { color: #1b1300; font-weight: 700; background: var(--accent); border-color: #c98712; }
+
+/* table */
+.adm .u-card { color: #111; background: #fff; border: 1px solid var(--line); border-radius: 12px; }
+.adm .u-card:not(.u-form) { margin: 0 26px; padding: 12px 20px 26px; }
+.adm .u-row { display: grid; align-items: center; column-gap: 14px; padding: 12px 0; min-height: 46px; border-bottom: 1px solid #e3e3e3; font-size: 13px; grid-template-columns: minmax(0, .9fr) minmax(0, 1.7fr) minmax(0, .95fr) 78px minmax(0, .95fr) 372px; }
+.adm .u-row:last-child { border-bottom: 0; }
+.adm .u-head { min-height: 0; padding: 8px 0; font-size: 11px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: #333; border-bottom: 1px solid #aaa; }
+.adm .u-name { font-weight: 700; overflow-wrap: anywhere; }
+.adm .u-email { overflow-wrap: anywhere; }
+.adm .u-pill { display: inline-block; padding: 3px 10px; font-size: 11px; font-weight: 700; border-radius: 999px; }
+.adm .u-on { color: #0b5649; background: #cfeadf; }
+.adm .u-off { color: #555; background: #e4e4e4; }
+.adm .u-actions-cell { display: flex; flex-wrap: wrap; gap: 6px; }
+.adm .u-act { min-height: 28px; padding: 0 10px; font: inherit; font-size: 11.5px; white-space: nowrap; font-weight: 500; color: #222; background: #fff; border: 1px solid #aaa; border-radius: 6px; cursor: pointer; }
+.adm .u-act:hover { background: #f1f1f1; }
+.adm .u-act-red { color: #c0281c; border-color: #e8a49d; }
+.adm .u-act-red:hover { background: #fdf0ee; }
+.adm .u-act-green { color: #fff; font-weight: 700; background: var(--green); border-color: var(--green); }
+.adm .u-act-green:hover { background: var(--green-dark); }
+.adm .u-empty { padding: 26px 0 8px; font-size: 14px; color: #555; }
+
+/* register form */
+.adm .u-form { max-width: none; margin: 0 26px; padding: 28px 32px 36px; display: grid; grid-template-columns: 1fr 1fr; column-gap: 52px; row-gap: 22px; }
+.adm .u-field label { display: block; margin-bottom: 8px; font-size: 18px; font-weight: 600; }
+.adm .u-field input, .adm .u-field select { width: 100%; height: 54px; padding: 0 14px; font: inherit; font-size: 16px; color: #111; background: #fff; border: 1px solid #555; border-radius: 8px; }
+.adm .u-field input:focus-visible, .adm .u-field select:focus-visible { outline: 3px solid rgba(15, 107, 92, .45); outline-offset: 1px; }
+.adm .u-field [aria-invalid="true"] { border-color: #c0281c; }
+.adm .u-error { margin-top: 6px; font-size: 13px; font-weight: 500; color: #c0281c; }
+.adm .u-hint { margin-top: 6px; font-size: 12.5px; color: #555; }
+.adm .u-actions { grid-column: 1 / -1; display: flex; justify-content: center; gap: 60px; margin-top: 14px; }
+.adm .u-btn { min-width: 300px; min-height: 64px; font-size: 22px; }
+.adm .u-btn-cancel { color: #e11b1b; background: #fff; border-color: #444; font-weight: 600; }
+.adm .u-btn-cancel:hover { background: #fdf0f0; }
+.adm .u-btn-ok { color: #1b1300; background: #e29d1a; border-color: #c98712; }
+.adm .u-btn-ok:hover { filter: brightness(1.06); }
+
+@media (max-width: 1350px) {
+  .adm .u-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1fr) 82px minmax(0, 1fr); row-gap: 8px; }
+  .adm .u-actions-cell { grid-column: 1 / -1; }
+  .adm .u-head span:last-child { display: none; }
+}
+@media (max-width: 900px) {
+  .adm .head-row { flex-direction: column; }
+  .adm .u-tabs, .adm .u-card:not(.u-form) { margin-left: 0; margin-right: 0; }
+  .adm .u-form { margin: 0; min-height: 0; padding: 22px 18px 26px; grid-template-columns: 1fr; grid-template-rows: none; }
+  .adm .u-actions { flex-direction: column; gap: 12px; }
+  .adm .u-btn { min-width: 0; width: 100%; min-height: 54px; font-size: 18px; }
+  .adm .u-row.u-head { display: none; }
+  .adm .u-row { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 14px 0; }
+  .adm .u-row > span[data-label]::before { content: attr(data-label) ": "; color: #666; font-size: 11px; font-weight: 500; }
+  .adm .u-row .u-name { flex-basis: 100%; font-size: 15px; }
+  .adm .u-row > span.u-name::before { content: none; }
+  .adm .u-actions-cell { flex-basis: 100%; }
+}
+
+/* "Edit details" of an owner is a link: same size as the buttons */
+.adm .u-actions-cell a.u-act { display: inline-flex; align-items: center; box-sizing: border-box; text-decoration: none; }
+
+
+/* Add User: Cancel and Confirm sit below the white card, not inside it */
+.adm .u-actions-out { margin: 28px 26px 0; gap: 24px; }
+@media (max-width: 900px) {
+  .adm .u-actions-out { margin: 22px 0 0; }
+}
+
+/* Add User: Role sits right under Email (the password hint no longer pushes it down) */
+@media (min-width: 901px) {
+  .adm #user-form .u-field:nth-child(4) { grid-column: 2; grid-row: 2 / span 2; align-self: start; }
+}
+
+/* Users and Staff: no "Edit role" button on any account (All, Owners, Staff, Veterinarians, Admins) */
+.adm .u-actions-cell [data-act="role"] { display: none !important; }

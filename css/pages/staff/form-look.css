@@ -1,0 +1,40 @@
+/* css/pages/staff/form-look.css - staff Edit owner and Edit pet: same look as the admin pages
+   (Phone under Address, "Picture" label above the centered picture, buttons under the card, same text sizes).
+   Load after owners.css. */
+
+/* Edit owner */
+.sdash #owner-form .oe-phone { grid-column: 1; grid-row: 4; }
+.sdash #owner-form .oe-picture { grid-column: 2; grid-row: 1 / 5; align-self: center; justify-self: center; width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.sdash #owner-form .oe-picture .of-label { text-align: center; align-self: center; }
+.sdash #owner-form .oe-picture .of-photo-box { margin: 0 auto; }
+
+/* Edit pet */
+.sdash #pet-form .pf-picture { align-self: center; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.sdash #pet-form .pf-picture .pf-label { text-align: center; align-self: center; }
+.sdash #pet-form .pf-picture .pf-photo-box { margin: 0 auto; }
+.sdash .pf-actions-out { margin: 18px 0 0; }
+
+/* text sizes */
+.sdash #owner-form .of-field > label, .sdash #owner-form .of-label,
+.sdash #pet-form .pf-field > label, .sdash #pet-form .pf-label { font-size: 12px; font-weight: 700; letter-spacing: -0.02em; }
+.sdash #owner-form .of-field input, .sdash #owner-form .of-field textarea,
+.sdash #pet-form .pf-field input, .sdash #pet-form .pf-field select, .sdash #pet-form .pf-field textarea { font-size: 15px; }
+.sdash #owner-form .of-error, .sdash #pet-form .pf-error { font-size: 12px; }
+
+@media (max-width: 800px) {
+  .sdash #owner-form .oe-picture, .sdash #pet-form .pf-picture { align-self: auto; }
+}
+
+/* same field heights and spacing as the admin pages */
+.sdash #owner-form .of-field input[type="text"], .sdash #owner-form .of-field input[type="email"] { height: 42px; }
+.sdash #owner-form .own-pass h2 { font-size: 16px; }
+.sdash #owner-form .oe-pass-grid .of-field > label { font-size: 12px; }
+.sdash #pet-form.pf-card { padding: 20px 28px 22px; border-radius: 22px; }
+.sdash #pet-form .pf-grid { row-gap: 15px; }
+.sdash #pet-form .pf-field > label, .sdash #pet-form .pf-label { margin-bottom: 5px; }
+.sdash #pet-form .pf-field input[type="text"], .sdash #pet-form .pf-field select, .sdash #pet-form .pf-date input { height: 38px; }
+.sdash #pet-form .pf-field textarea { height: 80px; }
+.sdash #pet-form .pf-field > .pf-photo-box { width: 160px; }
+
+/* mas malaking picture sa Edit owner */
+.sdash #owner-form .of-field > .of-photo-box { width: min(280px, 100%); }
