@@ -36,9 +36,12 @@
     document.head.appendChild(st);
   })();
 
-  const today = () => { const d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); };
+  const Rules = window.PawApptRules;
+  const today = () => Rules.today();   // Asia/Manila
   // Reschedule / Cancel only while the visit has not happened yet
   const canChange = (a) => (a.status === "pending" || a.status === "confirmed") && a.date >= today();
+  // 24-hour rule: within (or exactly) 24 hours of the visit the appointment can only be cancelled, not rescheduled
+  const locked = (a) => Rules.isLocked(a.date, a.time);
 
   function services(a) {
     const names = (a.services || []).map((l) => l.name);
@@ -49,7 +52,9 @@
   function row(a) {
     const actions = !canChange(a)
       ? `<span class="ma-none">-</span>`
-      : `<a class="abtn abtn-outline ma-btn" href="reschedule-appointment.html?id=${encodeURIComponent(a.id)}">Reschedule</a>
+      : `${locked(a)
+          ? `<span class="abtn abtn-outline ma-btn" role="button" aria-disabled="true" tabindex="0" data-locked="1" style="opacity:.5;cursor:not-allowed">Reschedule</span>`
+          : `<a class="abtn abtn-outline ma-btn" href="reschedule-appointment.html?id=${encodeURIComponent(a.id)}">Reschedule</a>`}
          <button type="button" class="abtn abtn-cancel ma-btn" data-cancel="${esc(a.id)}">Cancel</button>`;
     return `
       <div class="ma-row" role="row">
@@ -104,7 +109,15 @@
 
   /* ----- Cancel ----- */
   let cancelId = null;
+  /* the message only appears when the owner tries to reschedule a locked appointment */
+  const tellLocked = (e) => {
+    if (e.type === "keydown" && e.key !== "Enter" && e.key !== " ") return false;
+    if (!e.target.closest("[data-locked]")) return false;
+    e.preventDefault(); showToast(Rules.LOCKED_MESSAGE); return true;
+  };
+  rowsEl.addEventListener("keydown", tellLocked);
   rowsEl.addEventListener("click", (e) => {
+    if (tellLocked(e)) return;
     const btn = e.target.closest("[data-cancel]");
     if (!btn) return;
     const a = backend ? appointmentList.find((item) => String(item.id) === btn.dataset.cancel) : Appts.get(btn.dataset.cancel);
@@ -142,7 +155,7 @@
   function showToast(msg) {
     toast.textContent = msg;
     toast.classList.add("show");
-    setTimeout(() => toast.classList.remove("show"), 2800);
+    setTimeout(() => toast.classList.remove("show"), msg.length > 80 ? 5500 : 2800);
   }
 
   search.addEventListener("input", render);

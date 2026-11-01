@@ -139,6 +139,34 @@ function validAppointmentDate(value) {
     && parsed.toISOString().slice(0, 10) === date;
 }
 
+/* 24-hour rule. Appointment dates and times are clinic wall-clock time (Asia/Manila, UTC+08:00, no daylight saving).
+   They are turned into a real instant and compared with the real current time (Date.now()), so the result does not
+   depend on the server's or the database's own time zone.
+   - an existing appointment scheduled <= 24 hours from now is locked: it cannot be edited or rescheduled;
+   - a new or rescheduled appointment must be >= 24 hours from now.
+   Applies to Admin and Pet Owner accounts. Cancelling, approving and the other status changes are not affected. */
+const CLINIC_UTC_OFFSET = '+08:00';
+const LEAD_TIME_MS = 24 * 60 * 60 * 1000;
+const RESCHEDULE_LOCKED_MESSAGE = 'This appointment is scheduled within 24 hours (Asia/Manila time), so its date and time can no longer be changed. Appointments can only be rescheduled more than 24 hours before their scheduled time.';
+const LEAD_TIME_MESSAGE = 'New and rescheduled appointments must be at least 24 hours ahead of the current date and time (Asia/Manila time). Please choose a later date or time.';
+
+function clinicInstant(date, time) {
+  return Date.parse(`${date}T${String(time).slice(0, 5)}:00${CLINIC_UTC_OFFSET}`);
+}
+/* existing appointment: locked when it is within, or exactly, 24 hours away (or already past) */
+function isRescheduleLocked(date, time, now = Date.now()) {
+  const at = clinicInstant(date, time);
+  return Number.isNaN(at) || at - now <= LEAD_TIME_MS;
+}
+/* new or rescheduled appointment: must be at least 24 hours away */
+function isTooSoonToBook(date, time, now = Date.now()) {
+  const at = clinicInstant(date, time);
+  return Number.isNaN(at) || at - now < LEAD_TIME_MS;
+}
+function usesLeadTimeRule(role) {
+  return role === 'Admin' || role === 'Pet Owner';
+}
+
 async function getAppointments({ userId, role, ownerId, status } = {}) {
   const clauses = [];
   const values = [];
@@ -1044,6 +1072,7 @@ router.post('/appointments', authorize('Admin', 'Staff', 'Pet Owner'), asyncRout
   if (!validAppointmentDate(date)) return res.status(400).json({ error: 'Appointment date must be a valid YYYY-MM-DD date.' });
   if (!/^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(time)) return res.status(400).json({ error: 'Appointment time must be a valid 24-hour time.' });
   if (!Number.isInteger(petId) || petId < 1) return res.status(400).json({ error: 'Choose a valid pet.' });
+  if (usesLeadTimeRule(req.user.role) && isTooSoonToBook(date, time)) return res.status(400).json({ error: LEAD_TIME_MESSAGE });
   const client = await db.connect();
   try {
     await client.query('BEGIN');
@@ -1271,10 +1300,17 @@ router.patch('/appointments/:id', authorize('Admin', 'Staff', 'Veterinarian', 'P
     const nextTime = req.body.time || before.appointment_time;
     const nextTimeHM = String(nextTime).slice(0, 5);
     const scheduleChanged = nextDate !== before.appointment_date || nextTimeHM !== before.appointment_time;
-    /* admin: an upcoming appointment can move to another time that day or to a later day, never to a date earlier than its own */
-    if (req.user.role === 'Admin' && req.body.date !== undefined && nextDate < before.appointment_date && ['Pending', 'Scheduled', 'Approved', 'In Progress'].includes(before.status)) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({ error: `You cannot move this appointment to a date earlier than ${before.appointment_date}. Choose another time that day, or a later date.` });
+    /* 24-hour rule (Admin and Pet Owner). It only guards edits and reschedules: a plain status change such as approve or cancel goes through. */
+    if (usesLeadTimeRule(req.user.role)) {
+      const ownerReschedule = ownOwner && requestedStatus === 'pending';
+      if ((scheduleChanged || ownerReschedule) && isRescheduleLocked(before.appointment_date, before.appointment_time)) {
+        await client.query('ROLLBACK');
+        return res.status(409).json({ error: RESCHEDULE_LOCKED_MESSAGE, code: 'RESCHEDULE_LOCKED' });
+      }
+      if ((scheduleChanged || ownerReschedule) && isTooSoonToBook(nextDate, nextTime)) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: LEAD_TIME_MESSAGE, code: 'LEAD_TIME' });
+      }
     }
     if (nextDate !== before.appointment_date || nextTimeHM !== before.appointment_time) {
       /* the schedule is being changed: the old one must still be ahead of us, and so must the new one */

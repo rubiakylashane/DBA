@@ -75,6 +75,27 @@
     }
   };
 
+  /* 24-hour appointment rule, in Asia/Manila time (UTC+08:00, no daylight saving).
+     Appointment dates / times are clinic wall-clock time; they become a real instant and are compared with the real
+     current time, so it does not matter which time zone the browser is set to. The server enforces the same rule. */
+  const MANILA_OFFSET_MS = 8 * 3600 * 1000, LEAD_MS = 24 * 3600 * 1000;
+  const p2 = (n) => String(n).padStart(2, "0");
+  const manila = (ms) => new Date(ms + MANILA_OFFSET_MS);   // read with getUTC* to get Manila wall-clock parts
+  const instant = (date, time) => Date.parse(date + "T" + String(time || "00:00").slice(0, 5) + ":00+08:00");
+  window.PawApptRules = {
+    LEAD_HOURS: 24,
+    LOCKED_MESSAGE: "Rescheduling is unavailable: this appointment is within 24 hours (Asia/Manila time). Appointments can only be edited or rescheduled more than 24 hours before their scheduled time.",
+    LEAD_MESSAGE: "New and rescheduled appointments must be at least 24 hours ahead of the current date and time (Asia/Manila time).",
+    /* existing appointment: locked when it is within, or exactly, 24 hours away (or already past) */
+    isLocked(date, time) { const at = instant(date, time); return Number.isNaN(at) || at - Date.now() <= LEAD_MS; },
+    /* new / rescheduled slot: must be at least 24 hours away */
+    isTooSoon(date, time) { const at = instant(date, time); return Number.isNaN(at) || at - Date.now() < LEAD_MS; },
+    /* earliest bookable date (YYYY-MM-DD, Manila) and the earliest minute of that day, i.e. now + 24 hours */
+    earliest() { const d = manila(Date.now() + LEAD_MS); return { date: d.getUTCFullYear() + "-" + p2(d.getUTCMonth() + 1) + "-" + p2(d.getUTCDate()), minutes: d.getUTCHours() * 60 + d.getUTCMinutes() }; },
+    /* today in Manila (YYYY-MM-DD) */
+    today() { const d = manila(Date.now()); return d.getUTCFullYear() + "-" + p2(d.getUTCMonth() + 1) + "-" + p2(d.getUTCDate()); }
+  };
+
   window.PawApi = {
     request,
     loadOwners,

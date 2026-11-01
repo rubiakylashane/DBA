@@ -9,7 +9,7 @@
 
   /* same clinic hours as book-appointment.js */
   const HOURS = { open: "09:00", close: "17:00", step: 30 };
-  const MIN_LEAD_MINUTES = 60;
+  const Rules = window.PawApptRules;   // 24-hour rule, Asia/Manila time
   const MAX_DAYS_AHEAD = 180;
 
   const peso = (n) => "₱" + n.toLocaleString("en-US");
@@ -36,7 +36,14 @@
       return;
     }
   } else appt = id ? Appts.get(id) : null;
-  if (!appt || ["pending", "confirmed"].indexOf(appt.status) < 0 || appt.date < new Date().toISOString().slice(0, 10)) { $("rs-missing").hidden = false; return; }
+  if (!appt || ["pending", "confirmed"].indexOf(appt.status) < 0 || appt.date < Rules.today()) { $("rs-missing").hidden = false; return; }
+  /* within (or exactly) 24 hours of the visit: rescheduling is not available (the server refuses it too) */
+  if (Rules.isLocked(appt.date, appt.time)) {
+    $("rs-missing").hidden = false;
+    $("rs-missing").querySelector("h2").textContent = "Rescheduling is unavailable";
+    $("rs-missing").querySelector("p").textContent = Rules.LOCKED_MESSAGE;
+    return;
+  }
   $("rs-layout").hidden = false;
 
   /* ----- summary (left card) ----- */
@@ -50,7 +57,8 @@
 
   /* ----- date and time (right card) ----- */
   const f = { date: $("date"), time: $("time") };
-  const todayIso = toIso(new Date());
+  const first = Rules.earliest();   // earliest allowed date (Manila) = now + 24 hours
+  const todayIso = first.date;
   const maxD = new Date(); maxD.setDate(maxD.getDate() + MAX_DAYS_AHEAD);
   const maxIso = toIso(maxD);
 
@@ -76,8 +84,7 @@
     const keep = f.time.value;
     f.time.length = 1;
     const iso = parseDate(f.date.value);
-    const now = new Date();
-    const earliest = iso === todayIso ? now.getHours() * 60 + now.getMinutes() + MIN_LEAD_MINUTES : -1;
+    const earliest = iso === first.date ? Rules.earliest().minutes : -1;   // on the first allowed day only slots from now + 24 h
     let count = 0;
     for (let m = toMin(HOURS.open); m < toMin(HOURS.close); m += HOURS.step) {
       if (m < earliest) continue;
@@ -90,7 +97,7 @@
   function onDateChanged() {
     const iso = parseDate(f.date.value);
     if (!iso) { setError("date", "Use a real date in the format MM/DD/YYYY."); buildTimes(); return; }
-    if (iso < todayIso) { setError("date", "Pick today or a later date."); buildTimes(); return; }
+    if (iso < todayIso) { setError("date", Rules.LEAD_MESSAGE); buildTimes(); return; }
     if (iso > maxIso) { setError("date", "Requests open up to " + MAX_DAYS_AHEAD / 30 + " months ahead."); buildTimes(); return; }
     setError("date", "");
     setError("time", buildTimes() ? "" : "No time slots left that day. Please pick another date.");
@@ -121,9 +128,10 @@
     let bad = false;
     if (!f.date.value.trim()) { setError("date", "Enter the new date."); bad = true; }
     else if (!iso) { setError("date", "Use a real date in the format MM/DD/YYYY."); bad = true; }
-    else if (iso < todayIso) { setError("date", "Pick today or a later date."); bad = true; }
+    else if (iso < todayIso) { setError("date", Rules.LEAD_MESSAGE); bad = true; }
     else if (iso > maxIso) { setError("date", "Requests open up to " + MAX_DAYS_AHEAD / 30 + " months ahead."); bad = true; }
-    if (!f.time.value) { setError("time", "Choose a time."); bad = true; }
+    if (iso && f.time.value && Rules.isTooSoon(iso, f.time.value)) { setError("time", Rules.LEAD_MESSAGE); bad = true; }
+    else if (!f.time.value) { setError("time", "Choose a time."); bad = true; }
     else if (iso === appt.date && f.time.value === String(appt.time).slice(0, 5)) { setError("time", "That is your current schedule. Choose a different date or time."); bad = true; }
     if (bad) return;
 

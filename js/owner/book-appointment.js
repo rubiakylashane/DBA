@@ -37,7 +37,7 @@
 
   // Clinic hours: first slot, closing time (no slot starts at closing time), minutes per slot
   const HOURS = { open: "09:00", close: "17:00", step: 30 };
-  const MIN_LEAD_MINUTES = 60;   // can't book a slot that starts sooner than this from now
+  const Rules = window.PawApptRules;   // 24-hour rule: a slot must start at least 24 hours from now (Asia/Manila time)
   const MAX_DAYS_AHEAD = 180;    // how far ahead a request can be made
 
   const DOSES = [1, 2, 3];
@@ -71,7 +71,8 @@
   if (!VETS.length) f.vet.options[0].textContent = "No active veterinarians (staff can assign later)";
 
   /* ---------- Date: type MM/DD/YYYY or use the calendar ---------- */
-  const todayIso = toIso(new Date());
+  const first = Rules.earliest();   // earliest bookable date (Manila) = now + 24 hours
+  const todayIso = first.date;
   const maxDate = new Date(); maxDate.setDate(maxDate.getDate() + MAX_DAYS_AHEAD);
   const maxIso = toIso(maxDate);
   f.picker.min = todayIso;
@@ -128,8 +129,7 @@
     const keep = f.time.value;
     f.time.length = 1;
     const iso = parseDate(f.date.value);
-    const now = new Date();
-    const earliest = iso === todayIso ? now.getHours() * 60 + now.getMinutes() + MIN_LEAD_MINUTES : -1;
+    const earliest = iso === first.date ? Rules.earliest().minutes : -1;
     let count = 0;
     for (let m = toMin(HOURS.open); m < toMin(HOURS.close); m += HOURS.step) {
       if (m < earliest) continue;
@@ -144,7 +144,7 @@
   function onDateChanged() {
     const iso = parseDate(f.date.value);
     if (!iso) { setError("date", "Use a real date in the format MM/DD/YYYY."); buildTimes(); return renderSummary(); }
-    if (iso < todayIso) { setError("date", "Pick today or a later date."); buildTimes(); return renderSummary(); }
+    if (iso < todayIso) { setError("date", Rules.LEAD_MESSAGE); buildTimes(); return renderSummary(); }
     if (iso > maxIso) { setError("date", "Requests open up to " + MAX_DAYS_AHEAD / 30 + " months ahead."); buildTimes(); return renderSummary(); }
     setError("date", "");
     const slots = buildTimes();
@@ -266,9 +266,10 @@
     if (!f.pet.value) errors.pet = pets.length ? "Choose a pet." : "Add a pet first, then book an appointment.";
     if (!f.date.value.trim()) errors.date = "Enter the date.";
     else if (!iso) errors.date = "Use a real date in the format MM/DD/YYYY.";
-    else if (iso < todayIso) errors.date = "Pick today or a later date.";
+    else if (iso < todayIso) errors.date = Rules.LEAD_MESSAGE;
     else if (iso > maxIso) errors.date = "Requests open up to " + MAX_DAYS_AHEAD / 30 + " months ahead.";
-    if (!f.time.value) errors.time = errors.time || "Choose a time.";
+    if (iso && f.time.value && Rules.isTooSoon(iso, f.time.value)) errors.time = Rules.LEAD_MESSAGE;
+    else if (!f.time.value) errors.time = errors.time || "Choose a time.";
     if (!lines.length) errors.services = vaccinationOn ? "Choose at least one vaccine (1x, 2x or 3x)." : "Choose at least one service.";
 
     ["pet", "date", "time", "services"].forEach((k) => setError(k, errors[k]));

@@ -12,7 +12,12 @@
   const todayIso = () => { const d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); };
   const nowHM = () => { const d = new Date(); return pad(d.getHours()) + ":" + pad(d.getMinutes()); };
   const isPast = (date, time) => !!date && (date + " " + (time || "00:00")) <= (todayIso() + " " + nowHM());   // date + time already behind us
-  /* an appointment whose schedule already passed cannot be rescheduled; an upcoming one can only move to the same day (a later time) or a later day, never earlier than its own date */
+  /* an appointment within 24 hours cannot be rescheduled; an upcoming one can move to any slot at least 24 hours from now */
+  /* 24-hour rule (Asia/Manila time): an appointment within, or exactly, 24 hours away cannot be edited or rescheduled, and a new
+     schedule must be at least 24 hours ahead. The server enforces the same rule; here it only disables the buttons and explains why. */
+  const Rules = window.PawApptRules;
+  const locked = (a) => Rules.isLocked(a.date, a.time);
+  const LOCK_SHORT = "Date and time can't be changed within 24 hours of the appointment.";
   const PASSED_MSG = "This appointment's schedule has already passed, so it cannot be rescheduled.";
   const fmtDate = (iso) => new Date(iso + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   const fmtTime = (t) => { const [h, m] = String(t || "00:00").split(":").map(Number); return new Date(2000, 0, 1, h, m).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }); };
@@ -84,8 +89,8 @@
   const eDlg = $("edit-dialog");
   const slots = (keep, date) => {
     const out = []; for (let m = 9 * 60; m < 17 * 60; m += 30) out.push(pad(Math.floor(m / 60)) + ":" + pad(m % 60));
-    const free = date ? out.filter((t) => !isPast(date, t)) : out;   // no time slot that is already past
-    if (keep && free.indexOf(keep) < 0 && !isPast(date, keep)) free.push(keep);
+    const free = date ? out.filter((t) => !Rules.isTooSoon(date, t)) : out;   // only slots at least 24 hours from now
+    if (keep && free.indexOf(keep) < 0 && date && !Rules.isTooSoon(date, keep)) free.push(keep);
     return free.sort();
   };
   function fillTimes(keep) {
@@ -94,8 +99,8 @@
     if (list.indexOf(keep) >= 0) $("e-time").value = keep;
   }
   function hint() {
-    if (cur && isPast(cur.date, cur.time) && OPEN.indexOf(cur.status) >= 0) {
-      $("e-hint").textContent = PASSED_MSG; $("e-hint").className = "dlg-hint bad"; return;
+    if (cur && locked(cur) && OPEN.indexOf(cur.status) >= 0) {
+      $("e-hint").textContent = LOCK_SHORT; $("e-hint").className = "dlg-hint"; return;
     }
     if (!$("e-time").value && $("e-date").value) {
       $("e-hint").textContent = "No time slots are left on this date. Choose a later date."; $("e-hint").className = "dlg-hint bad"; return;
@@ -110,8 +115,8 @@
     const open = OPEN.indexOf(a.status) >= 0;
     $("e-vet").innerHTML = `<option value="${TBA}">Unassigned</option>` + P.VETS.concat(a.vet && a.vet !== TBA && P.VETS.indexOf(a.vet) < 0 ? [a.vet] : []).map((v) => `<option>${esc(v)}</option>`).join("");
     $("e-vet").value = a.vet || TBA;
-    const past = open && isPast(a.date, a.time);   // already passed: cannot be moved
-    $("e-date").min = a.date > todayIso() ? a.date : todayIso(); $("e-date").value = a.date;   // never earlier than its own date (nor in the past)
+    const past = open && locked(a);   // within 24 hours: the vet can still change, the date and time cannot
+    $("e-date").min = Rules.earliest().date; $("e-date").value = a.date;   // any date at least 24 hours from now
     $("e-time").innerHTML = slots(a.time, past ? "" : a.date).map((t) => `<option value="${t}">${fmtTime(t)}</option>`).join(""); $("e-time").value = a.time;
     if (past && !$("e-time").value) { $("e-time").innerHTML = `<option value="${a.time}">${fmtTime(a.time)}</option>`; $("e-time").value = a.time; }
     ["e-vet", "e-date", "e-time", "e-save"].forEach((id) => { $(id).disabled = !open; });   // finished appointments: only the status override
@@ -125,11 +130,9 @@
     const patch = { vet: $("e-vet").value, date: $("e-date").value, time: $("e-time").value };
     const bad = (m) => { $("e-hint").textContent = m; $("e-hint").className = "dlg-hint bad"; };
     if (!patch.date) return bad("Choose a date.");
-    if (patch.date < todayIso()) return bad("You cannot reschedule to a date that has already passed.");
     const was = { ...cur }, moved = patch.date !== was.date || patch.time !== was.time, vetChanged = patch.vet !== (was.vet || TBA);
-    if (moved && isPast(was.date, was.time)) return bad(PASSED_MSG);
-    if (moved && patch.date < was.date) return bad("You cannot move this appointment to a date earlier than " + fmtDate(was.date) + ". Choose another time that day, or a later date.");
-    if (moved && isPast(patch.date, patch.time)) return bad("You cannot reschedule to a time that has already passed. Choose a later time.");
+    if (moved && locked(was)) return bad(LOCK_SHORT);
+    if (moved && Rules.isTooSoon(patch.date, patch.time)) return bad(Rules.LEAD_MESSAGE);
     if (!moved && !vetChanged) { eDlg.close(); return; }
     const btn = $("e-save"); btn.disabled = true;
     try {
