@@ -775,6 +775,16 @@ router.post('/owners/:id/pets', authorize('Admin', 'Staff', 'Pet Owner'), asyncR
     const owner = await db.query('SELECT owner_id FROM owner WHERE user_id = $1', [req.user.userId]);
     if (!owner.rows[0] || owner.rows[0].owner_id !== ownerId) return res.status(403).json({ error: 'You can only add pets to your own account.' });
   }
+  const ownerAccount = await db.query(
+    `SELECT COALESCE(u.account_status, 'Active') AS account_status
+       FROM owner o LEFT JOIN user_account u ON u.user_id = o.user_id
+      WHERE o.owner_id = $1`,
+    [ownerId]
+  );
+  if (!ownerAccount.rows[0]) return res.status(404).json({ error: 'Owner not found.' });
+  if (ownerAccount.rows[0].account_status !== 'Active') {
+    return res.status(409).json({ error: 'This owner account is deactivated. Activate it before adding a pet.' });
+  }
   const name = requiredString(req.body.name, 'Pet name', 100);
   const species = requiredString(req.body.species, 'Species', 50);
   const breed = req.body.breed == null || req.body.breed === '' ? null : requiredString(req.body.breed, 'Breed', 50);
@@ -1259,6 +1269,29 @@ router.patch('/appointments/:id', authorize('Admin', 'Staff', 'Veterinarian', 'P
     }
     const nextDate = req.body.date || before.appointment_date;
     const nextTime = req.body.time || before.appointment_time;
+    const nextTimeHM = String(nextTime).slice(0, 5);
+    const scheduleChanged = nextDate !== before.appointment_date || nextTimeHM !== before.appointment_time;
+    /* admin: an upcoming appointment can move to another time that day or to a later day, never to a date earlier than its own */
+    if (req.user.role === 'Admin' && req.body.date !== undefined && nextDate < before.appointment_date && ['Pending', 'Scheduled', 'Approved', 'In Progress'].includes(before.status)) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: `You cannot move this appointment to a date earlier than ${before.appointment_date}. Choose another time that day, or a later date.` });
+    }
+    if (nextDate !== before.appointment_date || nextTimeHM !== before.appointment_time) {
+      /* the schedule is being changed: the old one must still be ahead of us, and so must the new one */
+      const clock = await client.query(
+        `SELECT ($1::date + $2::time) <= LOCALTIMESTAMP AS old_past,
+                ($3::date + $4::time) <= LOCALTIMESTAMP AS new_past`,
+        [before.appointment_date, before.appointment_time, nextDate, nextTime]
+      );
+      if (clock.rows[0].old_past && ['Pending', 'Scheduled', 'Approved'].includes(before.status)) {
+        await client.query('ROLLBACK');
+        return res.status(409).json({ error: "This appointment's schedule has already passed, so it cannot be rescheduled." });
+      }
+      if (clock.rows[0].new_past) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'You cannot reschedule to a date or time that has already passed.' });
+      }
+    }
     if (nextVetId !== null && (nextVetId !== before.veterinarian_id || nextDate !== before.appointment_date || nextTime !== before.appointment_time)) {
       await client.query(
         'SELECT pg_advisory_xact_lock(hashtext($1), hashtext($2))',

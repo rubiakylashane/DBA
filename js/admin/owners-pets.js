@@ -36,7 +36,8 @@
     }
     const o = owners.find((x) => x.id === selected);
     $("pets-title").textContent = o ? "Pets of " + o.name : "Pets";
-    const add = $("add-pet"); add.hidden = !o; if (o) add.href = "owner-pet-form.html?owner=" + encodeURIComponent(o.id);
+    const ownerOff = !!o && A.ownerStatus(o.id) === "inactive";   // a deactivated account cannot get new pets
+    const add = $("add-pet"); add.hidden = !o || ownerOff; if (o && !ownerOff) add.href = "owner-pet-form.html?owner=" + encodeURIComponent(o.id);
     const pets = o ? O.petsOf(o.id) : [];
     $("p-rows").innerHTML = !o ? `<p class="u-empty">Select an owner to see their pets.</p>` : pets.length ? pets.map((p) => `
       <div class="o-row o-prow" role="row">
@@ -46,7 +47,7 @@
         <span role="cell" data-label="Gender">${esc(p.sex || "-")}</span>
         <span role="cell" data-label="Born">${esc(O.fmtShort(p.dob))}</span>
         <span role="cell" class="o-acts"><a class="u-act" href="owner-pet-form.html?owner=${encodeURIComponent(o.id)}&id=${encodeURIComponent(p.id)}">Edit</a>${p.status === "inactive" ? `<button type="button" class="u-act u-act-green" data-act-pet="${esc(p.id)}">Activate</button>` : `<button type="button" class="u-act u-act-red" data-act-pet="${esc(p.id)}">Deactivate</button>`}</span>
-      </div>`).join("") : `<p class="u-empty">${esc(o.name)} has no pets yet.</p>`;
+      </div>`).join("") : `<p class="u-empty">${esc(o.name)} has no pets yet.${ownerOff ? " This account is deactivated, so pets cannot be added." : ""}</p>`;
   }
   const render = () => { renderOwners(); renderPets(); };
 

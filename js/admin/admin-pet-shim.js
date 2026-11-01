@@ -17,6 +17,9 @@
 
   if (!owner || !O.exists(owner)) { location.replace("owners-pets.html"); return; }
 
+  /* A deactivated owner account cannot get new pets (editing existing pets is still allowed). */
+  if (!petId && window.PawAdmin && window.PawAdmin.ownerStatus(owner) === "inactive") { location.replace(back); return; }
+
   /* The backend sends dateOfBirth / gender; the admin store uses dob / sex. */
   const toLocalPet = (p) => Object.assign({}, p, {
     dob: p.dob !== undefined ? p.dob : (p.dateOfBirth || ""),
