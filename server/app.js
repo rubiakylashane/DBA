@@ -6,12 +6,20 @@ const authRoutes = require('./routes/auth');
 const clinicRoutes = require('./routes/clinic');
 const passwordResetRoutes = require('./routes/password-reset');
 const integrationRoutes = require('./routes/integrations');
+const { pingAll } = require('./utils/notification-hub');
 
 const app = express();
 const webRoot = path.resolve(__dirname, '..');
 
 app.disable('x-powered-by');
 app.use(express.json({ limit: '1mb' }));
+/* After any successful change (booking, approval, check-in...) the response is only sent once the database
+   transaction has committed, so this is the right moment to tell open pages to re-read their notifications. */
+app.use('/api', (req, res, next) => {
+  if (!['POST', 'PATCH', 'PUT', 'DELETE'].includes(req.method)) return next();
+  res.on('finish', () => { if (res.statusCode < 400) pingAll(); });
+  return next();
+});
 app.use('/api/auth', authRoutes);
 app.use('/api/forgot-password', passwordResetRoutes);
 app.use('/api', integrationRoutes);

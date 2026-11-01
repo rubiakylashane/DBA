@@ -160,11 +160,9 @@
     [p1, p2].forEach((i) => i.classList.remove("invalid"));
 
     let msg = "";
-    if (p1.value.length < 8) {
-      msg = "Password must be at least 8 characters.";
-      p1.classList.add("invalid");
-    } else if (!/[A-Za-z]/.test(p1.value) || !/\d/.test(p1.value)) {
-      msg = "Use at least one letter and one number.";
+    const v = p1.value;
+    if (v.length < 8 || v.length > 200 || /\s/.test(v) || !/[a-z]/.test(v) || !/[A-Z]/.test(v) || !/\d/.test(v) || !/[^A-Za-z0-9\s]/.test(v)) {
+      msg = "Use at least 8 characters with an uppercase letter, a lowercase letter, a number and a symbol (e.g. ! @ # $).";
       p1.classList.add("invalid");
     } else if (p1.value !== p2.value) {
       msg = "Passwords do not match.";

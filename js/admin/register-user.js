@@ -15,7 +15,7 @@
     else if (!A.validEmail(v.email)) e.email = "Enter a valid email address.";
     else if (!window.PawApi.isBackendSession() && A.emailTaken(v.email)) e.email = "This email is already used by another account.";
     if (!v.password) e.password = "Enter a temporary password.";
-    else if (v.password.length < 8) e.password = "Use at least 8 characters.";
+    else if (PawPassword.problem(v.password)) e.password = PawPassword.RULE;
     if (!v.role) e.role = "Choose a role.";
     return { v, e };
   }

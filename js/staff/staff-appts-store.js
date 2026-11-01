@@ -33,6 +33,14 @@ window.PawStaffAppts = (() => {
     return remoteAppointments;
   }) : Promise.resolve([]);
 
+  /* re-read the appointment list from the server (used to show new bookings live) */
+  async function reload() {
+    if (!backend) return remoteAppointments;
+    const rows = await window.PawApi.request(signedInRole === "vet" ? "/api/vet/appointments" : signedInRole === "owner" ? "/api/appointments" : "/api/staff/appointments");
+    remoteAppointments = rows.map((a) => ({ ...a, id: String(a.id), owner: String(a.owner), _key: KEY + String(a.owner), pet: a.petName }));
+    return remoteAppointments;
+  }
+
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   /* audit trail (demo): shared list "pawpaw_audit", read by the admin Audit Log page.
      Backend: the server writes this itself, from the signed-in user, whenever a record is created, changed or deleted. */
@@ -153,7 +161,7 @@ window.PawStaffAppts = (() => {
     } catch (_) { /* ignore */ }
   }
   return {
-    load, change, add, ready, backend, conflict, notify, notifyVet, vetChanged,
+    load, reload, change, add, ready, backend, conflict, notify, notifyVet, vetChanged,
     get VETS() { return VETS; },
     get SERVICES() { return SERVICES; },
     getOwners: () => remoteOwners,

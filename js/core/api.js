@@ -62,6 +62,15 @@
     return data;
   }
 
+  /* One password rule for every form: 8+ characters with an uppercase letter, a lowercase letter, a number and a symbol; no spaces. */
+  window.PawPassword = {
+    RULE: "Use at least 8 characters with an uppercase letter, a lowercase letter, a number and a symbol (e.g. ! @ # $).",
+    problem(value) {
+      const p = String(value || "");
+      return p.length >= 8 && p.length <= 200 && !/\s/.test(p) && /[a-z]/.test(p) && /[A-Z]/.test(p) && /\d/.test(p) && /[^A-Za-z0-9\s]/.test(p) ? "" : this.RULE;
+    }
+  };
+
   window.PawApi = {
     request,
     loadOwners,

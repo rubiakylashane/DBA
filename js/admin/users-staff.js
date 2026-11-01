@@ -127,7 +127,7 @@
   $("pw-cancel").addEventListener("click", () => pwDlg.close());
   $("pw-save").addEventListener("click", async () => {
     const v = $("pw-new").value;
-    if (v.length < 8) { $("pw-err").textContent = "Use at least 8 characters."; $("pw-err").hidden = false; return; }
+    if (PawPassword.problem(v)) { $("pw-err").textContent = PawPassword.RULE; $("pw-err").hidden = false; return; }
     if (backend) {
       try {
         await window.PawApi.request("/api/admin/users/" + encodeURIComponent(current.id) + "/reset-password", {

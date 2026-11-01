@@ -32,6 +32,7 @@
   const vetOptions = (sel, withTba) => (withTba ? `<option value="${TBA}">Assign later</option>` : "") + A.VETS.map((v) => `<option${v === sel ? " selected" : ""}>${esc(v)}</option>`).join("");
 
   const sorters = {
+    default: (a, b) => (a.status === "pending" ? 0 : 1) - (b.status === "pending" ? 0 : 1) || stamp(a).localeCompare(stamp(b)),   // pending requests first, then soonest
     soon: (a, b) => stamp(a).localeCompare(stamp(b)),
     late: (a, b) => stamp(b).localeCompare(stamp(a)),
     status: (a, b) => A.ORDER.indexOf(a.status) - A.ORDER.indexOf(b.status) || stamp(a).localeCompare(stamp(b)),
@@ -90,7 +91,7 @@
     const list = all
       .filter((a) => inTab(a, tab) && inSub(a) && (!dateF || a.date === dateF) &&
         (!q || [petName(a), ownerName(a), vetName(a), services(a), A.STATUS[a.status] || a.status, a.date].join(" ").toLowerCase().includes(q)))
-      .sort(sorters[$("sort").value] || sorters.soon);
+      .sort(sorters[$("sort").value] || sorters.default);
     const part = list.slice(0, shown);
     $("appt-rows").innerHTML = part.length
       ? part.map(row).join("")
@@ -196,6 +197,7 @@
     const before = a.status;
     try { await A.change(a, patch); }
     catch (error) { S.toast(error.message); return; }
+    const live = find(uid(a)); if (live && live !== a) Object.assign(live, patch);   // the list may have been reloaded while the dialog was open
     tell(a, before, patch);
     render();
     S.toast(msg);
@@ -291,4 +293,19 @@
       if (service && [...$("add-service").options].some((option) => option.value.toLowerCase() === service.toLowerCase())) $("add-service").value = service;
     }
   }).catch((error) => S.toast(error.message));
+
+  /* keep the list live: pick up new booking requests without reloading the page */
+  if (A.backend) {
+    const dialogOpen = () => document.querySelector("dialog[open]");
+    const live = () => {
+      if (document.hidden || !dataReady || dialogOpen()) return;
+      A.reload().then(() => {
+        const next = A.load(), sig = (list) => JSON.stringify(list.map((x) => [x.id, x.status, x.vet, x.date, x.time]));
+        if (sig(next) === sig(all)) return;       // nothing new: leave the page alone so buttons stay clickable
+        all = next; render();
+      }).catch(() => { /* try again next time */ });
+    };
+    setInterval(live, 8000);
+    document.addEventListener("visibilitychange", live);
+  }
 })();

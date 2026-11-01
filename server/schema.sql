@@ -237,6 +237,12 @@ CREATE TABLE IF NOT EXISTS VACCINATION (
 -- Diagnosis is optional for non-clinical visits (vaccination, grooming, deworming).
 ALTER TABLE MEDICAL_RECORD ALTER COLUMN diagnosis DROP NOT NULL;
 
+-- Older databases were created before "No-show" (and the other current statuses) were allowed, so marking an owner as
+-- a no-show failed with "conflicts with related clinic records". Rebuild the status rule so every status is accepted.
+ALTER TABLE APPOINTMENT DROP CONSTRAINT IF EXISTS chk_appointment_status;
+ALTER TABLE APPOINTMENT ADD CONSTRAINT chk_appointment_status
+    CHECK (status IN ('Pending', 'Scheduled', 'Approved', 'Checked-in', 'In Progress', 'Completed', 'Cancelled', 'No-show'));
+
 -- Older databases may have a VACCINATION table without these columns; add them so vaccinations can be saved.
 ALTER TABLE VACCINATION ADD COLUMN IF NOT EXISTS veterinarian_id INT REFERENCES VETERINARIAN(veterinarian_id) ON DELETE RESTRICT;
 ALTER TABLE VACCINATION ADD COLUMN IF NOT EXISTS notes TEXT;

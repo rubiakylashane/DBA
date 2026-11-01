@@ -2,6 +2,7 @@ const express = require('express');
 const db = require('../config/db');
 const { authenticate, authorize } = require('../middleware/auth');
 const { asyncRoute, notFound, requiredString } = require('../utils/http');
+const { addStream } = require('../utils/notification-hub');
 
 /* Diagnosis is only required for clinical visits (consultation, laboratory, dental). Vaccination, deworming and grooming visits may leave it blank. */
 async function resolveDiagnosis(queryable, appointmentId, value) {
@@ -93,7 +94,21 @@ const PRESCRIPTION_SELECT = `
     JOIN pet p ON p.pet_id = a.pet_id
     JOIN owner o ON o.owner_id = p.owner_id`;
 
+/* Live stream: the page keeps this request open and re-fetches its list whenever it receives "refresh". */
+router.get('/notifications/stream', authenticate, (req, res) => {
+  res.set({
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache, no-transform',
+    Connection: 'keep-alive',
+    'X-Accel-Buffering': 'no'
+  });
+  res.flushHeaders();
+  res.write('retry: 3000\n\nevent: refresh\ndata: {}\n\n');
+  addStream(req.user.userId, res);
+});
+
 router.get('/notifications', authenticate, asyncRoute(async (req, res) => {
+  res.set('Cache-Control', 'no-store');
   const result = await db.query(
     `SELECT notification_id AS id, notification_type AS type, title, message AS text,
             created_at AS "createdAt", read_at AS "readAt"

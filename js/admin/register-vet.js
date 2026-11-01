@@ -14,7 +14,7 @@
     if (!v.email) e.email = "Enter the email address."; else if (!A.validEmail(v.email)) e.email = "Enter a valid email address."; else if (!window.PawApi.isBackendSession() && (A.emailTaken(v.email) || A.vetEmailTaken(v.email))) e.email = "This email is already used by another account.";
     if (!$("license").value.trim()) e.license = "Enter the license number."; else if (!v.license) e.license = "Use the format PRC 0012345."; else if (!window.PawApi.isBackendSession() && A.licenseTaken(v.license)) e.license = "This license number is already registered.";
     if (!v.specialization) e.spec = "Choose a specialization.";
-    if (!v.password) e.password = "Enter a temporary password."; else if (v.password.length < 8) e.password = "Use at least 8 characters.";
+    if (!v.password) e.password = "Enter a temporary password."; else if (PawPassword.problem(v.password)) e.password = PawPassword.RULE;
     K.forEach((k) => err(k, e[k]));
     const first = K.find((k) => e[k]); if (first) { $(first).focus(); return; }
     let remote = null;

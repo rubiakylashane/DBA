@@ -57,8 +57,8 @@ function validateStep(step) {
     } else if (input.name === "username" && value &&
                !/^[a-zA-Z0-9_]{4,20}$/.test(value)) {
       message = "Use 4 to 20 letters, numbers, or underscores.";
-    } else if (input.name === "password" && value && value.length < 8) {
-      message = "Use at least 8 characters.";
+    } else if (input.name === "password" && value && window.PawPassword && window.PawPassword.problem(value)) {
+      message = window.PawPassword.RULE;
     } else if (input.name === "confirm_password" && value &&
                value !== form.elements.password.value) {
       message = "Passwords do not match.";

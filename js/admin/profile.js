@@ -73,7 +73,7 @@
     else if (!A.validPhone(v.phone)) errors.phone = "Use a mobile number like 09XXXXXXXXX.";
     if (cur || nw || conf) {            // only checked when you are changing the password
       if (!cur) errors.cur = "Enter your current password.";
-      if (nw.length < 8) errors.new = "Use at least 8 characters.";
+      if (PawPassword.problem(nw)) errors.new = PawPassword.RULE;
       if (conf !== nw) errors.conf = "The passwords do not match.";
     }
     KEYS.forEach((k) => S.setError(k, errors[k]));

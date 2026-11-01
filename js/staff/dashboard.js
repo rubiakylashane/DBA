@@ -292,6 +292,8 @@
     if (document.hidden || reviewDlg.open || vetDlg.open) return;
     load().then((list) => { all = list; render(); }).catch(() => { /* try again on the next tick */ });
   };
-  setInterval(refresh, 15000);
+  setInterval(refresh, 30000);
   document.addEventListener("visibilitychange", refresh);
+  /* live: the bell announces every new notification (e.g. an owner just booked), so reload the cards and lists right away */
+  window.addEventListener("paw:notifications", refresh);
 })();

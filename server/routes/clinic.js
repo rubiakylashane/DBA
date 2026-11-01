@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const db = require('../config/db');
 const { authenticate, authorize } = require('../middleware/auth');
 const { asyncRoute, notFound, requiredString } = require('../utils/http');
+const { requireStrongPassword } = require('../utils/password');
 
 /* Diagnosis is only required for clinical visits (consultation, laboratory, dental). Vaccination, deworming and grooming visits may leave it blank. */
 async function resolveDiagnosis(queryable, appointmentId, value) {
@@ -202,7 +203,7 @@ router.post('/admin/users', authorize('Admin'), asyncRoute(async (req, res) => {
   const role = DB_ROLES[String(req.body.role || '').toLowerCase()];
   const password = requiredString(req.body.password || req.body.temporaryPassword, 'Temporary password', 200);
   if (!role || role === 'Veterinarian') return res.status(400).json({ error: 'Choose Owner, Staff, or Admin. Add veterinarians from the Veterinarians page.' });
-  if (password.length < 8) return res.status(400).json({ error: 'Temporary password must be at least 8 characters.' });
+  requireStrongPassword(password);
   const username = (req.body.username || name.toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '')).slice(0, 50);
   const client = await db.connect();
   try {
@@ -335,7 +336,7 @@ router.patch('/admin/users/:id', authorize('Admin'), asyncRoute(async (req, res)
 
 router.post('/admin/users/:id/reset-password', authorize('Admin'), asyncRoute(async (req, res) => {
   const password = requiredString(req.body.temporaryPassword || req.body.password, 'Temporary password', 200);
-  if (password.length < 8) return res.status(400).json({ error: 'Temporary password must be at least 8 characters.' });
+  requireStrongPassword(password);
   const result = await db.query(
     `UPDATE user_account
         SET password_hash = $2
@@ -382,7 +383,7 @@ router.post('/admin/veterinarians', authorize('Admin'), asyncRoute(async (req, r
   const email = requiredString(req.body.email, 'Email', 100).toLowerCase();
   const license = requiredString(req.body.license || req.body.license_number, 'License number', 50);
   const password = requiredString(req.body.password || req.body.temporaryPassword, 'Temporary password', 200);
-  if (password.length < 8) return res.status(400).json({ error: 'Temporary password must be at least 8 characters.' });
+  requireStrongPassword(password);
   const username = (req.body.username || name.toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '')).slice(0, 50);
   const client = await db.connect();
   try {
@@ -562,9 +563,7 @@ router.patch('/owners/:id', authorize('Admin', 'Staff', 'Pet Owner'), asyncRoute
   if ((currentPassword === null) !== (newPassword === null)) {
     return res.status(400).json({ error: 'Current and new passwords are both required.' });
   }
-  if (newPassword !== null && newPassword.length < 8) {
-    return res.status(400).json({ error: 'Password must be at least 8 characters.' });
-  }
+  if (newPassword !== null) requireStrongPassword(newPassword);
 
   const client = await db.connect();
   try {

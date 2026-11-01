@@ -8,8 +8,8 @@ async function createAdmin() {
   const email = process.env.ADMIN_EMAIL;
   const name = process.env.ADMIN_NAME;
   const password = process.env.ADMIN_PASSWORD;
-  if (!username || !email || !name || !password || password.length < 12) {
-    throw new Error('Set ADMIN_USERNAME, ADMIN_EMAIL, ADMIN_NAME, and ADMIN_PASSWORD (at least 12 characters).');
+  if (!username || !email || !name || !password || password.length < 12 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password) || !/[^A-Za-z0-9\s]/.test(password)) {
+    throw new Error('Set ADMIN_USERNAME, ADMIN_EMAIL, ADMIN_NAME, and ADMIN_PASSWORD (at least 12 characters, with uppercase, lowercase, a number and a symbol).');
   }
   const result = await db.query(
     `INSERT INTO user_account

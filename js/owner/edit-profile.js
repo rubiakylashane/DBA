@@ -108,7 +108,7 @@
     const changing = f.current.value || f.new.value || f.confirm.value;
     if (changing) {
       if (!f.current.value) errs.current = "Enter your current password.";
-      if (f.new.value.length < MIN_PASSWORD) errs.new = "Use at least " + MIN_PASSWORD + " characters.";
+      if (PawPassword.problem(f.new.value)) errs.new = PawPassword.RULE;
       else if (f.new.value === f.current.value) errs.new = "Choose a password different from the current one.";
       if (f.confirm.value !== f.new.value) errs.confirm = "The passwords do not match.";
     }

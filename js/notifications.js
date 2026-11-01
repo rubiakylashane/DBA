@@ -230,8 +230,42 @@
     console.error("[notifications] backend failed:", error);
     list.textContent = error.message || "Could not load notifications.";
   });
-  window.addEventListener("storage", (e) => { if (KEYS.indexOf(e.key) >= 0) refresh(); });
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
-  setInterval(refresh, 15000);
+  /* a page can listen for this to reload its own data the moment a notification arrives */
+  const announce = () => window.dispatchEvent(new CustomEvent("paw:notifications"));
+  const refreshAndAnnounce = () => { refresh(); announce(); };
+  window.addEventListener("storage", (e) => { if (KEYS.indexOf(e.key) >= 0) refreshAndAnnounce(); });
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshAndAnnounce(); });
+  setInterval(refresh, 30000);                               // safety net only; the live stream below does the real work
   refresh();
+
+  /* ---------- live stream (Server-Sent Events over fetch, so the login token goes in the header) ---------- */
+  async function listen() {
+    let wait = 1000;
+    for (;;) {
+      try {
+        const headers = { Accept: "text/event-stream" };
+        const token = window.PawApi ? window.PawApi.token() : backendToken();
+        if (token) headers.Authorization = "Bearer " + token;
+        const res = await fetch("/api/notifications/stream", { headers, cache: "no-store" });
+        if (res.status === 401 || res.status === 403) return;   // signed out: stop trying
+        if (!res.ok || !res.body) throw new Error("stream " + res.status);
+        wait = 1000;
+        const reader = res.body.getReader(), dec = new TextDecoder();
+        let buf = "";
+        for (;;) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buf += dec.decode(value, { stream: true });
+          let i;
+          while ((i = buf.indexOf("\n\n")) >= 0) {
+            const block = buf.slice(0, i); buf = buf.slice(i + 2);
+            if (/^event:\s*refresh/m.test(block)) refreshAndAnnounce();
+          }
+        }
+      } catch (_) { /* dropped: reconnect below */ }
+      await new Promise((r) => setTimeout(r, wait));
+      wait = Math.min(wait * 2, 15000);
+    }
+  }
+  if (USE_BACKEND && backendSession()) listen();
 })();
