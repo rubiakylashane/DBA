@@ -51,14 +51,13 @@
   $("owner-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const v = { name: f.name.value.trim().replace(/\s+/g, " "), email: f.email.value.trim(), address: f.address.value.trim(), phone: f.phone.value.replace(/[\s-]/g, "") };
-    const cur = $("cur").value, nw = $("new").value, conf = $("conf").value;
+    const cur = "", nw = $("new").value, conf = $("conf").value;
     const errors = {};
 
     if (!v.name) errors.name = "Enter the owner's name.";
     if (v.email && !O.validEmail(v.email)) errors.email = "Enter a valid email address.";
     if (v.phone && !O.validPhone(v.phone)) errors.phone = "Use a mobile number like 09XXXXXXXXX.";
     if (cur || nw || conf) {            // only checked when the admin is changing the password
-      if (!cur) errors.cur = "Enter the current password.";
       if (PawPassword.problem(nw)) errors.new = PawPassword.RULE;
       if (conf !== nw) errors.conf = "The passwords do not match.";
     }
@@ -70,7 +69,7 @@
     if (v.name !== o.name) Object.assign(patch, { name: v.name, firstName: "", middleName: "", lastName: "" });
     else if (!O.owner(id).first) patch.name = v.name;
     const payload = { ...patch };
-    if (cur || nw) Object.assign(payload, { currentPassword: cur, newPassword: nw });
+    if (nw) payload.newPassword = nw;
     const submit = $("owner-form").querySelector('[type="submit"]');
     submit.disabled = true;
     try {

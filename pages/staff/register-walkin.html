@@ -72,100 +72,55 @@
     <header class="head-row">
       <div class="page-head">
         <h1>Register Walk-Ins</h1>
-        <p class="sub">Register a walk-in owner with an account and their pet.</p>
+        <p class="sub">Register a walk-in owner and create their account.</p>
       </div>
       <a href="owners-pets.html" class="abtn abtn-wide">Go Back</a>
     </header>
 
-    <form id="walkin-form" class="own-card own-walkin" novalidate>
-      <fieldset class="wi-section">
-        <h2>Owner details</h2>
-        <div class="wi-grid">
-          <div class="of-field">
-            <label for="first">First name</label>
-            <input id="first" name="first" type="text" placeholder="Ex. Juan" autocomplete="off" maxlength="40" required />
-            <p class="of-error" id="err-first" role="alert" hidden></p>
-          </div>
-          <div class="of-field">
-            <label for="middle">Middle name (Optional)</label>
-            <input id="middle" name="middle" type="text" placeholder="Ex. Maria" autocomplete="off" maxlength="40" />
-            <p class="of-error" id="err-middle" role="alert" hidden></p>
-          </div>
-          <div class="of-field">
-            <label for="last">Last name</label>
-            <input id="last" name="last" type="text" placeholder="Ex. Dela Cruz" autocomplete="off" maxlength="40" required />
-            <p class="of-error" id="err-last" role="alert" hidden></p>
-          </div>
-          <div class="of-field">
-            <label for="phone">Contact number</label>
-            <input id="phone" name="phone" type="text" inputmode="numeric" placeholder="Ex. 09XXXXXXXXX" autocomplete="off" maxlength="13" required />
-            <p class="of-error" id="err-phone" role="alert" hidden></p>
-          </div>
-          <div class="of-field wi-full">
-            <label for="email">Email (Optional)</label>
-            <input id="email" name="email" type="email" placeholder="Ex. XXXXXXXX@XXX.com" autocomplete="off" maxlength="80" />
-            <p class="of-error" id="err-email" role="alert" hidden></p>
-          </div>
-        </div>
-      </fieldset>
-
-      <fieldset class="wi-section">
-        <h2>Owner account</h2>
-        <p class="wi-note">The owner can sign in with this username (or email) and the temporary password. Please tell them to change it in My Profile.</p>
-        <div class="wi-grid">
-          <div class="of-field">
-            <label for="username">Username</label>
-            <input id="username" name="username" type="text" placeholder="Ex. juan.delacruz" autocomplete="off" maxlength="50" />
-            <p class="of-error" id="err-username" role="alert" hidden></p>
-          </div>
-          <div class="of-field">
-            <label for="password">Temporary password</label>
-            <div class="of-pass">
-              <input id="password" name="password" type="password" placeholder="Ex. juan123" autocomplete="new-password" maxlength="100" />
-              <button type="button" class="of-eye" id="pw-eye" aria-label="Show temporary password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/></svg></button>
-            </div>
-            <p class="of-hint">At least 6 characters with letters. Numbers and symbols are optional.</p>
-            <p class="of-error" id="err-password" role="alert" hidden></p>
-          </div>
-        </div>
-      </fieldset>
-
-      <fieldset class="wi-section">
-        <h2>Pet (Optional)</h2>
-        <p class="wi-note">Add the owner's first pet now. More pets can be added later from the owner's page.</p>
-        <div class="wi-grid">
-          <div class="of-field">
-            <label for="petName">Pet name</label>
-            <input id="petName" name="petName" type="text" placeholder="Ex. Bantay" autocomplete="off" maxlength="60" />
-            <p class="of-error" id="err-petName" role="alert" hidden></p>
-          </div>
-          <div class="of-field">
-            <label for="petSpecies">Species</label>
-            <select id="petSpecies" name="petSpecies"><option value=""></option></select>
-            <p class="of-error" id="err-petSpecies" role="alert" hidden></p>
-          </div>
-          <div class="of-field">
-            <label for="petBreed">Breed (Optional)</label>
-            <input id="petBreed" name="petBreed" type="text" placeholder="Ex. Aspin" autocomplete="off" maxlength="50" />
-            <p class="of-error" id="err-petBreed" role="alert" hidden></p>
-          </div>
-          <div class="of-field">
-            <label for="petGender">Gender (Optional)</label>
-            <select id="petGender" name="petGender"><option value=""></option><option value="Male">Male</option><option value="Female">Female</option><option value="Unknown">Unknown</option></select>
-            <p class="of-error" id="err-petGender" role="alert" hidden></p>
-          </div>
-          <div class="of-field wi-full">
-            <label for="petDob">Date of birth (Optional)</label>
-            <input id="petDob" name="petDob" type="date" />
-            <p class="of-error" id="err-petDob" role="alert" hidden></p>
-          </div>
-        </div>
-      </fieldset>
+    <form id="walkin-form" class="wi-card" novalidate>
+      <div class="wi-field">
+        <label for="first">First Name</label>
+        <input id="first" name="first" type="text" required placeholder="Ex. Juan" autocomplete="off" maxlength="40" />
+        <p class="wi-error" id="err-first" role="alert" hidden></p>
+      </div>
+      <div class="wi-field">
+        <label for="middle">Middle Name (Optional)</label>
+        <input id="middle" name="middle" type="text" placeholder="Ex. Maria" autocomplete="off" maxlength="40" />
+        <p class="wi-error" id="err-middle" role="alert" hidden></p>
+      </div>
+      <div class="wi-field">
+        <label for="last">Last Name</label>
+        <input id="last" name="last" type="text" required placeholder="Ex. Dela Cruz" autocomplete="off" maxlength="40" />
+        <p class="wi-error" id="err-last" role="alert" hidden></p>
+      </div>
+      <div class="wi-field">
+        <label for="phone">Phone Number</label>
+        <input id="phone" name="phone" type="text" inputmode="numeric" required placeholder="09XXXXXXXXX" autocomplete="off" maxlength="13" />
+        <p class="wi-error" id="err-phone" role="alert" hidden></p>
+      </div>
+      <div class="wi-field">
+        <label for="email">Email (Optional)</label>
+        <input id="email" name="email" type="email" placeholder="Ex. XXXXXXXX@XXX.com" autocomplete="off" maxlength="80" />
+        <p class="wi-error" id="err-email" role="alert" hidden></p>
+      </div>
+      <div class="wi-field">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" placeholder="Ex. juan.delacruz" autocomplete="off" maxlength="50" />
+        <p class="wi-hint">The owner signs in with this username (or email).</p>
+        <p class="wi-error" id="err-username" role="alert" hidden></p>
+      </div>
+      <div class="wi-field">
+        <label for="password">Temporary Password</label>
+        <div class="wi-pass"><input id="password" name="password" type="password" placeholder="Ex. juan123" autocomplete="new-password" maxlength="100" /><button type="button" class="of-eye" id="pw-eye" aria-label="Show temporary password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/></svg></button></div>
+        <p class="wi-hint">At least 6 characters with letters. Tell the owner to change it in My Profile.</p>
+        <p class="wi-error" id="err-password" role="alert" hidden></p>
+      </div>
     </form>
 
-    <div class="of-actions of-actions-wide pf-actions-out">
-      <a href="owners-pets.html" class="obtn obtn-cancel">Cancel</a>
-      <button type="submit" form="walkin-form" class="obtn obtn-amber">Save</button>
+    <!-- Buttons sit outside the white card; Confirm still submits the form -->
+    <div class="wi-actions">
+      <a href="owners-pets.html" class="wi-btn wi-btn-cancel">Cancel</a>
+      <button type="submit" form="walkin-form" class="wi-btn wi-btn-ok">Confirm</button>
     </div>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>

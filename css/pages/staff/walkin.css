@@ -1,26 +1,41 @@
-/* css/pages/staff/walkin.css - Register Walk-Ins form (shared by the staff and admin pages). Load after owners.css. */
-.sdash .own-walkin { max-width: 760px; padding: 30px 44px 34px; }
-.sdash .wi-section { margin: 0 0 6px; padding: 0; border: 0; }
-.sdash .wi-section + .wi-section { margin-top: 22px; padding-top: 20px; border-top: 1px solid #e3e3e3; }
-.sdash .wi-section > h2 { margin: 0 0 4px; font-size: 18px; letter-spacing: -0.02em; }
-.sdash .wi-note { margin: 0 0 14px; font-size: 12.5px; color: #555; }
-.sdash .wi-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 20px; }
-.sdash .wi-grid .wi-full { grid-column: 1 / -1; }
-.sdash .own-walkin .of-field { margin-bottom: 14px; min-width: 0; }
-.sdash .own-walkin .of-field > label { margin-bottom: 6px; font-size: 13px; }
-.sdash .own-walkin .of-field input[type="text"], .sdash .own-walkin .of-field input[type="email"],
-.sdash .own-walkin .of-field input[type="password"], .sdash .own-walkin .of-field input[type="date"],
-.sdash .own-walkin .of-field select { height: 42px; }
-.sdash .own-walkin .of-field input[type="date"], .sdash .own-walkin .of-field select {
-  display: block; width: 100%; padding: 0 12px; font: inherit; font-size: 15px; color: #111; background: #fff;
-  border: 1px solid #555; border-radius: 8px;
+/* css/pages/staff/walkin.css - staff Register Walk-Ins form.
+   Same format as the admin Add User form: one white card, two columns, big labels and fields,
+   Cancel and Confirm buttons below the card. Load after owners.css. */
+.sdash .wi-card {
+  display: grid; grid-template-columns: 1fr 1fr; column-gap: 52px; row-gap: 22px;
+  margin: 0 26px; padding: 28px 32px 36px; color: #111; background: #fff;
+  border: 1px solid var(--line); border-radius: 12px;
 }
-.sdash .own-walkin .of-field select:focus-visible, .sdash .own-walkin .of-field input[type="date"]:focus-visible {
-  outline: 3px solid rgba(15, 107, 92, .35); outline-offset: 1px; border-color: #0f6b5c;
+.sdash .wi-field { min-width: 0; }
+.sdash .wi-field label { display: block; margin-bottom: 8px; font-size: 18px; font-weight: 600; }
+.sdash .wi-field input, .sdash .wi-field select {
+  display: block; width: 100%; height: 54px; padding: 0 14px; font: inherit; font-size: 16px;
+  color: #111; background: #fff; border: 1px solid #555; border-radius: 8px;
 }
-.sdash .own-walkin .of-pass input { padding-right: 44px; }
-.sdash .own-walkin .of-hint { margin: 6px 0 0; font-size: 12px; color: #555; }
-@media (max-width: 640px) {
-  .sdash .own-walkin { padding: 22px 18px 26px; }
-  .sdash .wi-grid { grid-template-columns: minmax(0, 1fr); }
+.sdash .wi-field ::placeholder { color: #777; opacity: 1; }
+.sdash .wi-field input:focus-visible, .sdash .wi-field select:focus-visible { outline: 3px solid rgba(15, 107, 92, .45); outline-offset: 1px; }
+.sdash .wi-field [aria-invalid="true"] { border-color: #c0281c; }
+.sdash .wi-error { margin: 6px 0 0; font-size: 13px; font-weight: 500; color: #c0281c; }
+.sdash .wi-hint { margin: 6px 0 0; font-size: 12.5px; color: #555; }
+.sdash .wi-pass { position: relative; }
+.sdash .wi-pass input { padding-right: 52px; }
+.sdash .wi-pass .of-eye { right: 12px; }
+
+.sdash .wi-actions { display: flex; justify-content: center; gap: 16px; margin: 24px 26px 0; }
+.sdash .wi-btn {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 180px; min-height: 44px; padding: 0 20px;
+  font: inherit; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; text-decoration: none;
+  border: 1px solid transparent; border-radius: 8px; cursor: pointer; transition: filter .15s, background .15s;
+}
+.sdash .wi-btn:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.sdash .wi-btn-cancel { color: #e11b1b; background: #fff; border-color: #444; font-weight: 600; }
+.sdash .wi-btn-cancel:hover { background: #fdf0f0; }
+.sdash .wi-btn-ok { color: #111; background: var(--orange); border-color: #c9ae2a; }
+.sdash .wi-btn-ok:hover { filter: brightness(1.06); }
+.sdash .wi-btn[disabled] { opacity: .6; cursor: default; }
+
+@media (max-width: 900px) {
+  .sdash .wi-card { margin: 0; padding: 22px 18px 26px; grid-template-columns: 1fr; }
+  .sdash .wi-actions { flex-direction: column; gap: 12px; margin: 22px 0 0; }
+  .sdash .wi-btn { min-width: 0; width: 100%; min-height: 46px; font-size: 16px; }
 }

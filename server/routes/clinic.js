@@ -514,7 +514,11 @@ router.post('/owners', authorize('Admin', 'Staff'), asyncRoute(async (req, res) 
   if (phone && !/^(09\d{9}|\+639\d{9})$/.test(phone.replace(/[\s-]/g, ''))) return res.status(400).json({ error: 'Use a mobile number like 09XXXXXXXXX.' });
 
   const rawPassword = req.body.password === undefined ? req.body.temporaryPassword : req.body.password;
-  const makeAccount = rawPassword !== undefined && rawPassword !== null && String(rawPassword) !== '';
+  /* a walk-in owner always gets a login account, so the admin can see and deactivate it in Users and Staff */
+  if (rawPassword === undefined || rawPassword === null || String(rawPassword) === '') {
+    return res.status(400).json({ error: 'Enter a temporary password for the owner account.' });
+  }
+  const makeAccount = true;
   let username = null;
   if (makeAccount) {
     requireTemporaryPassword(String(rawPassword));
@@ -597,6 +601,11 @@ router.post('/owners', authorize('Admin', 'Staff'), asyncRoute(async (req, res) 
     return res.status(201).json({ ...result.rows[0], username, hasAccount: Boolean(userId), pets });
   } catch (error) {
     await client.query('ROLLBACK');
+    if (error.code === '23505') {
+      const hint = String(error.constraint || '') + ' ' + String(error.detail || '');
+      if (/email/i.test(hint)) return res.status(409).json({ error: 'That email address is already registered.' });
+      if (/username/i.test(hint)) return res.status(409).json({ error: 'That username is already taken.' });
+    }
     throw error;
   } finally {
     client.release();
@@ -641,9 +650,11 @@ router.patch('/owners/:id', authorize('Admin', 'Staff', 'Pet Owner'), asyncRoute
     address: provided.address ? (String(req.body.address || '').trim() || null) : null,
     photo: provided.photo ? (String(req.body.photo || '').trim() || null) : null
   };
+  /* an owner changing their own password must give the current one; admin / staff editing an owner do not need it */
+  const needsCurrent = req.user.role === 'Pet Owner';
   const currentPassword = req.body.currentPassword === undefined ? null : requiredString(req.body.currentPassword, 'Current password', 200);
   const newPassword = req.body.newPassword === undefined ? null : requiredString(req.body.newPassword, 'New password', 200);
-  if ((currentPassword === null) !== (newPassword === null)) {
+  if (needsCurrent && (currentPassword === null) !== (newPassword === null)) {
     return res.status(400).json({ error: 'Current and new passwords are both required.' });
   }
   if (newPassword !== null) requireStrongPassword(newPassword);
@@ -669,7 +680,7 @@ router.patch('/owners/:id', authorize('Admin', 'Staff', 'Pet Owner'), asyncRoute
           WHERE user_id = $1 AND account_status = 'Active'`,
         [req.user.userId]
       );
-      if (!actor.rows[0] || !(await bcrypt.compare(currentPassword, actor.rows[0].password_hash))) {
+      if (!actor.rows[0] || (needsCurrent && !(await bcrypt.compare(currentPassword, actor.rows[0].password_hash)))) {
         await client.query('ROLLBACK');
         return res.status(400).json({ error: 'Current password is incorrect.' });
       }

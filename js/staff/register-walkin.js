@@ -1,14 +1,12 @@
 /* js/staff/register-walkin.js - Register Walk-Ins form (shared by the staff and admin pages).
-   Registers a walk-in OWNER, gives them an ACCOUNT (username + temporary password) and can add their first PET.
+   Registers a walk-in OWNER and gives them an ACCOUNT (username + temporary password). Pets are added later from the Owners and Pets list.
    Temporary password rule (lighter than the normal password rule): at least 6 characters, must contain letters, no spaces.
-   Backend: POST /api/owners { name, firstName, middleName, lastName, phone, email, username, password, pet? }
+   Backend: POST /api/owners { name, firstName, middleName, lastName, phone, email, username, password }
    The new owner then shows up in the staff Owners and Pets list, the admin Owners and Pets list, the admin Users and Staff
    list and the admin Audit Log. */
 (() => {
   const O = window.PawOwners, S = window.PawStaff, $ = (id) => document.getElementById(id);
-  const isAdminPage = document.body.classList.contains("adm");
-  const SPECIES = ["Dog", "Cat", "Rabbit", "Bird", "Hamster", "Guinea Pig", "Chinchilla", "Ferret", "Hedgehog", "Turtle", "Lizard", "Snake", "Fish", "Other"];
-  const KEYS = ["first", "middle", "last", "phone", "email", "username", "password", "petName", "petSpecies", "petBreed", "petGender", "petDob"];
+  const KEYS = ["first", "middle", "last", "phone", "email", "username", "password"];
   const f = {};
   KEYS.forEach((k) => { f[k] = $(k); });
   const form = $("walkin-form");
@@ -24,13 +22,6 @@
     f[k].addEventListener("input", () => err(k, ""));
     if (f[k].tagName === "SELECT") f[k].addEventListener("change", () => err(k, ""));
   });
-
-  /* species list + the pet's date of birth cannot be in the future */
-  if (f.petSpecies && f.petSpecies.options.length <= 1) SPECIES.forEach((s) => f.petSpecies.add(new Option(s, s)));
-  if (f.petDob) {
-    const d = new Date(), p = (n) => String(n).padStart(2, "0");
-    f.petDob.max = d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
-  }
 
   /* username suggestion: first initial + last name (Juan Dela Cruz -> jdelacruz), until staff types their own */
   let userTouched = false;
@@ -63,12 +54,15 @@
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    /* a walk-in always needs an account; if the username / password boxes are missing the page is an old cached copy */
+    if (!f.username || !f.password) {
+      if (S && S.toast) S.toast("This page is out of date. Press Ctrl+F5 to reload it, then try again.");
+      return;
+    }
     const v = {
       first: clean(f.first.value), middle: clean(f.middle.value), last: clean(f.last.value),
       phone: f.phone.value.replace(/[\s-]/g, ""), email: f.email.value.trim(),
-      username: f.username ? f.username.value.trim().toLowerCase() : "", password: f.password ? f.password.value : "",
-      petName: f.petName ? clean(f.petName.value) : "", petSpecies: f.petSpecies ? f.petSpecies.value : "",
-      petBreed: f.petBreed ? clean(f.petBreed.value) : "", petGender: f.petGender ? f.petGender.value : "", petDob: f.petDob ? f.petDob.value : ""
+      username: f.username ? f.username.value.trim().toLowerCase() : "", password: f.password ? f.password.value : ""
     };
     const errors = {};
     if (!v.first) errors.first = "Enter the first name.";
@@ -87,14 +81,6 @@
       else if (O.tempPasswordProblem(v.password)) errors.password = O.TEMP_PASSWORD_RULE;
     }
 
-    /* the pet is optional, but once any pet detail is filled in the name and species are needed */
-    const petTouched = Boolean(v.petName || v.petSpecies || v.petBreed || v.petGender || v.petDob);
-    if (petTouched) {
-      if (!v.petName) errors.petName = "Enter the pet's name.";
-      if (!v.petSpecies) errors.petSpecies = "Choose the species.";
-      if (v.petDob && f.petDob.max && v.petDob > f.petDob.max) errors.petDob = "Date of birth cannot be in the future.";
-    }
-
     KEYS.forEach((k) => err(k, errors[k]));
     const bad = KEYS.find((k) => errors[k]);
     if (bad) { f[bad].focus(); return; }
@@ -109,32 +95,27 @@
           name: fullName, firstName: v.first, middleName: v.middle, lastName: v.last,
           phone: v.phone, email: v.email || null
         };
-        if (f.username) { body.username = v.username; body.password = v.password; }
-        if (petTouched) {
-          body.pet = { name: v.petName, species: v.petSpecies, breed: v.petBreed || null, gender: v.petGender || null, dateOfBirth: v.petDob || null };
-        }
+        body.username = v.username; body.password = v.password;
         const created = await window.PawApi.request("/api/owners", { method: "POST", body });
         id = String(created.id);
         await window.PawApi.loadOwners();
       } else {
         id = O.createWalkin({
           first: v.first, middle: v.middle, last: v.last, phone: v.phone, email: v.email,
-          username: f.username ? v.username : "",
-          pet: petTouched ? { name: v.petName, species: v.petSpecies, breed: v.petBreed, sex: v.petGender, dob: v.petDob, allergies: "", notes: "", photo: "" } : null
+          username: f.username ? v.username : "", pet: null
         });
       }
     } catch (error) {
       const msg = error.message || "Walk-in owner could not be registered.";
-      if (/username/i.test(msg) && f.username) { err("username", msg); f.username.focus(); }
-      else if (/email/i.test(msg)) { err("email", msg); f.email.focus(); }
+      /* email is checked first: the server's generic duplicate message mentions both "username" and "email" */
+      if (/email/i.test(msg) && !/^that username/i.test(msg)) { err("email", /username/i.test(msg) ? "That email address is already registered." : msg); f.email.focus(); }
+      else if (/username/i.test(msg) && f.username) { err("username", msg); f.username.focus(); }
       else if (/temporary password/i.test(msg) && f.password) { err("password", msg); f.password.focus(); }
       else if (S && S.toast) S.toast(msg);
       if (submit) submit.disabled = false;
       return;
     }
-    O.setFlash("Walk-in owner registered" + (f.username ? " with account " + v.username : "") + (petTouched ? " and pet " + v.petName : "") + ".");
-    location.href = isAdminPage
-      ? "owners-pets.html?owner=" + encodeURIComponent(id)
-      : "owner-details.html?id=" + encodeURIComponent(id);
+    O.setFlash("Walk-in owner registered" + (f.username ? " with account " + v.username : "") + ".");
+    location.href = "owners-pets.html";
   });
 })();
