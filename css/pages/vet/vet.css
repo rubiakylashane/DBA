@@ -234,3 +234,8 @@
 }
 /* recently completed: show about 3 at a time, scroll for the rest */
 .sdash #recent-list { max-height: 260px; overflow-y: auto; padding-right: 6px; scrollbar-width: thin; }
+/* wide screens: the list fills the whole Recently Completed box (no empty white space) and scrolls inside it when there are more */
+@media (min-width: 1101px) {
+  .sdash .vgrid > .card { display: flex; flex-direction: column; overflow: hidden; }
+  .sdash .vgrid > .card #recent-list { flex: 1 1 auto; min-height: 0; max-height: none; }
+}
