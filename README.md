@@ -98,12 +98,6 @@ The database schema is provided in `server/schema.sql` and uses primary keys, fo
 | Veterinarian | Handles appointments, patients, medical records, and vaccinations. |
 | Pet Owner | Manages pet profiles, appointments, medical records, and vaccination history. |
 
-### Intended Database Roles
-
-The application connects to PostgreSQL through a shared application database account. The intended database group role is `app_runtime_grp`, which should have only the privileges required by the application.
-
-Actual PostgreSQL group roles and privileges will be established and documented as part of Activity 4. Application users do not require individual PostgreSQL login accounts.
-
 ## 6. Prerequisites
 
 Before installing the application, ensure that the following are installed:
@@ -153,8 +147,6 @@ ADMIN_PASSWORD=YourStrongPassword123!
 ```
 
 Configure the email and SMS credentials if you intend to use these integrations.
-
-**Important:** Never commit your actual `.env` file, database passwords, API keys, or other sensitive credentials to the repository.
 
 ### Step 4: Install Dependencies
 
