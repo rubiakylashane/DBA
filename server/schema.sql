@@ -1,3 +1,5 @@
+-- Pawpaw Clinic - PostgreSQL Database Schema
+
 CREATE TABLE IF NOT EXISTS USER_ACCOUNT (
     user_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -17,7 +19,6 @@ CREATE TABLE IF NOT EXISTS USER_ACCOUNT (
         CHECK (account_status IN ('Active', 'Inactive'))
 );
 
-
 CREATE TABLE IF NOT EXISTS OWNER (
     owner_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id INT UNIQUE,
@@ -36,7 +37,6 @@ CREATE TABLE IF NOT EXISTS OWNER (
         ON DELETE SET NULL
 );
 
-
 CREATE TABLE IF NOT EXISTS VETERINARIAN (
     veterinarian_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id INT UNIQUE,
@@ -50,7 +50,6 @@ CREATE TABLE IF NOT EXISTS VETERINARIAN (
         REFERENCES USER_ACCOUNT(user_id)
         ON DELETE SET NULL
 );
-
 
 CREATE TABLE IF NOT EXISTS SERVICE (
     service_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -71,7 +70,6 @@ VALUES
     ('Dental Cleaning', 1500, 'Scaling and polishing to keep teeth and gums healthy.'),
     ('Laboratory Test', 900, 'Blood and other lab work ordered by your veterinarian to support a diagnosis.')
 ON CONFLICT (service_name) DO NOTHING;
-
 
 CREATE TABLE IF NOT EXISTS PET (
     pet_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -99,25 +97,6 @@ CREATE TABLE IF NOT EXISTS PET (
     CONSTRAINT chk_pet_birth_date
         CHECK (date_of_birth IS NULL OR date_of_birth <= CURRENT_DATE)
 );
-
-ALTER TABLE PET
-    ADD COLUMN IF NOT EXISTS pet_status VARCHAR(20) NOT NULL DEFAULT 'Active';
-
-ALTER TABLE USER_ACCOUNT
-    ADD COLUMN IF NOT EXISTS profile_photo TEXT;
-
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM pg_constraint
-         WHERE conname = 'chk_pet_status'
-           AND conrelid = 'pet'::regclass
-    ) THEN
-        ALTER TABLE PET
-            ADD CONSTRAINT chk_pet_status CHECK (pet_status IN ('Active', 'Inactive'));
-    END IF;
-END $$;
-
 
 CREATE TABLE IF NOT EXISTS APPOINTMENT (
     appointment_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -155,11 +134,11 @@ CREATE TABLE IF NOT EXISTS APPOINTMENT (
         ))
 );
 
-
 CREATE TABLE IF NOT EXISTS APPOINTMENT_SERVICE (
     appointment_id INT NOT NULL,
     service_id INT NOT NULL,
     quantity INT NOT NULL DEFAULT 1 CHECK (quantity > 0),
+    unit_price NUMERIC(10,2) NOT NULL CHECK (unit_price >= 0),
 
     PRIMARY KEY (appointment_id, service_id),
 
@@ -172,11 +151,10 @@ CREATE TABLE IF NOT EXISTS APPOINTMENT_SERVICE (
         ON DELETE RESTRICT
 );
 
-
 CREATE TABLE IF NOT EXISTS MEDICAL_RECORD (
     record_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     appointment_id INT NOT NULL UNIQUE,
-    diagnosis TEXT NOT NULL,
+    diagnosis TEXT,
     treatment TEXT,
     notes TEXT,
     record_date DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -186,7 +164,6 @@ CREATE TABLE IF NOT EXISTS MEDICAL_RECORD (
         REFERENCES APPOINTMENT(appointment_id)
         ON DELETE RESTRICT
 );
-
 
 CREATE TABLE IF NOT EXISTS PRESCRIPTION (
     prescription_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -201,7 +178,6 @@ CREATE TABLE IF NOT EXISTS PRESCRIPTION (
         REFERENCES MEDICAL_RECORD(record_id)
         ON DELETE CASCADE
 );
-
 
 CREATE TABLE IF NOT EXISTS VACCINATION (
     vaccination_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -234,21 +210,7 @@ CREATE TABLE IF NOT EXISTS VACCINATION (
         )
 );
 
--- Diagnosis is optional for non-clinical visits (vaccination, grooming, deworming).
-ALTER TABLE MEDICAL_RECORD ALTER COLUMN diagnosis DROP NOT NULL;
-
--- Older databases were created before "No-show" (and the other current statuses) were allowed, so marking an owner as
--- a no-show failed with "conflicts with related clinic records". Rebuild the status rule so every status is accepted.
-ALTER TABLE APPOINTMENT DROP CONSTRAINT IF EXISTS chk_appointment_status;
-ALTER TABLE APPOINTMENT ADD CONSTRAINT chk_appointment_status
-    CHECK (status IN ('Pending', 'Scheduled', 'Approved', 'Checked-in', 'In Progress', 'Completed', 'Cancelled', 'No-show'));
-
--- Each appointment keeps the price it was booked at, so changing a service price later does not rewrite past appointments or records.
-ALTER TABLE APPOINTMENT_SERVICE ADD COLUMN IF NOT EXISTS unit_price NUMERIC(10,2) CHECK (unit_price >= 0);
--- One-time fill for rows created before this column existed (only rows that have no price yet; run this BEFORE changing any service price).
-UPDATE APPOINTMENT_SERVICE aps SET unit_price = sv.price
-  FROM SERVICE sv WHERE sv.service_id = aps.service_id AND aps.unit_price IS NULL;
--- Any new appointment line without an explicit price gets the service's price at that moment.
+-- Preserve the service price at the time the appointment service is added.
 CREATE OR REPLACE FUNCTION set_appointment_service_price() RETURNS trigger AS $$
 BEGIN
   IF NEW.unit_price IS NULL THEN
@@ -260,14 +222,6 @@ $$ LANGUAGE plpgsql;
 DROP TRIGGER IF EXISTS trg_appointment_service_price ON APPOINTMENT_SERVICE;
 CREATE TRIGGER trg_appointment_service_price BEFORE INSERT ON APPOINTMENT_SERVICE
   FOR EACH ROW EXECUTE FUNCTION set_appointment_service_price();
-
--- Older databases may have a VACCINATION table without these columns; add them so vaccinations can be saved.
-ALTER TABLE VACCINATION ADD COLUMN IF NOT EXISTS veterinarian_id INT REFERENCES VETERINARIAN(veterinarian_id) ON DELETE RESTRICT;
-ALTER TABLE VACCINATION ADD COLUMN IF NOT EXISTS notes TEXT;
-ALTER TABLE VACCINATION ADD COLUMN IF NOT EXISTS administered_by VARCHAR(150);
-ALTER TABLE VACCINATION ADD COLUMN IF NOT EXISTS appointment_id INT REFERENCES APPOINTMENT(appointment_id) ON DELETE SET NULL;
-ALTER TABLE VACCINATION ADD COLUMN IF NOT EXISTS last_reminded_at TIMESTAMP;
-
 
 CREATE TABLE IF NOT EXISTS AUDIT_LOG (
     audit_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -288,7 +242,6 @@ CREATE TABLE IF NOT EXISTS AUDIT_LOG (
         ))
 );
 
-
 CREATE TABLE IF NOT EXISTS NOTIFICATION (
     notification_id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
     user_id INT NOT NULL,
@@ -302,7 +255,6 @@ CREATE TABLE IF NOT EXISTS NOTIFICATION (
         REFERENCES USER_ACCOUNT(user_id)
         ON DELETE CASCADE
 );
-
 
 CREATE TABLE IF NOT EXISTS AUTH_SESSION (
     token_hash CHAR(64) PRIMARY KEY,
@@ -335,3 +287,5 @@ CREATE TABLE IF NOT EXISTS PASSWORD_RESET_CODE (
 
 CREATE INDEX IF NOT EXISTS idx_password_reset_code_user_created
     ON PASSWORD_RESET_CODE (user_id, created_at DESC);
+
+

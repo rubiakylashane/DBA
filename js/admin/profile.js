@@ -56,7 +56,7 @@
     await profileReady;
     if (profileError) return;
     const v = { name: f.name.value.trim().replace(/\s+/g, " "), email: f.email.value.trim(), phone: f.phone.value.replace(/[\s-]/g, ""), username: f.username.value.trim().toLowerCase() };
-    const cur = $("cur").value, nw = $("new").value, conf = $("conf").value;
+    const cur = "", nw = $("new").value, conf = $("conf").value;
     const errors = {};
 
     if (!v.name) errors.name = "Enter your name.";
@@ -71,8 +71,7 @@
     }
     if (!v.phone) errors.phone = "Enter your phone number.";
     else if (!A.validPhone(v.phone)) errors.phone = "Use a mobile number like 09XXXXXXXXX.";
-    if (cur || nw || conf) {            // only checked when you are changing the password
-      if (!cur) errors.cur = "Enter your current password.";
+    if (nw || conf) {                   // only checked when you are changing the password
       if (PawPassword.problem(nw)) errors.new = PawPassword.RULE;
       if (conf !== nw) errors.conf = "The passwords do not match.";
     }
@@ -82,7 +81,7 @@
 
     if (backend) {
       try {
-        if (cur || nw) await window.PawApi.request("/api/auth/me/password", { method: "POST", body: { current: cur, new: nw } });
+        if (cur || nw) await window.PawApi.request("/api/auth/me/password", { method: "POST", body: { new: nw } });
         await window.PawApi.request("/api/auth/me", { method: "PUT", body: { name: v.name, email: v.email, phone: v.phone, photo, username: v.username } });
       } catch (error) {
         S.setError(cur || nw ? "cur" : "email", error.message);

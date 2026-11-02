@@ -134,8 +134,8 @@
         <div class="of-field">
           <label for="cur">Current password</label>
           <div class="of-pass">
-            <input id="cur" type="password" autocomplete="new-password" />
-            <button type="button" class="of-eye" data-eye="cur" aria-label="Show current password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/></svg></button>
+            <input id="cur" type="password" autocomplete="off" placeholder="Not required" disabled aria-disabled="true" tabindex="-1" />
+            <button type="button" class="of-eye" data-eye="cur" aria-label="Show current password" disabled tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/></svg></button>
           </div>
           <p class="of-error" id="err-cur" role="alert" hidden></p>
         </div>
