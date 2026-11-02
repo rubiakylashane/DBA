@@ -47,7 +47,7 @@
       <span role="cell" class="c-action"><a class="btn btn-outline" href="patients.html?${V.patientQuery(a)}">View Patient</a></span>
     </div>`).join("") : `<p class="empty">No upcoming appointments.</p>`;
 
-  $("recent-list").innerHTML = done.length ? done.slice(0, 3).map((a) => `
+  $("recent-list").innerHTML = done.length ? done.map((a) => `
     <div class="req">
       <div class="vrec">
         <div>

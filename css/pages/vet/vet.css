@@ -232,3 +232,5 @@
 @media (min-width: 1281px) {
   .sdash #rec-list { align-items: stretch; }
 }
+/* recently completed: show about 3 at a time, scroll for the rest */
+.sdash #recent-list { max-height: 260px; overflow-y: auto; padding-right: 6px; scrollbar-width: thin; }

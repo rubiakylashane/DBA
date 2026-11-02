@@ -97,3 +97,14 @@
  
 /* Appointments rows: the action buttons wrap to a second line instead of pushing No-show off the screen */
 .sdash .a-actions { flex-wrap: wrap; row-gap: 8px; }
+/* Check In / Reschedule / No-show always sit together on one line; the "can't reschedule" note goes under them */
+.sdash .a-actions .a-btnrow { display: flex; flex: 0 0 100%; flex-wrap: nowrap; gap: 6px; justify-content: center; align-items: center; }
+.sdash .a-actions .a-btnrow .obtn-sm { padding: 0 10px; }
+.sdash .a-actions .obtn-sm:disabled { opacity: .55; cursor: not-allowed; }
+.sdash .a-actions .a-lock { flex: 0 0 100%; margin-top: 2px; text-align: center; font-size: 11.5px; font-weight: 600; line-height: 1.3; color: #8a5a00; }
+
+/* Status: every status pill is the same width, centred under the "Status" heading and in line with the row's other cells */
+.sdash .apt-list .arow { align-items: center; }
+.sdash .arow > [role="cell"]:nth-child(5) { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.sdash .arow > [role="cell"]:nth-child(5) .spill { min-width: 96px; text-align: center; }
+.sdash .arow > [role="cell"]:nth-child(5) .spill + .resch-tag { margin: 6px 0 0; }

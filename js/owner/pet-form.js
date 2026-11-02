@@ -485,7 +485,12 @@
       return;
     }
     if (!submitError.isConnected) {
-      submit.before(submitError);
+      /* show the message below the Cancel / Confirm row so the buttons never move */
+      const row = submit.closest(".of-actions, .pf-actions-out, .pf-actions");
+      if (row && row.parentNode) {
+        submitError.style.cssText = "margin:12px 0 0;text-align:center;";
+        row.after(submitError);
+      } else submit.before(submitError);
     }
     const originalText = submit.textContent;
     submit.disabled = true;

@@ -187,7 +187,7 @@ body.sdash::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0
 .sdash .req-title { font-size: 13px; }
 .sdash .req-title strong { font-weight: 700; }
 .sdash .req-sub { margin-top: 2px; font-size: 11.5px; color: #333; }
-.sdash .req-actions { display: flex; gap: 14px; margin-top: 10px; }
+.sdash .req-actions { display: flex; justify-content: center; gap: 14px; margin-top: 10px; }
 .sdash .req-actions .btn { min-width: 88px; padding: 6px 14px; }
 
 .sdash .empty { padding: 22px 4px; font-size: 13px; color: var(--muted); }
@@ -257,3 +257,5 @@ body.sdash::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0
 .sdash .user-meta .user-link strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sdash .user-meta .user-link:hover strong { text-decoration: underline; }
 .sdash .user-link:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+/* pending requests: show about 3 at a time, scroll for the rest */
+#pending-list { max-height: 400px; overflow-y: auto; padding-right: 6px; scrollbar-width: thin; }

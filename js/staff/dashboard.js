@@ -9,7 +9,8 @@
     appointments: "/api/staff/appointments",   // GET   -> [{ id, owner, petName, vet, date, time, services:[{name}], status, walkIn }]
     update: "/api/appointments/"               // PATCH /:id  { status, vet }
   };
-  const VETS = (window.PawStaffAppts && window.PawStaffAppts.VETS) || [];
+  /* read the vet list when the dialog opens: with the backend it is only filled after /api/vets has loaded */
+  const getVets = () => (window.PawStaffAppts && window.PawStaffAppts.VETS) || [];
   const SHOW_DEMO = false; // true = fill the page with sample rows to preview the layout
 
   const KEY = "pawpaw_appointments:";
@@ -45,6 +46,7 @@
 
   async function load() {
     if (!USE_BACKEND) return readAll();
+    if (window.PawStaffAppts && window.PawStaffAppts.ready) { try { await window.PawStaffAppts.ready; } catch (_) { /* vets list stays empty */ } }
     const [appointments] = await Promise.all([
       window.PawApi.request(API.appointments),
       window.PawApi.loadOwners()
@@ -131,8 +133,7 @@
         <p class="req-title"><strong>${esc(a.petName || a.pet)}</strong> - ${esc(a.ownerName || a.owner || "Owner")}${a.rescheduledFrom ? ` <span class="resch-tag" title="Was ${esc(a.rescheduledFrom.date)} ${esc(a.rescheduledFrom.time)}">Rescheduled</span>` : ""}</p>
         <p class="req-sub">${esc(fmtDate(a.date))} (${esc(fmtTime(a.time))}) - ${esc(serviceText(a))}</p>
         <div class="req-actions">
-          <button type="button" class="btn btn-primary" data-act="approve" data-id="${esc(a.id)}">Approve</button>
-          <button type="button" class="btn btn-outline" data-act="review" data-id="${esc(a.id)}">Review</button>
+          <button type="button" class="btn btn-primary" data-act="approve" data-id="${esc(a.id)}">Review &amp; Approve</button>
         </div>
       </div>`;
   }
@@ -161,7 +162,7 @@
       ? todays.map(todayRow).join("")
       : `<p class="empty">No appointments today.</p>`;
     $("pending-list").innerHTML = pending.length
-      ? pending.slice(0, 3).map(pendingItem).join("")
+      ? pending.map(pendingItem).join("")
       : `<p class="empty">No pending requests.</p>`;
   }
 
@@ -187,7 +188,7 @@
       ["Estimated", a.total != null ? "₱" + Number(a.total).toLocaleString("en-US") : "-"]
     ];
     $("review-facts").innerHTML = rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("");
-    const sel = $("review-vet");
+    const sel = $("review-vet"), VETS = getVets();
     sel.innerHTML = VETS.map((v) => `<option>${esc(v)}</option>`).join("");
     if (VETS.includes(a.vet)) sel.value = a.vet;
     $("review-reason").value = "";
@@ -203,7 +204,7 @@
   function openVet(a) {
     current = a;
     $("vet-sub").textContent = (a.petName || a.pet) + " - " + (a.ownerName || a.owner || "");
-    const sel = $("vet-select");
+    const sel = $("vet-select"), VETS = getVets();
     sel.innerHTML = VETS.map((v) => `<option>${esc(v)}</option>`).join("");
     if (VETS.includes(a.vet)) sel.value = a.vet;
     checkVet();
@@ -232,9 +233,16 @@
 
   $("review-close").addEventListener("click", () => reviewDlg.close());
   $("review-approve").addEventListener("click", async () => { reviewDlg.close(); await approve(current, $("review-vet").value); });
-  $("review-decline").addEventListener("click", async () => {
+  /* Decline asks "are you sure?" first; Go back returns to the review box */
+  const declineDlg = $("decline-confirm");
+  $("review-decline").addEventListener("click", () => {
+    $("dc-sub").textContent = (current.petName || current.pet || "This request") + " - " + (current.ownerName || current.owner || "") + ". The owner will see that it was declined" + ($("review-reason").value.trim() ? " with your reason." : ".");
+    declineDlg.showModal();
+  });
+  $("dc-cancel").addEventListener("click", () => declineDlg.close());
+  $("dc-ok").addEventListener("click", async () => {
     const reason = $("review-reason").value.trim();
-    reviewDlg.close();
+    declineDlg.close(); reviewDlg.close();
     if (!await change(current, { status: "cancelled", declineReason: reason })) return;
     render(); say("Request declined.");
   });

@@ -14,6 +14,9 @@
   const pad = (n) => String(n).padStart(2, "0");
   const iso = (d) => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
   const today = () => iso(new Date());
+  /* 24-hour rule (Asia/Manila time), the same as admin and owner: an appointment within 24 hours cannot be rescheduled,
+     and a new schedule must be at least 24 hours ahead. The server enforces it too. */
+  const Rules = window.PawApptRules;
   const uid = (a) => a._key + "|" + a.id;
   const find = (u) => all.find((a) => uid(a) === u);
 
@@ -64,7 +67,7 @@
     const btn = (act, cls, text) => `<button type="button" class="obtn ${cls} obtn-sm" data-act="${act}" ${u}>${text}</button>`;
     switch (a.status) {
       case "pending": return btn("approve", "obtn-green", "Approve &amp; Assign") + btn("decline", "obtn-cancel", "Decline");
-      case "confirmed": return btn("checkin", "obtn-green", "Check In") + btn("resched", "obtn-outline", "Reschedule") + btn("noshow", "obtn-outline", "No-show");
+      case "confirmed": return `<span class="a-btnrow">${btn("checkin", "obtn-green", "Check In")}${btn("resched", "obtn-outline", "Reschedule")}${btn("noshow", "obtn-outline", "No-show")}</span>`;   // Reschedule explains itself when clicked within 24 hours
       case "checked_in": return btn("assign", "obtn-outline", "Assign Vet");
       case "with_vet": return "";                                   // the vet completes the visit
       case "completed": return `<a class="obtn obtn-outline obtn-sm" href="medical-records.html?owner=${encodeURIComponent(a.owner)}&petid=${encodeURIComponent(a.petId || "")}&q=${encodeURIComponent(petName(a))}">View Record</a>`;
@@ -130,10 +133,29 @@
     checkAssign(); D.vet.showModal();
   }
   const checkAssign = () => hint($("vet-hint"), A.conflict(all, $("vet-select").value, cur.date, cur.time, cur.id));
+  /* within 24 hours: show the "can't reschedule" note under the buttons for a few seconds, then remove it */
+  function showLockNote(a) {
+    const btn = document.querySelector(`[data-act="resched"][data-id="${(window.CSS && CSS.escape) ? CSS.escape(uid(a)) : uid(a)}"]`);
+    const cell = btn && btn.closest(".a-actions");
+    if (!cell) { S.toast(Rules.LOCKED_MESSAGE); return; }
+    if (cell.querySelector(".a-lock")) return;
+    const note = document.createElement("span");
+    note.className = "a-lock"; note.setAttribute("role", "note");
+    note.textContent = "Can't reschedule: the appointment is within 24 hours.";
+    cell.appendChild(note);
+    setTimeout(() => note.remove(), 4000);
+  }
+  const reschedTimes = (date, keep) => {
+    const list = TIMES.filter((t) => !date || !Rules.isTooSoon(date, t));   // only slots at least 24 hours from now
+    $("resched-time").innerHTML = list.map((t) => `<option value="${t}"${t === keep ? " selected" : ""}>${fmtTime(t)}</option>`).join("");
+    if (list.indexOf(keep) >= 0) $("resched-time").value = keep;
+  };
   function openResched(a) {
+    if (Rules.isLocked(a.date, a.time)) { showLockNote(a); return; }
     cur = a; $("resched-sub").textContent = who(a) + ", now " + when(a);
-    $("resched-date").min = today(); $("resched-date").value = a.date || today();
-    $("resched-time").innerHTML = timeOptions(a.time); $("resched-reason").value = "";
+    const first = Rules.earliest().date;
+    $("resched-date").min = first; $("resched-date").value = a.date && a.date >= first ? a.date : first;
+    reschedTimes($("resched-date").value, a.time); $("resched-reason").value = "";
     checkResched(); D.resched.showModal();
   }
   const checkResched = () => hint($("resched-hint"), A.conflict(all, cur.vet, $("resched-date").value, $("resched-time").value, cur.id));
@@ -250,11 +272,14 @@
   $("vet-select").addEventListener("change", checkAssign);
   $("vet-save").addEventListener("click", () => { const vet = $("vet-select").value; D.vet.close(); set(cur, { vet, status: "with_vet" }, "Assigned to " + vet + "."); });
 
-  $("resched-date").addEventListener("change", checkResched);
+  $("resched-date").addEventListener("change", () => { reschedTimes($("resched-date").value, $("resched-time").value); checkResched(); });
   $("resched-time").addEventListener("change", checkResched);
   $("resched-ok").addEventListener("click", () => {
     const date = $("resched-date").value, time = $("resched-time").value;
     if (!date) { S.toast("Pick a new date."); return; }
+    if (!time) { S.toast("No time slots are left on this date. Choose a later date."); return; }
+    if (Rules.isLocked(cur.date, cur.time)) { D.resched.close(); S.toast(Rules.LOCKED_MESSAGE); return; }
+    if (Rules.isTooSoon(date, time)) { S.toast(Rules.LEAD_MESSAGE); return; }
     D.resched.close();
     set(cur, { date, time, rescheduleReason: $("resched-reason").value.trim(), rescheduledAt: new Date().toISOString() }, "Rescheduled to " + fmtShort(date) + ", " + fmtTime(time) + ".");
   });
