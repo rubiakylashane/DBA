@@ -111,8 +111,8 @@ Before installing the application, ensure that the following are installed:
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/rubiakylashane/DBA_PAWPAW.git
-cd DBA_PAWPAW-main
+git clone https://github.com/rubiakylashane/GRP03_PAWPAW.git
+cd GRP03_PAWPAW-main
 ```
 
 ### Step 2: Create the Database
