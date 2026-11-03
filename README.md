@@ -98,6 +98,10 @@ The database schema is provided in `server/schema.sql` and uses primary keys, fo
 | Veterinarian | Handles appointments, patients, medical records, and vaccinations. |
 | Pet Owner | Manages pet profiles, appointments, medical records, and vaccination history. |
 
+For detailed information about application roles, 
+permissions, responsibilities, and intended PostgreSQL 
+role mapping, see [User Roles Documentation](PAWPAW_App_User_Roles.md).
+
 ## 6. Prerequisites
 
 Before installing the application, ensure that the following are installed:
@@ -137,7 +141,7 @@ Configure the database connection and required application settings:
 
 ```env
 PORT=5000
-DATABASE_URL=postgresql://USERNAME:PASSWORD@localhost:5432/pawpaw_clinic
+DATABASE_URL=postgresql://USERNAME:PASSWORD@localhost:5432/group3_Pawpaw
 AUTH_SECRET=your-random-secret-at-least-32-characters-long
 
 ADMIN_USERNAME=admin
