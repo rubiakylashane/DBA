@@ -148,6 +148,7 @@ function validAppointmentDate(value) {
 const CLINIC_UTC_OFFSET = '+08:00';
 const LEAD_TIME_MS = 24 * 60 * 60 * 1000;
 const RESCHEDULE_LOCKED_MESSAGE = 'This appointment is scheduled within 24 hours (Asia/Manila time), so its date and time can no longer be changed. Appointments can only be rescheduled more than 24 hours before their scheduled time.';
+const PET_CONFLICT_MESSAGE = 'This pet already has an appointment at that date and time. A pet cannot be booked with more than one veterinarian at the same time.';
 const LEAD_TIME_MESSAGE = 'New and rescheduled appointments must be at least 24 hours ahead of the current date and time (Asia/Manila time). Please choose a later date or time.';
 
 function clinicInstant(date, time) {
@@ -1105,6 +1106,23 @@ router.post('/appointments', authorize('Admin', 'Staff', 'Pet Owner'), asyncRout
       await client.query('ROLLBACK');
       return res.status(403).json({ error: 'You can only book appointments for your own pets.' });
     }
+    /* A pet cannot have two active appointments at the same date and time, even with different veterinarians. */
+    await client.query(
+      'SELECT pg_advisory_xact_lock(hashtext($1), hashtext($2))',
+      [`pet:${petId}:${date}`, time]
+    );
+    const petConflict = await client.query(
+      `SELECT 1 FROM appointment
+        WHERE pet_id = $1 AND appointment_date = $2::date
+          AND appointment_time = $3::time
+          AND status NOT IN ('Completed', 'Cancelled', 'No-show')
+        FOR UPDATE`,
+      [petId, date, time]
+    );
+    if (petConflict.rowCount) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: PET_CONFLICT_MESSAGE, code: 'PET_CONFLICT' });
+    }
     if (vetId !== null) {
       const vet = await client.query(
         `SELECT v.veterinarian_id FROM veterinarian v
@@ -1220,7 +1238,7 @@ router.patch('/appointments/:id', authorize('Admin', 'Staff', 'Veterinarian', 'P
     const ownVet = req.user.role === 'Veterinarian';
     const ownOwner = req.user.role === 'Pet Owner';
     const query = await client.query(
-      `SELECT a.appointment_id, a.status, p.owner_id, p.name AS pet_name,
+      `SELECT a.appointment_id, a.status, a.pet_id, p.owner_id, p.name AS pet_name,
               o.user_id AS owner_user_id, a.veterinarian_id, v.user_id,
               a.appointment_date::text AS appointment_date,
               to_char(a.appointment_time, 'HH24:MI') AS appointment_time
@@ -1326,6 +1344,26 @@ router.patch('/appointments/:id', authorize('Admin', 'Staff', 'Veterinarian', 'P
       if (clock.rows[0].new_past) {
         await client.query('ROLLBACK');
         return res.status(400).json({ error: 'You cannot reschedule to a date or time that has already passed.' });
+      }
+    }
+    const nextDbStatus = status === undefined ? before.status : status;
+    if (scheduleChanged && !['Completed', 'Cancelled', 'No-show'].includes(nextDbStatus)) {
+      /* the same pet cannot hold two active appointments at the same date and time, whichever veterinarian they are with */
+      await client.query(
+        'SELECT pg_advisory_xact_lock(hashtext($1), hashtext($2))',
+        [`pet:${before.pet_id}:${nextDate}`, nextTime]
+      );
+      const petConflict = await client.query(
+        `SELECT 1 FROM appointment
+          WHERE pet_id = $1 AND appointment_date = $2::date
+            AND appointment_time = $3::time AND appointment_id <> $4
+            AND status NOT IN ('Completed', 'Cancelled', 'No-show')
+          FOR UPDATE`,
+        [before.pet_id, nextDate, nextTime, id]
+      );
+      if (petConflict.rowCount) {
+        await client.query('ROLLBACK');
+        return res.status(409).json({ error: PET_CONFLICT_MESSAGE, code: 'PET_CONFLICT' });
       }
     }
     if (nextVetId !== null && (nextVetId !== before.veterinarian_id || nextDate !== before.appointment_date || nextTime !== before.appointment_time)) {

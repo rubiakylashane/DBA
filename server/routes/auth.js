@@ -202,6 +202,7 @@ router.put('/me', authenticate, asyncRoute(async (req, res) => {
 }));
 
 router.post('/me/password', authenticate, asyncRoute(async (req, res) => {
+  const current = requiredString(req.body.current, 'Current password', 200);
   const next = requiredString(req.body.new, 'New password', 200);
   requireStrongPassword(next);
   const result = await db.query(
@@ -210,6 +211,13 @@ router.post('/me/password', authenticate, asyncRoute(async (req, res) => {
     [req.user.userId]
   );
   if (!result.rows[0]) return notFound(res, 'Active account not found.');
+  /* the current password must be proven before it can be changed, so a hijacked or unattended session cannot take over the account */
+  if (!(await bcrypt.compare(current, result.rows[0].password_hash))) {
+    return res.status(400).json({ error: 'Current password is incorrect.' });
+  }
+  if (current === next) {
+    return res.status(400).json({ error: 'Your new password must be different from your current password.' });
+  }
   const client = await db.connect();
   try {
     await client.query('BEGIN');

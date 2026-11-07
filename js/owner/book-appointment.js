@@ -57,6 +57,35 @@
     if (f[key]) f[key].setAttribute("aria-invalid", msg ? "true" : "false");
   }
 
+  /* Popup message (top of the screen) for booking errors such as "this pet already has an appointment at that time" */
+  let popupTimer = null;
+  function showPopup(msg) {
+    let box = document.getElementById("booking-popup");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "booking-popup";
+      box.setAttribute("role", "alert");
+      box.style.cssText = "position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:1000;max-width:min(480px,calc(100vw - 32px));"
+        + "display:flex;gap:12px;align-items:flex-start;padding:14px 18px;border-radius:12px;background:#fff;color:#222;"
+        + "border-left:6px solid #d93025;box-shadow:0 10px 30px rgba(0,0,0,.3);font:500 14px/1.45 Inter,system-ui,sans-serif;";
+      const text = document.createElement("span");
+      text.id = "booking-popup-text";
+      text.style.flex = "1";
+      const close = document.createElement("button");
+      close.type = "button";
+      close.setAttribute("aria-label", "Close message");
+      close.textContent = "\u00d7";
+      close.style.cssText = "border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:#555;";
+      close.addEventListener("click", () => { box.hidden = true; });
+      box.append(text, close);
+      document.body.appendChild(box);
+    }
+    box.querySelector("#booking-popup-text").textContent = msg;
+    box.hidden = false;
+    clearTimeout(popupTimer);
+    popupTimer = setTimeout(() => { box.hidden = true; }, 7000);
+  }
+
   /* ---------- Pet and vet dropdowns ---------- */
   if (pets.length) {
     pets.forEach((p) => f.pet.add(new Option(p.name + " (" + p.species + ")", p.id)));
@@ -292,7 +321,9 @@
         }
       });
     } catch (error) {
-      setError("services", error.message || "The appointment could not be booked.");
+      const message = error.message || "The appointment could not be booked.";
+      setError("services", message);
+      showPopup(message);
       submitButton.disabled = false;
       return;
     }

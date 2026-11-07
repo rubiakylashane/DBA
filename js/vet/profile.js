@@ -50,6 +50,20 @@
     });
   });
 
+  /* The current password must be typed by the user: block browser / password-manager autofill and start empty */
+  (() => {
+    const cur = document.getElementById("cur");
+    if (!cur) return;
+    const clear = () => { cur.value = ""; };
+    cur.readOnly = true;                                     // autofill skips read-only fields
+    const unlock = () => { cur.readOnly = false; };
+    cur.addEventListener("focus", unlock);
+    cur.addEventListener("pointerdown", unlock);
+    clear();
+    setTimeout(clear, 150); setTimeout(clear, 600);          // undo late autofill
+    window.addEventListener("pageshow", clear);
+  })();
+
   const KEYS = ["name", "email", "username", "phone", "cur", "new", "conf"];
   KEYS.forEach((k) => $(k).addEventListener("input", () => S.setError(k, "")));
 
@@ -58,7 +72,7 @@
     await profileReady;
     if (profileError) return;
     const v = { name: f.name.value.trim().replace(/\s+/g, " "), email: f.email.value.trim(), phone: f.phone.value.replace(/[\s-]/g, ""), username: f.username.value.trim().toLowerCase() };
-    const cur = "", nw = $("new").value, conf = $("conf").value;
+    const cur = $("cur").value, nw = $("new").value, conf = $("conf").value;
     const errors = {};
 
     if (!v.name) errors.name = "Enter your name.";
@@ -73,7 +87,8 @@
     }
     if (!v.phone) errors.phone = "Enter your phone number.";
     else if (!A.validPhone(v.phone)) errors.phone = "Use a mobile number like 09XXXXXXXXX.";
-    if (nw || conf) {                   // only checked when you are changing the password
+    if (cur || nw || conf) {            // only checked when you are changing the password
+      if (!cur) errors.cur = "Enter your current password to change it.";
       if (PawPassword.problem(nw)) errors.new = PawPassword.RULE;
       if (conf !== nw) errors.conf = "The passwords do not match.";
     }
@@ -83,7 +98,7 @@
 
     if (backend) {
       try {
-        if (cur || nw) await window.PawApi.request("/api/auth/me/password", { method: "POST", body: { new: nw } });
+        if (cur || nw) await window.PawApi.request("/api/auth/me/password", { method: "POST", body: { current: cur, new: nw } });
         await window.PawApi.request("/api/auth/me", { method: "PUT", body: { name: v.name, email: v.email, phone: v.phone, photo, username: v.username } });
       } catch (error) {
         S.setError(cur || nw ? "cur" : "email", error.message);
@@ -92,7 +107,7 @@
       }
     }
     A.saveMyProfile({ name: v.name, email: v.email, phone: v.phone, photo, username: v.username }, !!(cur || nw));
-    // when the backend is ready: PUT /api/me, and POST /api/me/password if cur / nw were given (the password is never saved here)
+    // when the backend is ready: PUT /api/me, and POST /api/auth/me/password { current, new } if the password is being changed (the password is never saved here)
     A.setFlash(cur || nw ? "Profile saved. Password updated." : "Profile saved.");
     location.reload();
   });

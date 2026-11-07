@@ -12,6 +12,20 @@
 
   const f = { name: $("name"), email: $("email"), address: $("address"), phone: $("phone"), photo: $("photo"),
               current: $("current"), new: $("new"), confirm: $("confirm") };
+
+  /* The current password must be typed by the user: block browser / password-manager autofill and start empty */
+  (() => {
+    const cur = document.getElementById("current");
+    if (!cur) return;
+    const clear = () => { cur.value = ""; };
+    cur.readOnly = true;                                     // autofill skips read-only fields
+    const unlock = () => { cur.readOnly = false; };
+    cur.addEventListener("focus", unlock);
+    cur.addEventListener("pointerdown", unlock);
+    clear();
+    setTimeout(clear, 150); setTimeout(clear, 600);          // undo late autofill
+    window.addEventListener("pageshow", clear);
+  })();
   let photoData = "";
 
   /* ----- fill the form ----- */
@@ -105,8 +119,9 @@
     if (email && !EMAIL_RE.test(email)) errs.email = "Enter a valid email, like juan@email.com.";
     if (phone && !PHONE_RE.test(phone)) errs.phone = "Use a mobile number like 09123456789.";
 
-    const changing = f.new.value || f.confirm.value;
+    const changing = f.current.value || f.new.value || f.confirm.value;
     if (changing) {
+      if (!f.current.value) errs.current = "Enter your current password to change it.";
       if (PawPassword.problem(f.new.value)) errs.new = PawPassword.RULE;
       if (f.confirm.value !== f.new.value) errs.confirm = "The passwords do not match.";
     }
@@ -119,7 +134,7 @@
       try {
         await window.PawApi.request(API.password, {
           method: "POST",
-          body: { new: f.new.value }
+          body: { current: f.current.value, new: f.new.value }
         });
       } catch (error) {
         setError("current", error.message);
