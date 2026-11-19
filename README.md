@@ -1,4 +1,4 @@
-# Pawpaw Clinic
+# Pawpaw
 ### Veterinary Clinic Management System
 
 ## 1. Project Overview
